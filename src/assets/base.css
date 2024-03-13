@@ -1,0 +1,36 @@
+@font-face {
+  font-family: 'nine-chronicles-font-1';
+  src: url(./fonts/kanit-light.otf) format('opentype');
+}
+@font-face {
+  font-family: 'nine-chronicles-font-2';
+  src: url(./fonts/PoorStory-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'ninecmd-font';
+  src: url(./fonts/NotoMono-Regular.ttf) format('truetype');
+}
+body {
+  min-height: 100vh;
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

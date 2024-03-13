@@ -1,0 +1,70 @@
+{
+  "info": {
+    "author": ["tanbt"],
+    "date": "07/03/2024",
+    "message": ""
+  },
+  "@--App-vue": {
+    "header": "HEADER",
+    "toggleTheme": {
+      "light": "light",
+      "dark": "dark"
+    }
+  },
+  "@--views--LoginMain-vue": {
+    "label": {
+      "agent": "Wallet address",
+      "agentPassword": "Password",
+      "avatar": "Avatar address",
+      "url": "Url",
+      "urlUsername": "Username",
+      "urlPassword": "Password"
+    },
+    "placeholder": {
+      "agentPassword": "Input address's password",
+      "url": "ninecmd",
+      "urlUsername": "admin",
+      "urlPassword": "admin"
+    },
+    "switch": {
+      "checked": "Use avatar",
+      "unchecked": "Use agent"
+    },
+    "divider": "Serve sign",
+    "submit": "Login",
+    "message": {
+      "loginSuccess": {
+        "span": "Login ok but... only this :v",
+        "agent": "Agent: {0}",
+        "avatar": "Avatar: {0}"
+      }
+    },
+    "rules": {
+      "agent": {
+        "required": "Please input your wallet address",
+        "start0x": "Address need start with 0x",
+        "length42": "Length address needs 42 characters"
+      },
+      "avatar": {
+        "required": "Please input/choose your avatar address",
+        "start0x": "Address need start with 0x",
+        "length42": "Length address needs 42 characters"
+      }
+    }
+  },
+
+  "page": {
+    "home": "Home",
+    "arena": {
+      "main": "Arena main",
+      "leaderboard": "Leaderboard",
+      "attack": "Attack screen"
+    },
+    "login": "Login",
+    "notFound": "Page 404"
+  },
+
+  "page-notFound": {
+    "detail": "Something went wrong, return @.lower:page.home"
+  }
+}

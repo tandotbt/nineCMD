@@ -1,0 +1,68 @@
+{
+  "info": {
+    "author": ["tanbt"],
+    "date": "07/03/2024",
+    "message": ""
+  },
+  "@--App-vue": {
+    "header": "ĐẦU TRANG",
+    "toggleTheme": {
+      "light": "sáng",
+      "dark": "tối"
+    }
+  },
+  "@--views--LoginMain-vue": {
+    "label": {
+      "agent": "Địa chỉ ví",
+      "agentPassword": "Mật khẩu",
+      "avatar": "Địa chỉ nhân vật",
+      "url": "Url",
+      "urlUsername": "Tên đăng nhập",
+      "urlPassword": "Mật khẩu"
+    },
+    "placeholder": {
+      "agentPassword": "Nhập mật khẩu địa chỉ ví",
+      "url": "ninecmd",
+      "urlUsername": "admin",
+      "urlPassword": "admin"
+    },
+    "switch": {
+      "checked": "Nhập theo nhân vật",
+      "unchecked": "Nhập theo ví"
+    },
+    "divider": "Dịch vụ ký giao dịch",
+    "submit": "Đăng nhập",
+    "message": {
+      "loginSuccess": {
+        "span": "Đăng nhập ok nhưng chỉ vậy thôi chưa có gì thêm :v",
+        "agent": "Vi: {0}",
+        "avatar": "Nhân vật: {0}"
+      }
+    },
+    "rules": {
+      "agent": {
+        "required": "Hãy nhập địa chỉ ví của bạn",
+        "start0x": "Ví cần bắt đầu bằng 0x",
+        "length42": "Độ dài yêu cầu 42 kí tự"
+      },
+      "avatar": {
+        "required": "Hãy nhập/chọn địa chỉ nhân vật của bạn",
+        "start0x": "Ví cần bắt đầu bằng 0x",
+        "length42": "Độ dài yêu cầu 42 kí tự"
+      }
+    }
+  },
+  "page": {
+    "home": "Trang chủ",
+    "arena": {
+      "main": "Đấu trường",
+      "leaderboard": "Bảng xếp hạng",
+      "attack": "Màn hình tấn công"
+    },
+    "login": "Đăng nhập",
+    "notFound": "Trang 404"
+  },
+  "page-notFound": {
+    "detail": "Có gì đó sai sai, quay lại @.lower:page.home"
+  }
+}
