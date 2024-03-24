@@ -3,8 +3,10 @@ import { useWebSocket } from '@/utilities/websocket'
 import { ref, computed } from 'vue'
 import { AVG_BLOCK, AVG_TRANS, URL_NINE_CHRONICLES_SERVE } from '@/utilities/constants'
 import convertToSeconds from '@/utilities/convertToSeconds'
+import { useDataArenaParticipateStore } from './dataArenaParticipate'
 
 export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
+
   const dataWSS_Odin = ref(null)
   const dataWSS_Heimdall = ref(null)
   const dataWSSList_Odin = ref([])
@@ -28,6 +30,8 @@ export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
   function changePlanet(newPlanet) {
     selectedPlanet.value = newPlanet
     selectedWss.value = URL_NINE_CHRONICLES_SERVE.find(item => item.planet === newPlanet).wss
+    // Đưa về false để nhận danh sách avatar lại theo season mới
+    useDataArenaParticipateStore().isUseAvatartLogin = false
   }
 
   const calculateAVG = computed(() => {

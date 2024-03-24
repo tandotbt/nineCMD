@@ -21,8 +21,8 @@ const pages = ref([
   { title: 'page.home', path: { name: 'home-route' }, icon: markRaw(HomeIcon) },
   { title: 'page.notFound', path: { name: 'not-found-route' }, icon: markRaw(NotFoundIcon) }
 ])
-import { useHandlerMenuLeft } from '@/stores/handlerMenuLeft'
+import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 
-const handlerMenuLeft = useHandlerMenuLeft()
-const showOption = handlerMenuLeft.showOption
+const useHandlerMenuLeft = useHandlerMenuLeftStore()
+const showOption = useHandlerMenuLeft.showOption
 </script>

@@ -14,7 +14,7 @@
 
 <script>
 import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
-import { computed, watchEffect } from 'vue'
+import { computed, watch } from 'vue'
 import { useConfigURLStore } from '@/stores/configURL'
 import { useLoadingBar } from 'naive-ui'
 
@@ -24,26 +24,22 @@ export default {
     const configURLStore = useConfigURLStore()
     const loadingBar = useLoadingBar()
     const isFetching = computed(() => configURLStore.isFetching)
+    const hasError = computed(() => configURLStore.hasError)
     // Hàm xử lý hiển thị loadingBar
-    const handleLoadingBar = () => {
-      if (isFetching.value) {
+    // eslint-disable-next-line no-unused-vars
+    watch(isFetching, (newValue, oldValue) => {
+      if (newValue) {
         loadingBar.start()
+      } else if (hasError.value) {
+        loadingBar.error()
       } else {
         loadingBar.finish()
       }
-    }
-
-    // Watch effect để theo dõi thay đổi trong configURLStore.isFetching và chạy handleLoadingBar tương ứng
-    watchEffect(() => {
-      handleLoadingBar()
     })
-
     return {
       blockNow: computed(() => webSocketBlockStore.calculateAVG.blockNow),
       avgBlockNow: computed(() => webSocketBlockStore.calculateAVG.avgBlockNow),
       avgTransNow: computed(() => webSocketBlockStore.calculateAVG.avgTransNow),
-      // dataConfig: computed(() => configURLStore.dataConfig),
-      // isFetching,
       selectedPlanet: computed(() => configURLStore.selectedPlanet)
     }
   }

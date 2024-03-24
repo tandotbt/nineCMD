@@ -13,16 +13,16 @@ import {
 } from '@vicons/material'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useHandlerMenuLeft } from '@/stores/handlerMenuLeft'
+import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 const { t } = useI18n()
-const handlerMenuLeft = useHandlerMenuLeft()
-const selectedKey = ref(handlerMenuLeft.selectedKey)
+const useHandlerMenuLeft = useHandlerMenuLeftStore()
+const selectedKey = ref(useHandlerMenuLeft.selectedKey)
 const menuRef = shallowRef(null)
 const selectAndExpand = (key) => {
-  handlerMenuLeft.selectedKey = key
+  useHandlerMenuLeft.selectedKey = key
   menuRef.value.showOption(key)
 }
-// Làm kiểu gì đó mà có thể chuyển menu khi click nút ở nơi khác
+// Làm kiểu gì đó mà có thể chuyển lựa chọn của menu khi click nút ở nơi khác
 onMounted(() => {
   selectAndExpand(selectedKey)
 })

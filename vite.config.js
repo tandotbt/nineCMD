@@ -20,5 +20,8 @@ export default defineConfig({
   },
   preview: {
     port: 8080
+  },
+  build: {
+    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari12']
   }
 })

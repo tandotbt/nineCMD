@@ -5,7 +5,6 @@
     "message": ""
   },
   "@--App-vue": {
-    "header": "HEADER",
     "toggleTheme": {
       "light": "light",
       "dark": "dark"
@@ -34,7 +33,7 @@
     "submit": "Login",
     "message": {
       "loginSuccess": {
-        "span": "Login ok but... only this :v",
+        "span": "Login ok",
         "agent": "Agent: {0}",
         "avatar": "Avatar: {0}"
       }
@@ -63,7 +62,20 @@
     "login": "Login",
     "notFound": "Page 404"
   },
-
+  "@--components--HeaderNineCMD-vue": {
+    "header": "HEADER",
+    "popconfirm": {
+      "refillAP-info": "Blocks to next refill AP: {block}/{DAILY_REWARD_INTERVAL}",
+      "refillAP-bar": "Change AP",
+      "refillAP-potion": "Use AP potion",
+      "AP-info": "AP have now: {APNow}/{ACTION_POINT_MAX}.",
+      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} ncg staked)",
+      "NCG-info": "NCG is the main currency, earning activities in the game or buying P2P from other players.",
+      "NCG-have": "Have {NCG} NCG | Have {NCG} NCGs",
+      "Crystal-info": "Crystal is used to cost joining Arena Season, World Boss, unlock new world and formula craft, compensate for the material is not enough.",
+      "Crystal-have": "Have {Crystal} crystal | Have {Crystal} crystals"
+    }
+  },
   "page-notFound": {
     "detail": "Something went wrong, return @.lower:page.home"
   }

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const useHandlerMenuLeft = defineStore('handlerMenuLeft', {
+export const useHandlerMenuLeftStore = defineStore('handlerMenuLeftStore', {
     state: () => ({
         selectedKey: '1'
     }),

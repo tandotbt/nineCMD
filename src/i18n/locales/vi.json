@@ -5,7 +5,6 @@
     "message": ""
   },
   "@--App-vue": {
-    "header": "ĐẦU TRANG",
     "toggleTheme": {
       "light": "sáng",
       "dark": "tối"
@@ -34,7 +33,7 @@
     "submit": "Đăng nhập",
     "message": {
       "loginSuccess": {
-        "span": "Đăng nhập ok nhưng chỉ vậy thôi chưa có gì thêm :v",
+        "span": "Đăng nhập ok",
         "agent": "Vi: {0}",
         "avatar": "Nhân vật: {0}"
       }
@@ -61,6 +60,20 @@
     },
     "login": "Đăng nhập",
     "notFound": "Trang 404"
+  },
+  "@--components--HeaderNineCMD-vue": {
+    "header": "ĐẦU TRANG",
+    "popconfirm": {
+      "refillAP-info": "Blocks tới lần hồi AP tiếp theo: {block}/{DAILY_REWARD_INTERVAL}",
+      "refillAP-bar": "Hồi AP",
+      "refillAP-potion": "Dùng bình AP",
+      "AP-info": "AP hiện có: {APNow}/{ACTION_POINT_MAX}.",
+      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} ncg staked)",
+      "NCG-info": "NCG là đồng tiền chính, kiếm được qua các hoạt động trong game hoặc mua p2p từ người chơi khác.",
+      "NCG-have": "Hiện có {NCG} NCG | Hiện có {NCG} NCGs",
+      "Crystal-info": "Crystal sử dụng để làm phí tham gia arena season, boss thế giới, mở khóa thế giới và công thức chế tạo, bù vào phần vật liệu chưa đủ.",
+      "Crystal-have": "Hiện có {Crystal} crystal | Hiện có {Crystal} crystals"
+    }
   },
   "page-notFound": {
     "detail": "Có gì đó sai sai, quay lại @.lower:page.home"

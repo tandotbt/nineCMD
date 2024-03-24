@@ -13,7 +13,7 @@
 </template>
 <script>
 import { useI18n } from 'vue-i18n'
-import { useHandlerMenuLeft } from '@/stores/handlerMenuLeft'
+import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 
 export default {
   props: {
@@ -24,8 +24,8 @@ export default {
   },
   setup() {
     const { t } = useI18n()
-    const handlerMenuLeft = useHandlerMenuLeft()
-    const showOption = handlerMenuLeft.showOption
+    const useHandlerMenuLeft = useHandlerMenuLeftStore()
+    const showOption = useHandlerMenuLeft.showOption
 
     return { t, showOption }
   }

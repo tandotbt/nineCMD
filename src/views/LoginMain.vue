@@ -124,12 +124,12 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import breadcrumbPage from '@/components/breadcrumbPage.vue'
-import { ref, markRaw, h, computed } from 'vue'
+import { ref, markRaw, h, computed, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { HomeRound as HomeIcon, LogInRound as LoginIcon } from '@vicons/material'
 
-import { useFetchDataUser9C } from '@/stores/fetchDataUser9C'
-const fetchDataUser9C = useFetchDataUser9C()
+import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
+const useFetchDataUser9C = useFetchDataUser9CStore()
 
 // Hỗ trợ dịch
 const { t } = useI18n()
@@ -160,8 +160,8 @@ function handleSubmit() {
       )
 
       // Truyền dữ liệu cho store
-      fetchDataUser9C.agentAddress = formValue.value.user.agentAddress
-      fetchDataUser9C.avatarAddress = formValue.value.user.avatarAddress
+      useFetchDataUser9C.agentAddress = formValue.value.user.agentAddress
+      useFetchDataUser9C.avatarAddress = formValue.value.user.avatarAddress
     } else {
       console.log(errors)
       message.error('Invalid')
@@ -184,8 +184,10 @@ const formValue = ref({
 // Khóa trường avatar khi load và nhập agent đỡ lỗi
 const disabledAvatarWhenAgentNotOk = computed(() => {
   if (useDataArenaParticipate.isFetchingListAvatar) return true
+
   if (useDataArenaParticipate.isUseAvatartLogin) return false
-  return useDataArenaParticipate.isUseAvatartLoginOK & !useDataArenaParticipate.isUseAvatartLogin
+
+  return useDataArenaParticipate.isUseAvatartLoginOK && !useDataArenaParticipate.isUseAvatartLogin
     ? false
     : true
 })
@@ -203,6 +205,7 @@ const rules = {
         // level: 'warning',
         level: 'error',
         validator(_rule, value) {
+          value = value !== null ? value.trim() : value
           useDataArenaParticipate.isUseAvatartLoginOK = false
           const regex = /^0x[a-zA-Z0-9]+$/
           if (!regex.test(value)) {
@@ -230,6 +233,7 @@ const rules = {
         // level: 'warning',
         level: 'error',
         validator(_rule, value) {
+          value = value !== null ? value.trim() : value
           useDataArenaParticipate.isUseAvatartLoginOK = false
           const regex = /^0x[a-zA-Z0-9]+$/
           if (!regex.test(value)) {
@@ -309,4 +313,10 @@ function resetValue() {
   useDataArenaParticipate.isUseAvatartLoginOK = false
   formRef.value.restoreValidation()
 }
+// Theo dõi sự thay đổi của isUseAvatartLogin được tắt bởi webSocketBlock.js
+const isUseAvatartLogin = computed(() => useDataArenaParticipate.isUseAvatartLogin)
+// eslint-disable-next-line no-unused-vars
+watch(isUseAvatartLogin, (newValue, oldValue) => {
+  resetValue()
+})
 </script>

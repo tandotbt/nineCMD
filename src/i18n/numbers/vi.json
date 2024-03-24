@@ -1,0 +1,35 @@
+{
+  "info": {
+    "author": ["tanbt"],
+    "date": "07/03/2024",
+    "message": ""
+  },
+  "currency": {
+    "style": "currency",
+    "currency": "VND",
+    "notation": "standard"
+  },
+  "decimal": {
+    "style": "decimal",
+    "minimumFractionDigits": 2,
+    "maximumFractionDigits": 2
+  },
+  "percent": {
+    "style": "percent",
+    "useGrouping": false
+  },
+  "NCG": {
+    "style": "decimal",
+    "minimumFractionDigits": 0,
+    "maximumFractionDigits": 2,
+    "notation": "compact",
+    "useGrouping": true
+  },
+  "Crystal": {
+    "style": "decimal",
+    "minimumFractionDigits": 0,
+    "maximumFractionDigits": 2,
+    "notation": "compact",
+    "useGrouping": true
+  }
+}

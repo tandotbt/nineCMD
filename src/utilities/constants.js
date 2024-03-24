@@ -1,4 +1,8 @@
-export const API_BASE_URL = 'https://api.example.com'
+export const LIST_API_NINECMD = ['https://api-1.9cmd.top']
+// export const LIST_API_NINECMD = ['http://127.0.0.1:8000']
+export const API_NINECMD = LIST_API_NINECMD[Math.floor(Math.random() * LIST_API_NINECMD.length)]
+export const API_URL_PROXY = `${API_NINECMD}/proxy?url=`
+export const API_NINE_CHRONICLES = "https://nine-chronicles.com/api"
 export const DEFAULT_LOCALE = 'en'
 export const FALLBACK_LOCALE = 'en'
 export const AVG_BLOCK = 8
@@ -12,7 +16,7 @@ export const URL_NINE_CHRONICLES_SERVE = [
   {
     planet: 'Heimdall',
     wss: 'wss://tsn0ilfyp5.execute-api.ap-northeast-2.amazonaws.com/production',
-    arenaParticipate: "https://jsonblob.com/api/1194537739986264064"
+    arenaParticipate: "https://jsonblob.com/api/1194537894173073408"
   },
 ]
 export const URL_CONFIG_URL_ALL_PLANET = 'https://planets.nine-chronicles.com/planets/'
@@ -66,8 +70,55 @@ export const CONFIG_URL_ALL_PLANET = [
     },
   },
 ]
+export const CONFIG_GAME_CONFIG_SHEET = {
+  "hourglass_per_block": 3,
+  "action_point_max": 120,
+  "daily_reward_interval": 2550,
+  "daily_arena_interval": 7560,
+  "weekly_arena_interval": 56000,
+  "required_appraise_block": 0,
+  "battle_arena_interval": 4,
+  "rune_stat_slot_unlock_cost": 100,
+  "rune_skill_slot_unlock_cost": 1000,
+  "rune_stat_slot_crystal_unlock_cost": 5000000,
+  "rune_skill_slot_crystal_unlock_cost": 50000000,
+  "daily_rune_reward_amount": 1,
+  "daily_worldboss_interval": 10800,
+  "worldboss_required_interval": 5,
+  "stake_regular_fixed_reward_sheet_v2_start_block_index": 1,
+  "stake_regular_reward_sheet_v2_start_block_index": 1,
+  "stake_regular_reward_sheet_v3_start_block_index": 2,
+  "stake_regular_reward_sheet_v4_start_block_index": 3,
+  "stake_regular_reward_sheet_v5_start_block_index": 4,
+  "character_full_costume_slot": 1,
+  "character_hair_costume_slot": 1,
+  "character_ear_costume_slot": 1,
+  "character_eye_costume_slot": 1,
+  "character_tail_costume_slot": 1,
+  "character_title_costume_slot": 1,
+  "character_equipment_slot_weapon": 1,
+  "character_equipment_slot_armor": 1,
+  "character_equipment_slot_belt": 1,
+  "character_equipment_slot_necklace": 1,
+  "character_equipment_slot_ring1": 1,
+  "character_equipment_slot_ring2": 1,
+  "character_equipment_slot_aura": 1,
+  "character_consumable_slot_1": 1,
+  "character_consumable_slot_2": 35,
+  "character_consumable_slot_3": 100,
+  "character_consumable_slot_4": 200,
+  "character_consumable_slot_5": 350
+}
+
 import { enUS, dateEnUS, viVN, dateViVN } from 'naive-ui'
 export const CONFIG_i18n_LANGUAGES = [
   { lang: "vi", label: "Tiếng Việt", description: "Xin chào Chín Biên Niên Sử👋", png: "https://flagcdn.com/w320/vn.png", uiConfig: viVN, uiConfigDate: dateViVN },
   { lang: "en", label: "English", description: "Hello Nine Chronicles👋", png: "https://flagcdn.com/w320/us.png", uiConfig: enUS, uiConfigDate: dateEnUS }
-] 
+]
+
+export const COST_AP_BY_STAKE = [
+  { ncgStake: 5000, costAP: 5 },
+  { ncgStake: 500000, costAP: 4 }
+]
+export const COST_AP_BY_STAKE_MIN = 3
+export const LINK_BANNER = "https://raw.githubusercontent.com/planetarium/NineChronicles.LiveAssets/main/Assets/Json/Event.json"

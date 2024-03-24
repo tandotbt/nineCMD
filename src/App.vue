@@ -21,6 +21,7 @@
             </n-layout-header>
             <n-layout position="absolute" style="top: 10vh; bottom: 10vh" has-sider>
               <n-layout-sider
+                ref="menuLeftRef"
                 bordered
                 show-trigger="bar"
                 collapse-mode="width"
@@ -44,7 +45,7 @@
                 ></n-select>
 
                 <n-select
-                  v-model:value="$i18n.locale"
+                  v-model:value="locale"
                   :options="langOptions"
                   :render-label="renderLabel"
                   :render-tag="renderSingleSelectTag"
@@ -100,6 +101,7 @@ import { ref, h, computed } from 'vue'
 import MenuLeft from '@/components/MenuLeft.vue'
 import HeaderNineCMD from '@/components/HeaderNineCMD.vue'
 import FooterBlock from '@/components/FooterBlock.vue'
+import { useStorage, onClickOutside } from '@vueuse/core'
 
 // import { NThemeEditor } from 'naive-ui'
 import { darkTheme, NIcon, NAvatar, NText } from 'naive-ui'
@@ -109,18 +111,26 @@ import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
 import { DarkModeFilled as DarkIcon, LightModeFilled as LightIcon } from '@vicons/material'
 import { useConfigURLStore } from '@/stores/configURL'
+// Thu gọn khi click ra ngoài
 const collapsed = ref(true)
+const menuLeftRef = ref(null)
+onClickOutside(menuLeftRef, () => (collapsed.value = true))
 
-const { t, availableLocales } = useI18n()
+// Dịch
+const { t, locale, availableLocales } = useI18n()
 
 const webSocketBlockStore = useWebSocketBlockStore()
 const configURLStore = useConfigURLStore()
 const nodeOptions = computed(() =>
-  configURLStore.dataConfig[0]['rpcEndpoints']['headless.gql'].map((item) => ({
-    label: item,
-    value: item
-  }))
+  configURLStore.dataConfig[0]['rpcEndpoints']['headless.gql']
+    // Node bắt đầu http không hoạt động khi đang chạy trên web https
+    .filter((item) => item.startsWith('https'))
+    .map((item) => ({
+      label: item,
+      value: item
+    }))
 )
+
 const selectedNode = ref(configURLStore.selectedNode)
 const planetOptions = URL_NINE_CHRONICLES_SERVE.map((item) => ({
   label: item.planet,
@@ -137,8 +147,13 @@ const selectedPlanet = ref(webSocketBlockStore.selectedPlanet)
 
 const changePlanet = (value) => {
   webSocketBlockStore.changePlanet(value)
+  // Tự chọn node đầu tiên tùy theo planet dc chọn
   selectedNode.value = nodeOptions.value[0].value
   configURLStore.changeNode(selectedNode.value)
+  // Lưu planet vào local
+  settingNineCMD.value.lastPlanet = value
+  // Đổi lựa chọn của select
+  selectedPlanet.value = value
 }
 
 const renderSingleSelectTag = ({ option }) => {
@@ -239,9 +254,12 @@ const darkThemeOverrides = {
     height: '4px'
   }
 }
-function changeLang(selectedlang) {
-  uiConfig.value = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedlang).uiConfig
-  uiConfigDate.value = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedlang).uiConfigDate
+function changeLang(selectedLang) {
+  uiConfig.value = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedLang).uiConfig
+  uiConfigDate.value = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedLang).uiConfigDate
+  // Lưu ngôn ngữ vào local
+  settingNineCMD.value.lang = selectedLang
+  locale.value = selectedLang
 }
 function toggleTheme(toggleTheme) {
   theme.value = toggleTheme === true ? darkTheme : null
@@ -250,8 +268,7 @@ function toggleTheme(toggleTheme) {
   themeOverrides.value = theme.value === null ? lightThemeOverrides : darkThemeOverrides
   settingNineCMD.value.isDarkMode = toggleTheme
 }
-// Chạy 1 lần để áp dụng
-import { useStorage } from '@vueuse/core'
+
 const isDarkMode = ref(false)
 // Kiểm tra xem dữ liệu đã tồn tại trong lưu trữ trước khi khởi tạo
 const settingNineCMD = useStorage('setting-nine-cmd', {}, localStorage)
@@ -263,7 +280,15 @@ if (settingNineCMD.value.isDarkMode) {
   // Thực hiện các hành động khác tùy thuộc vào trạng thái dark mode
 } else {
   // Nếu không tồn tại, tiến hành khởi tạo một giá trị mặc định cho trạng thái dark mode
-  settingNineCMD.value.isDarkMode = false // hoặc true tùy thuộc vào trạng thái mặc định bạn muốn
+  settingNineCMD.value.isDarkMode = false
+}
+// Kiểm tra xem khóa lastPlanet
+if (settingNineCMD.value.lastPlanet) {
+  changePlanet(settingNineCMD.value.lastPlanet)
+}
+// Kiểm tra khóa Lang
+if (settingNineCMD.value.lang) {
+  changeLang(settingNineCMD.value.lang)
 }
 toggleTheme(settingNineCMD.value.isDarkMode)
 
