@@ -69,11 +69,11 @@
       "refillAP-bar": "Change AP",
       "refillAP-potion": "Use AP potion",
       "AP-info": "AP have now: {APNow}/{ACTION_POINT_MAX}.",
-      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} ncg staked)",
+      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} NCG staked) | Cost AP: {costAP} ({stakeNCG} NCGs staked)",
       "NCG-info": "NCG is the main currency, earning activities in the game or buying P2P from other players.",
-      "NCG-have": "Have {NCG} NCG | Have {NCG} NCGs",
+      "NCG-have": "No money :D | Have {NCG} NCG | Have {NCG} NCGs",
       "Crystal-info": "Crystal is used to cost joining Arena Season, World Boss, unlock new world and formula craft, compensate for the material is not enough.",
-      "Crystal-have": "Have {Crystal} crystal | Have {Crystal} crystals"
+      "Crystal-have": "No money :D | Have {Crystal} crystal | Have {Crystal} crystals"
     }
   },
   "page-notFound": {

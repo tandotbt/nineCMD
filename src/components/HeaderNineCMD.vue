@@ -35,14 +35,16 @@
             </n-button>
             <n-button>{{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-bar') }}</n-button>
           </template>
-          <span>
-            {{
-              t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-info', {
-                block,
-                DAILY_REWARD_INTERVAL
-              })
-            }}
-          </span>
+          <n-text>
+            <n-h6>
+              {{
+                t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-info', {
+                  block,
+                  DAILY_REWARD_INTERVAL
+                })
+              }}
+            </n-h6>
+          </n-text>
         </n-popconfirm>
         <n-popconfirm :positive-text="null">
           <template #trigger>
@@ -63,21 +65,28 @@
               >
             </n-progress>
           </template>
-          <span>
-            {{
-              t('@--components--HeaderNineCMD-vue.popconfirm.AP-info', { APNow, ACTION_POINT_MAX })
-            }}
-            {{
-              t(
-                '@--components--HeaderNineCMD-vue.popconfirm.costAP-info',
-                {
-                  costAP,
-                  stakeNCG
-                },
-                stakeNCG.value
-              )
-            }}
-          </span>
+          <n-text>
+            <n-h6>
+              {{
+                t('@--components--HeaderNineCMD-vue.popconfirm.AP-info', {
+                  APNow,
+                  ACTION_POINT_MAX
+                })
+              }}
+            </n-h6>
+            <n-p>
+              {{
+                t(
+                  '@--components--HeaderNineCMD-vue.popconfirm.costAP-info',
+                  {
+                    costAP,
+                    stakeNCG: n(stakeNCG, 'decimal')
+                  },
+                  Math.floor(stakeNCG)
+                )
+              }}
+            </n-p>
+          </n-text>
         </n-popconfirm>
       </n-carousel>
     </n-grid-item>
@@ -97,7 +106,13 @@
           </template>
           <n-text>
             <n-h6>
-              {{ t('@--components--HeaderNineCMD-vue.popconfirm.NCG-have', { NCG }, NCG.value) }}
+              {{
+                t(
+                  '@--components--HeaderNineCMD-vue.popconfirm.NCG-have',
+                  { NCG: n(NCG, 'decimal') },
+                  Math.floor(NCG)
+                )
+              }}
             </n-h6>
             <n-p>
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.NCG-info') }}
@@ -114,8 +129,8 @@
               {{
                 t(
                   '@--components--HeaderNineCMD-vue.popconfirm.Crystal-have',
-                  { Crystal },
-                  Crystal.value
+                  { Crystal: n(Crystal, 'decimal') },
+                  Math.floor(Crystal)
                 )
               }}
             </n-h6>

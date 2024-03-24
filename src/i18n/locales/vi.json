@@ -68,11 +68,11 @@
       "refillAP-bar": "Hồi AP",
       "refillAP-potion": "Dùng bình AP",
       "AP-info": "AP hiện có: {APNow}/{ACTION_POINT_MAX}.",
-      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} ncg staked)",
+      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} NCG staked) | Cost AP: {costAP} ({stakeNCG} NCGs staked)",
       "NCG-info": "NCG là đồng tiền chính, kiếm được qua các hoạt động trong game hoặc mua p2p từ người chơi khác.",
-      "NCG-have": "Hiện có {NCG} NCG | Hiện có {NCG} NCGs",
+      "NCG-have": "Rỗng túi :D | Hiện có {NCG} NCG | Hiện có {NCG} NCGs",
       "Crystal-info": "Crystal sử dụng để làm phí tham gia arena season, boss thế giới, mở khóa thế giới và công thức chế tạo, bù vào phần vật liệu chưa đủ.",
-      "Crystal-have": "Hiện có {Crystal} crystal | Hiện có {Crystal} crystals"
+      "Crystal-have": "Rỗng túi :D | Hiện có {Crystal} crystal | Hiện có {Crystal} crystals"
     }
   },
   "page-notFound": {
