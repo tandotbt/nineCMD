@@ -1,9 +1,9 @@
 [build]
-command = “yarn run build”
-publish = “/dist”
-base =“/”
+command = "yarn run build"
+publish = "/dist"
+base ="/"
 
 [[redirects]]
-from = “/*”
-to = “/index.html”
+from = "/*"
+to = "/index.html"
 status = 200
