@@ -127,12 +127,25 @@ import breadcrumbPage from '@/components/breadcrumbPage.vue'
 import { ref, markRaw, h, computed, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { HomeRound as HomeIcon, LogInRound as LoginIcon } from '@vicons/material'
-
+import { useLoadingBar } from 'naive-ui'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 const useFetchDataUser9C = useFetchDataUser9CStore()
 
 // Hỗ trợ dịch
 const { t } = useI18n()
+
+// Thanh loading khi fetch data
+
+const loadingBar = useLoadingBar()
+const isFetching = computed(() => useFetchDataUser9C.isFetchingDataUser9C)
+// eslint-disable-next-line no-unused-vars
+watch(isFetching, (newValue, oldValue) => {
+  if (newValue) {
+    loadingBar.start()
+  } else {
+    loadingBar.finish()
+  }
+})
 
 // Thanh pages
 const pages = ref([
@@ -150,21 +163,25 @@ function handleSubmit() {
   formRef.value.validate((errors) => {
     if (!errors) {
       message.success(t('@--views--LoginMain-vue.message.loginSuccess.span'))
-      message.success(
-        t('@--views--LoginMain-vue.message.loginSuccess.agent', [formValue.value.user.agentAddress])
-      )
-      message.success(
-        t('@--views--LoginMain-vue.message.loginSuccess.avatar', [
-          formValue.value.user.avatarAddress
-        ])
-      )
+      // message.success(
+      //   t('@--views--LoginMain-vue.message.loginSuccess.agent', [formValue.value.user.agentAddress])
+      // )
+      // message.success(
+      //   t('@--views--LoginMain-vue.message.loginSuccess.avatar', [
+      //     formValue.value.user.avatarAddress
+      //   ])
+      // )
 
       // Truyền dữ liệu cho store
-      useFetchDataUser9C.agentAddress = formValue.value.user.agentAddress
-      useFetchDataUser9C.avatarAddress = formValue.value.user.avatarAddress
+      useFetchDataUser9C.userAgent = formValue.value.user.agentAddress
+      useFetchDataUser9C.userAvatar = formValue.value.user.avatarAddress
+      useFetchDataUser9C.userPassword = formValue.value.user.password
+      useFetchDataUser9C.serverUrl = formValue.value.server.url
+      useFetchDataUser9C.serverUsername = formValue.value.server.username
+      useFetchDataUser9C.serverPassword = formValue.value.server.password
     } else {
       console.log(errors)
-      message.error('Invalid')
+      message.error(t('@--views--LoginMain-vue.message.loginInvalid'))
     }
   })
 }
@@ -191,6 +208,8 @@ const disabledAvatarWhenAgentNotOk = computed(() => {
     ? false
     : true
 })
+
+import { whenever } from '@vueuse/core'
 // Bộ lọc điều kiện
 const rules = {
   user: {
@@ -209,10 +228,14 @@ const rules = {
           useDataArenaParticipate.isUseAvatartLoginOK = false
           const regex = /^0x[a-zA-Z0-9]+$/
           if (!regex.test(value)) {
+            // Xóa nhân vật cũ khi đổi agent
+            formValue.value.user.avatarAddress = null
             return new Error(t('@--views--LoginMain-vue.rules.agent.start0x'))
           }
           if (value !== null) {
             if (value.length !== 42) {
+              // Xóa nhân vật cũ khi đổi agent
+              formValue.value.user.avatarAddress = null
               return new Error(t('@--views--LoginMain-vue.rules.agent.length42'))
             }
           }
@@ -248,14 +271,11 @@ const rules = {
             // Hàm lấy agent theo avatar address
             useDataArenaParticipate.isUseAvatartLoginOK = true
             useDataArenaParticipate.address = value
-            // Độ trễ 2s giúp điền avatar sẽ nhận đúng agent, nếu ko sẽ nhận nhầm agent của lần fetch trước
-            setTimeout(() => {
-              formValue.value.user.agentAddress =
-                useDataArenaParticipate.isFetchingAgentFinded &&
-                useDataArenaParticipate.errorAgentFinded === null
-                  ? null
-                  : useDataArenaParticipate.agentFinded
-            }, 2000)
+            // Hàm theo dõi khi fetch xong thì lấy address
+            whenever(
+              computed(() => !useDataArenaParticipate.isFetchingAgentFinded),
+              () => (formValue.value.user.agentAddress = useDataArenaParticipate.agentFinded)
+            )
           }
           return true
         }
@@ -263,7 +283,7 @@ const rules = {
     ],
     password: {
       required: false,
-      message: 'Please input your age',
+      message: 'Please input your password',
       trigger: ['input', 'blur']
     }
   },
@@ -301,7 +321,7 @@ function renderLabel(option) {
         }
       },
       {
-        default: () => ` ${option.avataraddress.slice(0, 6)}`
+        default: () => ` ${option.avataraddress !== null ? option.avataraddress.slice(0, 6) : ''}`
       }
     )
   ]

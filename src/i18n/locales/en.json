@@ -29,14 +29,15 @@
       "checked": "Use avatar",
       "unchecked": "Use agent"
     },
-    "divider": "Serve sign",
+    "divider": "Server sign",
     "submit": "Login",
     "message": {
       "loginSuccess": {
         "span": "Login ok",
         "agent": "Agent: {0}",
         "avatar": "Avatar: {0}"
-      }
+      },
+      "loginInvalid": "Login failude"
     },
     "rules": {
       "agent": {
@@ -74,6 +75,33 @@
       "NCG-have": "No money :D | Have {NCG} NCG | Have {NCG} NCGs",
       "Crystal-info": "Crystal is used to cost joining Arena Season, World Boss, unlock new world and formula craft, compensate for the material is not enough.",
       "Crystal-have": "No money :D | Have {Crystal} crystal | Have {Crystal} crystals"
+    }
+  },
+  "@--components--tabSettingNinecmd-vue": {
+    "placeholder": {
+      "timeoutUseNode": "No timeout | Timeout min {TIMEOUT_USE_NODE} second | Timeout min {TIMEOUT_USE_NODE} seconds"
+    },
+    "button": {
+      "again": "Again",
+      "open9cscan": "Open 9cscan"
+    },
+    "steps": {
+      "step1": "Data begin",
+      "step2": "Get list id",
+      "step3": "Check status",
+      "step4": "Get public key",
+      "step5": "Get plainValue",
+      "step6": "Get nextTxNonce",
+      "step7": "Get unsignedTransaction",
+      "step8": "Get signature",
+      "step9": "Get signTransaction",
+      "step10": "Get payload"
+    },
+    "message": {
+      "createMessage": "Wait {timeoutComputed}",
+      "createMessageError": "Error at step {stepHasError}, tried {now}/{max}",
+      "createMessageErrorNoSuccess": "You need to creat {action} manual in game",
+      "createMessageStop": "Stop at steps {currentStep}"
     }
   },
   "page-notFound": {

@@ -36,7 +36,8 @@
         "span": "Đăng nhập ok",
         "agent": "Vi: {0}",
         "avatar": "Nhân vật: {0}"
-      }
+      },
+      "loginInvalid": "Đăng nhập thất bại"
     },
     "rules": {
       "agent": {
@@ -73,6 +74,33 @@
       "NCG-have": "Rỗng túi :D | Hiện có {NCG} NCG | Hiện có {NCG} NCGs",
       "Crystal-info": "Crystal sử dụng để làm phí tham gia arena season, boss thế giới, mở khóa thế giới và công thức chế tạo, bù vào phần vật liệu chưa đủ.",
       "Crystal-have": "Rỗng túi :D | Hiện có {Crystal} crystal | Hiện có {Crystal} crystals"
+    }
+  },
+  "@--components--tabSettingNinecmd-vue": {
+    "placeholder": {
+      "timeoutUseNode": "Không có độ trễ | Độ trễ tối thiếu {TIMEOUT_USE_NODE} giây | Độ trễ tối thiếu {TIMEOUT_USE_NODE} giây"
+    },
+    "button": {
+      "again": "Quay lại",
+      "open9cscan": "Mở 9cscan"
+    },
+    "steps": {
+      "step1": "Dữ liệu ban đầu",
+      "step2": "Nhận danh sách id",
+      "step3": "Kiểm tra status",
+      "step4": "Nhận public key",
+      "step5": "Nhận plainValue",
+      "step6": "Nhận nextTxNonce",
+      "step7": "Nhận unsignedTransaction",
+      "step8": "Nhận signature",
+      "step9": "Nhận signTransaction",
+      "step10": "Nhận payload"
+    },
+    "message": {
+      "createMessage": "Chờ {timeoutComputed}",
+      "createMessageError": "Lỗi tại bước {stepHasError}, đã thử {now}/{max}",
+      "createMessageErrorNoSuccess": "Bạn cần tạo hành động {action} thủ công trong game",
+      "createMessageStop": "Dừng ở bước {currentStep}"
     }
   },
   "page-notFound": {

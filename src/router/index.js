@@ -8,14 +8,18 @@ const routes = [
   {
     path: '/arena/:agentAddress',
     name: 'arena-leaderboard-route',
-    component: () => import('@/views/ArenaLeaderboard.vue'),
+    component: () => import('@/views/ArenaLeaderboard.vue')
   },
   {
     path: '/arena/:agentAddress/attack/:agentEmeny',
     name: 'arena-before-attack-route',
-    component: () => import('@/views/ArenaBeforeAttack.vue'),
+    component: () => import('@/views/ArenaBeforeAttack.vue')
   },
-  { path: '/:pathMatch(.*)*', name: 'not-found-route', component: () => import('@/views/NotFound.vue') },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found-route',
+    component: () => import('@/views/NotFound.vue')
+  }
 ]
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

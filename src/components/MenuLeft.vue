@@ -32,33 +32,33 @@ function renderIcon(icon) {
 
 const menuOptions = [
   {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: 'home-route'
+          }
+        },
+        { default: () => t('page.home') }
+      ),
+    key: 'go-home-route',
+    icon: renderIcon(HomeIcon)
+  },
+  {
+    key: 'divider-1',
+    type: 'divider',
+    props: {
+      style: {
+        marginLeft: '32px'
+      }
+    }
+  },
+  {
     label: 'Game tab',
     key: 'game-tab',
     icon: renderIcon(FishIcon),
     children: [
-      {
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                name: 'home-route'
-              }
-            },
-            { default: () => t('page.home') }
-          ),
-        key: 'go-home-route',
-        icon: renderIcon(HomeIcon)
-      },
-      {
-        key: 'divider-1',
-        type: 'divider',
-        props: {
-          style: {
-            marginLeft: '32px'
-          }
-        }
-      },
       {
         label: () =>
           h(

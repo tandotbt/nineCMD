@@ -30,10 +30,15 @@
           </template>
 
           <template #action>
-            <n-button>
+            <n-button :disabled="percentageAP === 100">
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-potion') }}
             </n-button>
-            <n-button>{{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-bar') }}</n-button>
+            <n-button
+              @click="useHandlerCreatNewAction.handleActionNew('refillAP')"
+              :disabled="percentageBlockReffilAP !== 100 || percentageAP === 100"
+            >
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-bar') }}
+            </n-button>
           </template>
           <n-text>
             <n-h6>
@@ -59,10 +64,9 @@
               :rail-color="changeColor(themeVars.primaryColor, { alpha: 0.2 })"
             >
               <img v-if="isShowGuest" class="loading-gif" src="/assets/gifs/loading_blocks.gif" />
-
-              <n-ellipsis style="max-width: 15vw" v-else
-                >{{ APNow }}/{{ ACTION_POINT_MAX }}</n-ellipsis
-              >
+              <n-ellipsis style="max-width: 15vw" v-else>
+                {{ APNow }}/{{ ACTION_POINT_MAX }}
+              </n-ellipsis>
             </n-progress>
           </template>
           <n-text>
@@ -123,7 +127,6 @@
           <template #trigger>
             <headerCurrency type="CRYSTAL" :value="n(Crystal, 'Crystal')" />
           </template>
-
           <n-text>
             <n-h6>
               {{
@@ -154,9 +157,11 @@ import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
 import { computed } from 'vue'
 import { useConfigURLStore } from '@/stores/configURL'
 import { CONFIG_GAME_CONFIG_SHEET } from '@/utilities/constants'
+import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
 
 const themeVars = useThemeVars()
 const { t, n } = useI18n()
+const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
 
 const useConfigURL = useConfigURLStore()
 const webSocketBlockStore = useWebSocketBlockStore()

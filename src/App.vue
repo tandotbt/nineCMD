@@ -148,7 +148,10 @@ const selectedPlanet = ref(webSocketBlockStore.selectedPlanet)
 const changePlanet = (value) => {
   webSocketBlockStore.changePlanet(value)
   // Tự chọn node đầu tiên tùy theo planet dc chọn
-  selectedNode.value = nodeOptions.value[0].value
+  // selectedNode.value = nodeOptions.value[0].value
+  // Tự chọn node ngẫu nhiên sau khi đổi server
+  const randomIndex = computed(() => Math.floor(Math.random() * nodeOptions.value.length))
+  selectedNode.value = nodeOptions.value[randomIndex.value].value
   configURLStore.changeNode(selectedNode.value)
   // Lưu planet vào local
   settingNineCMD.value.lastPlanet = value
