@@ -1,15 +1,15 @@
 <template>
   <infoBlock />
   <n-divider vertical />
-  <manageUseNode />
+  <ManageUseNode />
 </template>
 
 <script>
-import manageUseNode from './manageUseNode.vue'
+import ManageUseNode from './ManageUseNode.vue'
 import infoBlock from './infoBlock.vue'
 export default {
   components: {
-    manageUseNode,
+    ManageUseNode,
     infoBlock
   }
 }

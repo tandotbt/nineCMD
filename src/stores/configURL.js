@@ -10,6 +10,7 @@ import { ref, computed } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
 import { useI18n } from 'vue-i18n'
 import Papa from 'papaparse'
+import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
 export const useConfigURLStore = defineStore('configURLStore', () => {
   const useWebSocketBlock = useWebSocketBlockStore()
   const selectedPlanet = computed(() => useWebSocketBlock.selectedPlanet.toLowerCase())
@@ -46,6 +47,10 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
           const currentDate = new Date()
 
           ctx.data = ctx.data.filter((item) => {
+            // Sửa link hình ảnh
+            item.BannerImageName = getImageBase64FromCacheOrFetch(
+              `https://raw.githubusercontent.com/planetarium/NineChronicles.LiveAssets/main/Assets/Images/Banner/${item.BannerImageName}.png`
+            )
             // Nếu cả hai giá trị BeginDateTime và EndDateTime đều rỗng, chọn ngay lập tức
             if (!item.BeginDateTime && !item.EndDateTime) {
               return true

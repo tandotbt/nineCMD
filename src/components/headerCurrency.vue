@@ -3,21 +3,20 @@
     <n-icon>
       <n-grid cols="12" item-responsive responsive="screen">
         <n-grid-item offset="12 m:0 l:0" span="0 m:1 l:1" class="carousel-container">
-          <img
-            style="display: none; transform: translateX(-10px)"
-            src="/assets/icons/UI_bar_02_bg.png"
-          />
+          <img style="display: none; transform: translateX(-10px)" :src="listImg.UI_bar_02_bg" />
         </n-grid-item>
         <n-grid-item offset="12 m:0 l:0" span="1 m:1 l:1" class="carousel-container">
-          <img class="icon" :src="'/assets/icons/' + type + '.png'" />
+          <img class="icon" :src="iconImageUrl" />
         </n-grid-item>
       </n-grid>
     </n-icon>
     <n-gradient-text class="" :size="15" type="info">{{ value }}</n-gradient-text>
   </n-flex>
 </template>
+
 <script>
 import { useI18n } from 'vue-i18n'
+import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
 
 export default {
   props: {
@@ -33,7 +32,25 @@ export default {
   setup() {
     const { t } = useI18n()
 
-    return { t }
+    const listImg = {
+      UI_bar_02_bg: getImageBase64FromCacheOrFetch('/assets/icons/UI_bar_02_bg.png')
+    }
+
+    const getIconImage = (type) => {
+      const imagePath = `/assets/icons/${type}.png`
+      return getImageBase64FromCacheOrFetch(imagePath)
+    }
+
+    return {
+      t,
+      listImg,
+      getIconImage
+    }
+  },
+  computed: {
+    iconImageUrl() {
+      return this.getIconImage(this.type)
+    }
   }
 }
 </script>

@@ -13,10 +13,10 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3030
+    port: 1414
   },
   preview: {
-    port: 8080
+    port: 2828
   },
   build: {
     target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari12']

@@ -13,10 +13,7 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img
-              class="carousel-img"
-              :src="`https://raw.githubusercontent.com/planetarium/NineChronicles.LiveAssets/main/Assets/Images/Banner/${liveAsset.BannerImageName}.png`"
-            />
+            <img class="carousel-img" :src="liveAsset.BannerImageName" />
           </a>
         </n-carousel>
       </n-grid-item>
@@ -49,7 +46,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-
+import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
 import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 import { useConfigURLStore } from '@/stores/configURL'
 const useHandlerMenuLeft = useHandlerMenuLeftStore()
@@ -61,30 +58,30 @@ const menus = [
   {
     title: 'page.arena.main',
     path: { name: 'arena-route' },
-    img: '/assets/lobby/arena.png'
+    img: getImageBase64FromCacheOrFetch('/assets/lobby/arena.png')
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: '/assets/lobby/craft.png'
+    img: getImageBase64FromCacheOrFetch('/assets/lobby/craft.png')
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: '/assets/lobby/shop.png'
+    img: getImageBase64FromCacheOrFetch('/assets/lobby/shop.png')
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: '/assets/lobby/stage.png'
+    img: getImageBase64FromCacheOrFetch('/assets/lobby/stage.png')
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: '/assets/lobby/stake.png'
+    img: getImageBase64FromCacheOrFetch('/assets/lobby/stake.png')
   }
 ]
-// Sau này cần fetch tự động
+// Fetch tự động
 const liveAssets = computed(() => useConfigURL.dataBanner)
 </script>
 <style scoped>

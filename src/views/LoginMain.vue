@@ -83,11 +83,16 @@
         path="server.url"
       >
         <n-input-group>
+          <n-button size="medium" @click="openPythonanywhere()">
+            <template #icon>
+              <n-icon><OpenNewTab /></n-icon>
+            </template>
+          </n-button>
           <n-input
             v-model:value="formValue.server.url"
             :placeholder="t('@--views--LoginMain-vue.placeholder.url')"
           />
-          <n-input-group-label>.pythoneverywhere.com</n-input-group-label>
+          <n-input-group-label>.pythonanywhere.com</n-input-group-label>
         </n-input-group>
       </n-form-item-gi>
       <n-form-item-gi
@@ -113,7 +118,13 @@
         />
       </n-form-item-gi>
       <n-form-item-gi label=" " span="40 xs:35 s:30 m:20 l:20 xl:20 xxl:20">
-        <n-button attr-type="submit" type="primary">
+        <n-button
+          attr-type="submit"
+          type="primary"
+          size="large"
+          :loading="isFetching"
+          :disabled="isFetching"
+        >
           {{ t('@--views--LoginMain-vue.submit') }}
         </n-button>
       </n-form-item-gi>
@@ -126,7 +137,11 @@ import { useI18n } from 'vue-i18n'
 import breadcrumbPage from '@/components/breadcrumbPage.vue'
 import { ref, markRaw, h, computed, watch } from 'vue'
 import { useMessage } from 'naive-ui'
-import { HomeRound as HomeIcon, LogInRound as LoginIcon } from '@vicons/material'
+import {
+  HomeRound as HomeIcon,
+  LogInRound as LoginIcon,
+  OpenInNewRound as OpenNewTab
+} from '@vicons/material'
 import { useLoadingBar } from 'naive-ui'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 const useFetchDataUser9C = useFetchDataUser9CStore()
@@ -155,14 +170,14 @@ const pages = ref([
 
 // Biến kiểm tra form lỗi hay không
 const formRef = ref(null)
-// Hiện tin nhắn
+// Hiện tin nhắn (Không dùng do xung đột với use node, tắt thông báo này lại kích hoạt các kia)
 const message = useMessage()
 // Hàm khi submit
 function handleSubmit() {
   // e.preventDefault()
   formRef.value.validate((errors) => {
     if (!errors) {
-      message.success(t('@--views--LoginMain-vue.message.loginSuccess.span'))
+      // message.success(t('@--views--LoginMain-vue.message.loginSuccess.span'))
       // message.success(
       //   t('@--views--LoginMain-vue.message.loginSuccess.agent', [formValue.value.user.agentAddress])
       // )
@@ -181,7 +196,7 @@ function handleSubmit() {
       useFetchDataUser9C.serverPassword = formValue.value.server.password
     } else {
       console.log(errors)
-      message.error(t('@--views--LoginMain-vue.message.loginInvalid'))
+      // message.error(t('@--views--LoginMain-vue.message.loginInvalid'))
     }
   })
 }
@@ -335,6 +350,13 @@ function resetValue() {
 }
 // Theo dõi sự thay đổi của isUseAvatartLogin được tắt bởi webSocketBlock.js
 const isUseAvatartLogin = computed(() => useDataArenaParticipate.isUseAvatartLogin)
+
+// Hàm mở link openPythonanywhere
+function openPythonanywhere() {
+  let baseUrl = formValue.value.server.url || 'ninecmd'
+  window.open(`https://${baseUrl}.pythonanywhere.com`, '_blank')
+}
+
 // eslint-disable-next-line no-unused-vars
 watch(isUseAvatartLogin, (newValue, oldValue) => {
   resetValue()

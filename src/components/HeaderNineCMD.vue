@@ -24,7 +24,7 @@
               :color="themeVars.warningColor"
               :rail-color="changeColor(themeVars.warningColor, { alpha: 0.2 })"
             >
-              <img v-if="isShowGuest" class="loading-gif" src="/assets/gifs/loading_blocks.gif" />
+              <img v-if="isShowGuest" class="loading-gif" :src="listImg.gifLoading" />
               <span v-else> {{ hours }}:{{ minutes }}:{{ seconds }} </span>
             </n-progress>
           </template>
@@ -63,7 +63,7 @@
               :color="themeVars.primaryColor"
               :rail-color="changeColor(themeVars.primaryColor, { alpha: 0.2 })"
             >
-              <img v-if="isShowGuest" class="loading-gif" src="/assets/gifs/loading_blocks.gif" />
+              <img v-if="isShowGuest" class="loading-gif" :src="listImg.gifLoading" />
               <n-ellipsis style="max-width: 15vw" v-else>
                 {{ APNow }}/{{ ACTION_POINT_MAX }}
               </n-ellipsis>
@@ -158,7 +158,7 @@ import { computed } from 'vue'
 import { useConfigURLStore } from '@/stores/configURL'
 import { CONFIG_GAME_CONFIG_SHEET } from '@/utilities/constants'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
-
+import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
 const themeVars = useThemeVars()
 const { t, n } = useI18n()
 const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
@@ -230,6 +230,10 @@ const minutes = computed(() =>
   String(Math.floor((totalSeconds.value % 3600) / 60)).padStart(2, '0')
 )
 const seconds = computed(() => String(Math.floor(totalSeconds.value % 60)).padStart(2, '0'))
+
+const listImg = {
+  gifLoading: getImageBase64FromCacheOrFetch('/assets/gifs/loading_blocks.gif')
+}
 </script>
 <style scoped>
 .loading-gif {

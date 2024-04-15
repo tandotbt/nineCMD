@@ -6,9 +6,9 @@
     <n-avatar
       v-if="useHandlerCreatNewAction.listActionStartNextLength"
       size="medium"
-      src="/assets/gifs/run.gif"
+      :src="listImg.gifLoading"
     ></n-avatar>
-    <n-avatar v-else size="medium" src="/assets/gifs/run.png"></n-avatar>
+    <n-avatar v-else size="medium" :src="listImg.pngLoading"></n-avatar>
   </n-badge>
 
   <n-drawer v-model:show="showDrawer" placement="bottom" :height="drawerSize">
@@ -43,6 +43,7 @@
         </n-tab-pane>
         <n-tab-pane name="use AP potion setting" tab="AP potion"> Temp </n-tab-pane>
         <n-tab-pane name="sweep setting" tab="Sweep"> Temp </n-tab-pane>
+        <n-tab-pane name="temp" tab="Temp"> <tabTemp /> </n-tab-pane>
       </n-tabs>
     </n-drawer-content>
   </n-drawer>
@@ -55,11 +56,12 @@ import { DISPLAY_9CMD } from '@/utilities/constants'
 import { FullscreenExitRound as offFull, FullscreenRound as onFull } from '@vicons/material'
 
 import infoBlock from './infoBlock.vue'
+import tabTemp from './tabTemp.vue'
 import tabSettingNinecmd from './tabSettingNinecmd.vue'
 import heartIcon from './icons/heartIcon.vue'
 
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
-
+import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
 // import { useI18n } from 'vue-i18n'
 
 // const { t } = useI18n()
@@ -79,6 +81,11 @@ const toggleFullscreen = () => {
 const drawerSize = ref(DISPLAY_9CMD.drawerSize)
 const iconFull = shallowRef(onFull)
 const showDrawer = ref(false)
+
+const listImg = {
+  gifLoading: getImageBase64FromCacheOrFetch('/assets/gifs/run.gif'),
+  pngLoading: getImageBase64FromCacheOrFetch('/assets/gifs/run.png')
+}
 </script>
 
 <style scoped></style>
