@@ -13,7 +13,7 @@ import {
   LeaderboardRound as LeaderboardIcon,
   NumbersRound as AttackIcon
 } from '@vicons/material'
-import breadcrumbPage from '@/components/breadcrumbPage.vue'
+import breadcrumbPage from '@/components/other/breadcrumbPage.vue'
 const { t } = useI18n()
 const pages = ref([
   { title: 'page.home', path: { name: 'home-route' }, icon: markRaw(HomeIcon) },

@@ -10,7 +10,7 @@ import { ref, computed } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
 import { useI18n } from 'vue-i18n'
 import Papa from 'papaparse'
-import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 export const useConfigURLStore = defineStore('configURLStore', () => {
   const useWebSocketBlock = useWebSocketBlockStore()
   const selectedPlanet = computed(() => useWebSocketBlock.selectedPlanet.toLowerCase())

@@ -12,7 +12,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import breadcrumbPage from '@/components/breadcrumbPage.vue'
+import breadcrumbPage from '@/components/other/breadcrumbPage.vue'
 import { ref, markRaw } from 'vue'
 import { HomeRound as HomeIcon, WarningAmberRound as NotFoundIcon } from '@vicons/material'
 import aloneIcon from '@/components/icons/aloneIcon.vue'

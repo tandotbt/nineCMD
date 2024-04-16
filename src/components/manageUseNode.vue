@@ -55,13 +55,13 @@ import { DISPLAY_9CMD } from '@/utilities/constants'
 
 import { FullscreenExitRound as offFull, FullscreenRound as onFull } from '@vicons/material'
 
-import infoBlock from './infoBlock.vue'
+import infoBlock from './other/infoBlock.vue'
 import tabTemp from './tabTemp.vue'
-import tabSettingNinecmd from './tabSettingNinecmd.vue'
+import tabSettingNinecmd from './other/tabSettingNinecmd.vue'
 import heartIcon from './icons/heartIcon.vue'
 
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
-import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 // import { useI18n } from 'vue-i18n'
 
 // const { t } = useI18n()

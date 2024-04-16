@@ -1,7 +1,9 @@
 <template>
   <n-grid cols="24" item-responsive responsive="screen">
-    <n-grid-item span="5 m:6 l:7">{{ t('@--components--HeaderNineCMD-vue.header') }} </n-grid-item>
-    <n-grid-item offset="3 m:3 l:3" span="6 m:5 l:4">
+    <n-grid-item span="1 m:1 l:1" style="height: 10vh">
+      <headerAvatar />
+    </n-grid-item>
+    <n-grid-item offset="7 m:8 l:9" span="6 m:5 l:4" style="padding: 3vh">
       <n-carousel
         autoplay
         :interval="3000"
@@ -94,7 +96,7 @@
         </n-popconfirm>
       </n-carousel>
     </n-grid-item>
-    <n-grid-item offset="1 m:0 l:0" span="9 m:9 l:9">
+    <n-grid-item offset="1 m:0 l:0" span="9 m:9 l:9" style="padding: 3vh">
       <n-carousel
         autoplay
         :interval="3000"
@@ -151,14 +153,16 @@
 import { useI18n } from 'vue-i18n'
 import { useThemeVars } from 'naive-ui'
 import { changeColor } from 'seemly'
-import headerCurrency from '@/components/headerCurrency.vue'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useConfigURLStore } from '@/stores/configURL'
 import { CONFIG_GAME_CONFIG_SHEET } from '@/utilities/constants'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
-import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import headerCurrency from '@/components/other/headerCurrency.vue'
+import headerAvatar from '@/components/other/headerAvatar.vue'
+
 const themeVars = useThemeVars()
 const { t, n } = useI18n()
 const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
@@ -231,9 +235,9 @@ const minutes = computed(() =>
 )
 const seconds = computed(() => String(Math.floor(totalSeconds.value % 60)).padStart(2, '0'))
 
-const listImg = {
+const listImg = ref({
   gifLoading: getImageBase64FromCacheOrFetch('/assets/gifs/loading_blocks.gif')
-}
+})
 </script>
 <style scoped>
 .loading-gif {

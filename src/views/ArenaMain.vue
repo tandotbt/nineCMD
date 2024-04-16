@@ -15,7 +15,7 @@
 import { useI18n } from 'vue-i18n'
 import { ref, markRaw } from 'vue'
 import { HomeRound as HomeIcon, StadiumRound as ArenaIcon } from '@vicons/material'
-import breadcrumbPage from '@/components/breadcrumbPage.vue'
+import breadcrumbPage from '@/components/other/breadcrumbPage.vue'
 const { t } = useI18n()
 const pages = ref([
   { title: 'page.home', path: { name: 'home-route' }, icon: markRaw(HomeIcon) },

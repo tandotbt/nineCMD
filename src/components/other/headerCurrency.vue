@@ -6,7 +6,7 @@
           <img style="display: none; transform: translateX(-10px)" :src="listImg.UI_bar_02_bg" />
         </n-grid-item>
         <n-grid-item offset="12 m:0 l:0" span="1 m:1 l:1" class="carousel-container">
-          <img class="icon" :src="iconImageUrl" />
+          <img class="icon" :src="listImg.imgType" />
         </n-grid-item>
       </n-grid>
     </n-icon>
@@ -16,7 +16,8 @@
 
 <script>
 import { useI18n } from 'vue-i18n'
-import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import { ref } from 'vue'
 
 export default {
   props: {
@@ -29,27 +30,17 @@ export default {
       required: true
     }
   },
-  setup() {
+  setup(props) {
     const { t } = useI18n()
 
-    const listImg = {
-      UI_bar_02_bg: getImageBase64FromCacheOrFetch('/assets/icons/UI_bar_02_bg.png')
-    }
-
-    const getIconImage = (type) => {
-      const imagePath = `/assets/icons/${type}.png`
-      return getImageBase64FromCacheOrFetch(imagePath)
-    }
+    const listImg = ref({
+      UI_bar_02_bg: getImageBase64FromCacheOrFetch('/assets/icons/UI_bar_02_bg.png'),
+      imgType: getImageBase64FromCacheOrFetch(`/assets/icons/${props.type}.png`)
+    })
 
     return {
       t,
-      listImg,
-      getIconImage
-    }
-  },
-  computed: {
-    iconImageUrl() {
-      return this.getIconImage(this.type)
+      listImg
     }
   }
 }

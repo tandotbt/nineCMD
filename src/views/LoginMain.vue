@@ -134,9 +134,9 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import breadcrumbPage from '@/components/breadcrumbPage.vue'
+import breadcrumbPage from '@/components/other/breadcrumbPage.vue'
 import { ref, markRaw, h, computed, watch } from 'vue'
-import { useMessage } from 'naive-ui'
+// import { useMessage } from 'naive-ui'
 import {
   HomeRound as HomeIcon,
   LogInRound as LoginIcon,
@@ -171,7 +171,7 @@ const pages = ref([
 // Biến kiểm tra form lỗi hay không
 const formRef = ref(null)
 // Hiện tin nhắn (Không dùng do xung đột với use node, tắt thông báo này lại kích hoạt các kia)
-const message = useMessage()
+// const message = useMessage()
 // Hàm khi submit
 function handleSubmit() {
   // e.preventDefault()

@@ -6,7 +6,7 @@
 
 <script>
 import ManageUseNode from './ManageUseNode.vue'
-import infoBlock from './infoBlock.vue'
+import infoBlock from './other/infoBlock.vue'
 export default {
   components: {
     ManageUseNode,

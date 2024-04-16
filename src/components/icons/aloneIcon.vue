@@ -7,10 +7,11 @@
 </template>
 
 <script setup>
-import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
-const listImg = {
+import { ref } from 'vue'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+const listImg = ref({
   alone: getImageBase64FromCacheOrFetch('/assets/icons/alone.png')
-}
+})
 </script>
 
 <style scoped>

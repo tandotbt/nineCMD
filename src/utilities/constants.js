@@ -188,3 +188,6 @@ export const LOGIN_YOUR_SERVER = {
   username: 'admin',
   password: 'admin'
 }
+
+export const IMG_FALLBACK = '/assets/icons/UI_icon_Popup_00.png'
+export const URL_LIST_DCC = 'https://api.dccnft.com/v1/9c/avatars/all'

@@ -12,7 +12,7 @@
         <n-space vertical>
           <n-layout style="height: 100vh">
             <n-layout-header
-              style="height: 10vh; padding: 3vh"
+              style="height: 10vh; padding: 0vh"
               :inverted="false"
               bordered
               position="absolute"
@@ -75,7 +75,15 @@
               </n-layout-sider>
               <n-layout style="max-height: 80vh">
                 <!-- z-index để tránh banner quảng cáo đè lên các phần khác -->
-                <n-scrollbar :style="{ 'z-index': 0 }"><RouterView /></n-scrollbar>
+                <n-scrollbar :style="{ 'z-index': 0 }">
+                  <router-view v-slot="{ Component, route }">
+                    <Transition :name="route.meta.transition || 'fade'" mode="out-in">
+                      <div :key="route.name">
+                        <component :is="Component"></component>
+                      </div>
+                    </Transition>
+                  </router-view>
+                </n-scrollbar>
               </n-layout>
             </n-layout>
             <n-layout-footer

@@ -46,7 +46,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import getImageBase64FromCacheOrFetch from '@/utilities/getImageBase64FromCacheOrFetch'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 import { useConfigURLStore } from '@/stores/configURL'
 const useHandlerMenuLeft = useHandlerMenuLeftStore()

@@ -42,7 +42,130 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
   const nodeChoosed = computed(() => useConfigURL.selectedNode)
   const postDataJson = computed(() => {
     return {
-      query: `query{stateQuery{stakeStates(addresses:"${agentAddress.value}"){deposit}agent(address:"${agentAddress.value}"){gold crystal}avatar(avatarAddress:"${avatarAddress.value}"){address actionPoint level dailyRewardReceivedIndex name stageMap{pairs count}runes{runeId level}inventory{consumables{grade id itemType itemSubType elementalType requiredBlockIndex itemId mainStat}materials{grade id itemType itemSubType elementalType requiredBlockIndex itemId}costumes{grade id itemType itemSubType elementalType requiredBlockIndex itemId equipped}equipments{grade id itemType itemSubType elementalType requiredBlockIndex setId stat{statType baseValue totalValue additionalValue}equipped itemId level exp skills{id elementalType power chance statPowerRatio referencedStatType}buffSkills{id elementalType power chance statPowerRatio referencedStatType}statsMap{hP aTK dEF cRI hIT sPD}}}itemMap{count pairs}}}}`
+      query: `
+        query {
+          stateQuery {
+            stakeStates(addresses: "${agentAddress.value}") {
+              deposit
+            }
+            agent(address: "${agentAddress.value}") {
+              gold
+              crystal
+            }
+            avatar(avatarAddress: "${avatarAddress.value}") {
+              address
+              actionPoint
+              level
+              dailyRewardReceivedIndex
+              name
+              stageMap {
+                pairs
+                count
+              }
+              runes {
+                runeId
+                level
+              }
+              inventory {
+                consumables {
+                  grade
+                  id
+                  itemType
+                  itemSubType
+                  elementalType
+                  requiredBlockIndex
+                  itemId
+                  mainStat
+                }
+                materials {
+                  grade
+                  id
+                  itemType
+                  itemSubType
+                  elementalType
+                  requiredBlockIndex
+                  itemId
+                }
+                costumes {
+                  grade
+                  id
+                  itemType
+                  itemSubType
+                  elementalType
+                  requiredBlockIndex
+                  itemId
+                  equipped
+                }
+                equipped: equipments(equipped:true){
+                  itemSubType
+                  id
+                }
+                all: equipments {
+                  grade
+                  id
+                  itemType
+                  itemSubType
+                  elementalType
+                  requiredBlockIndex
+                  setId
+                  stat {
+                    statType
+                    baseValue
+                    totalValue
+                    additionalValue
+                  }
+                  equipped
+                  itemId
+                  level
+                  # exp đồ w8 to quá lỗi méo get data được :vvv
+                  # exp
+                  skills {
+                    id
+                    elementalType
+                    power
+                    chance
+                    statPowerRatio
+                    referencedStatType
+                  }
+                  buffSkills {
+                    id
+                    elementalType
+                    power
+                    chance
+                    statPowerRatio
+                    referencedStatType
+                  }
+                  statsMap {
+                    hP
+                    aTK
+                    dEF
+                    cRI
+                    hIT
+                    sPD
+                  }
+                }
+              }
+              itemMap {
+                count
+                pairs
+              }
+            }
+            arenaParticipants(
+              avatarAddress: "${avatarAddress.value}"
+              filterBounds: true
+            ) {
+              avatarAddr
+              score
+              rank
+              winScore
+              loseScore
+              cp
+              portraitId
+              level
+              nameWithHash
+            }
+          }
+        }`
     }
   })
   /* eslint-disable no-unused-vars */
@@ -51,12 +174,22 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
     resume()
   })
 
+  // Biến lưu web9csan = planet trước
+  const web9csanBefore = ref(null)
   const useApi = (url) => {
     return useFetch(
       url,
       { refetch: true },
       {
         beforeFetch({ options, cancel }) {
+          // Kiểm tra xem có đổi planet ko
+          // Chưa đổi lần nào
+          if (web9csanBefore.value === null) web9csanBefore.value = useConfigURL.apiRest9cscan
+          // Nếu 2 planet trước và sau khác nhau thì hủy fetch, và lưu before mới để sau cho qua
+          if (web9csanBefore.value !== useConfigURL.apiRest9cscan) {
+            web9csanBefore.value = useConfigURL.apiRest9cscan
+            cancel()
+          }
           // Kiểm tra điều kiện của agent và avatar để fetch hay ko
           const regex = /^0x[a-zA-Z0-9]+$/
           if (!regex.test(agentAddress.value) || !regex.test(avatarAddress.value)) {
@@ -93,6 +226,14 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
                 break // Kết thúc vòng lặp nếu tìm thấy mốc ncgStake phù hợp
               }
             }
+            let arenaParticipants = ctx.data.data.stateQuery.arenaParticipants
+            let participantArena = arenaParticipants.find(
+              (participant) => participant.avatarAddr === avatarAddress.value
+            )
+            let equipments = ctx.data.data.stateQuery.avatar.inventory.equipped
+            let armorEquip = equipments.find((equip) => equip.itemSubType === 'ARMOR')
+            let armorId = armorEquip ? armorEquip.id : 10200000
+            let portraitId = participantArena ? participantArena.portraitId : armorId
             const defaultResponse = reactive({
               crystal: parseFloat(parseFloat(ctx.data.data.stateQuery.agent.crystal).toFixed(2)),
               ncg: parseFloat(parseFloat(ctx.data.data.stateQuery.agent.gold).toFixed(2)),
@@ -102,12 +243,15 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
               itemMap: ctx.data.data.stateQuery.avatar.itemMap.pairs,
               name: ctx.data.data.stateQuery.avatar.name,
               level: ctx.data.data.stateQuery.avatar.level,
+
               runes: ctx.data.data.stateQuery.avatar.runes,
               stage: ctx.data.data.stateQuery.avatar.stageMap.pairs.filter(
                 (subArray) => !subArray[0].toString().startsWith('100000')
               ).length,
               stakeNCG,
-              costAP: costAPNow
+              costAP: costAPNow,
+              arenaParticipants,
+              portraitId
             })
             ctx.data = defaultResponse
           }

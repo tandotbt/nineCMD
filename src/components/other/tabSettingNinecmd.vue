@@ -69,7 +69,7 @@ import {
   API_NINECMD,
   LOGIN_YOUR_SERVER
 } from '@/utilities/constants'
-import { useRefHistory, useNow } from '@vueuse/core'
+import { useRefHistory } from '@vueuse/core'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
 import { useI18n } from 'vue-i18n'
@@ -446,7 +446,7 @@ const passwordAPI = computed(() =>
 )
 
 // Thời gian bắt đầu action
-const timeNow = useNow()
+// const timeNow = useNow()
 const timeDoneStart = ref(new Date())
 
 //// Các hàm

@@ -4,15 +4,22 @@ const routes = [
   { path: '/', name: 'home-route', component: Home },
   { path: '/home', redirect: '/' },
   { path: '/login', name: 'login-route', component: () => import('@/views/LoginMain.vue') },
-  { path: '/arena', name: 'arena-route', component: () => import('@/views/ArenaMain.vue') },
+  {
+    path: '/arena',
+    name: 'arena-route',
+    meta: { transition: 'slide-right' },
+    component: () => import('@/views/ArenaMain.vue')
+  },
   {
     path: '/arena/:agentAddress',
     name: 'arena-leaderboard-route',
+    meta: { transition: 'slide-right' },
     component: () => import('@/views/ArenaLeaderboard.vue')
   },
   {
     path: '/arena/:agentAddress/attack/:agentEmeny',
     name: 'arena-before-attack-route',
+    meta: { transition: 'slide-right' },
     component: () => import('@/views/ArenaBeforeAttack.vue')
   },
   {
