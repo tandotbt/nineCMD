@@ -52,16 +52,6 @@
       }
     }
   },
-  "page": {
-    "home": "Trang chủ",
-    "arena": {
-      "main": "Đấu trường",
-      "leaderboard": "Bảng xếp hạng",
-      "attack": "Màn hình tấn công"
-    },
-    "login": "Đăng nhập",
-    "notFound": "Trang 404"
-  },
   "@--components--HeaderNineCMD-vue": {
     "header": "ĐẦU TRANG",
     "popconfirm": {
@@ -103,7 +93,20 @@
       "createMessageStop": "Dừng ở bước {currentStep}"
     }
   },
+  "page": {
+    "home": "Trang chủ",
+    "arena": {
+      "main": "Đấu trường",
+      "leaderboard": "Bảng xếp hạng",
+      "attack": "Màn hình tấn công"
+    },
+    "login": "Đăng nhập",
+    "notFound": "Trang 404"
+  },
   "page-notFound": {
     "detail": "Có gì đó sai sai, quay lại @.lower:page.home"
+  },
+  "fetchDataUser9c": {
+    "guest": "Khách #0000"
   }
 }

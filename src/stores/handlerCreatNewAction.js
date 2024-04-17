@@ -4,15 +4,16 @@ import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 import { useConfigURLStore } from '@/stores/configURL'
 import { useI18n } from 'vue-i18n'
 import { useNow } from '@vueuse/core'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 export const useHandlerCreatNewActionStore = defineStore('handlerCreatNewActionStore', () => {
-  const { d, locale } = useI18n()
+  const { t, d, locale } = useI18n()
   const timeNow = useNow()
   const useFetchDataUser9C = useFetchDataUser9CStore()
   const useConfigURL = useConfigURLStore()
   const nameAndTag = computed(() =>
     useFetchDataUser9C.dataUser9C !== null
       ? `${useFetchDataUser9C.dataUser9C.name} #${useFetchDataUser9C.avatarAddress.slice(0, 6)}`
-      : 'Temp'
+      : t('fetchDataUser9c.guest')
   )
   const listActions = ref([])
   const listActionStartNext = ref([])
@@ -22,7 +23,7 @@ export const useHandlerCreatNewActionStore = defineStore('handlerCreatNewActionS
         label: `${useConfigURL.selectedPlanet} | Refill AP | ${nameAndTag.value} | ${d(timeNow.value, 'useTimeNode')}`,
         value: `refillAP<br/>${useConfigURL.selectedPlanet}<br/>${locale.value}<br/>${useConfigURL.selectedNode}<br/>${useConfigURL.apiRest9cscan}<br/>${useConfigURL.web9cscanUrl}<br/>${useFetchDataUser9C.agentAddress}<br/>${useFetchDataUser9C.avatarAddress}<br/>${d(timeNow.value, 'useTimeNode')}`,
         disabled: false,
-        labelImg: '/assets/icons/UI_main_icon_box.png'
+        labelImg: getImageBase64FromCacheOrFetch('/assets/icons/UI_main_icon_box.png')
       },
       sweep: {
         label: 'Sweep',

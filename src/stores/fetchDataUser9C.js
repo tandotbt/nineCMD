@@ -243,7 +243,6 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
               itemMap: ctx.data.data.stateQuery.avatar.itemMap.pairs,
               name: ctx.data.data.stateQuery.avatar.name,
               level: ctx.data.data.stateQuery.avatar.level,
-
               runes: ctx.data.data.stateQuery.avatar.runes,
               stage: ctx.data.data.stateQuery.avatar.stageMap.pairs.filter(
                 (subArray) => !subArray[0].toString().startsWith('100000')

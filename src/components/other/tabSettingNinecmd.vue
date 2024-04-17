@@ -498,10 +498,12 @@ const {
     afterFetch(ctx) {
       // Hàm nếu có errors trong data trả về
       if (ctx.data.errors !== undefined) {
+        let messageError = ''
         ctx.data.errors.forEach((error) => {
           console.log(error.message)
+          messageError += error.message + '<br/>'
         })
-        ctx.data = null
+        ctx.data = messageError
         hasErrorUseNode()
         return ctx
       }
@@ -621,7 +623,7 @@ const { execute: executeYourServer, onFetchError: onFetchErrorYourServer } = use
           postDataJsonStep.value[currentStep.value] = ctx.data.message
           currentStepStatus.value = 'error'
           timeRetryYourServer.value += 1
-          ctx.data = null
+          ctx.data = ctx.data.message
           return ctx
         }
         // Nếu ko có lỗi
@@ -672,7 +674,7 @@ const { execute: execute9cmdServer, onFetchError: onFetchError9cmdServer } = use
           postDataJsonStep.value[currentStep.value] = ctx.data.message
           currentStepStatus.value = 'error'
           timeRetry9cmdServer.value += 1
-          ctx.data = null
+          ctx.data = ctx.data.message
           return ctx
         }
         // Nếu ko có lỗi

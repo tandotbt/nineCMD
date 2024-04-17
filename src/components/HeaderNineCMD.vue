@@ -3,7 +3,21 @@
     <n-grid-item span="1 m:1 l:1" style="height: 10vh">
       <headerAvatar />
     </n-grid-item>
-    <n-grid-item offset="7 m:8 l:9" span="6 m:5 l:4" style="padding: 3vh">
+    <n-grid-item
+      offset="0 m:0 l:0"
+      span="1 m:1 l:1"
+      style="
+        height: 10vh;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        position: absolute;
+        margin-left: 70px;
+      "
+    >
+      <headerName />
+    </n-grid-item>
+    <n-grid-item offset="7 m:7 l:8" span="7 m:6 l:4" style="padding: 3vh">
       <n-carousel
         autoplay
         :interval="3000"
@@ -96,7 +110,7 @@
         </n-popconfirm>
       </n-carousel>
     </n-grid-item>
-    <n-grid-item offset="1 m:0 l:0" span="9 m:9 l:9" style="padding: 3vh">
+    <n-grid-item offset="0 m:0 l:0" span="8 m:9 l:9" style="padding: 3vh">
       <n-carousel
         autoplay
         :interval="3000"
@@ -162,6 +176,7 @@ import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import headerCurrency from '@/components/other/headerCurrency.vue'
 import headerAvatar from '@/components/other/headerAvatar.vue'
+import headerName from '@/components/other/headerName.vue'
 
 const themeVars = useThemeVars()
 const { t, n } = useI18n()

@@ -52,17 +52,6 @@
       }
     }
   },
-
-  "page": {
-    "home": "Home",
-    "arena": {
-      "main": "Arena main",
-      "leaderboard": "Leaderboard",
-      "attack": "Attack screen"
-    },
-    "login": "Login",
-    "notFound": "Page 404"
-  },
   "@--components--HeaderNineCMD-vue": {
     "header": "HEADER",
     "popconfirm": {
@@ -104,7 +93,20 @@
       "createMessageStop": "Stop at steps {currentStep}"
     }
   },
+  "page": {
+    "home": "Home",
+    "arena": {
+      "main": "Arena main",
+      "leaderboard": "Leaderboard",
+      "attack": "Attack screen"
+    },
+    "login": "Login",
+    "notFound": "Page 404"
+  },
   "page-notFound": {
     "detail": "Something went wrong, return @.lower:page.home"
+  },
+  "fetchDataUser9c": {
+    "guest": "Guest #0000"
   }
 }

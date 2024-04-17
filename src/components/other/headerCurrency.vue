@@ -15,7 +15,6 @@
 </template>
 
 <script>
-import { useI18n } from 'vue-i18n'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import { ref } from 'vue'
 
@@ -31,15 +30,12 @@ export default {
     }
   },
   setup(props) {
-    const { t } = useI18n()
-
     const listImg = ref({
       UI_bar_02_bg: getImageBase64FromCacheOrFetch('/assets/icons/UI_bar_02_bg.png'),
       imgType: getImageBase64FromCacheOrFetch(`/assets/icons/${props.type}.png`)
     })
 
     return {
-      t,
       listImg
     }
   }
