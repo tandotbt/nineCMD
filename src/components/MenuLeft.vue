@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted, shallowRef } from 'vue'
+import { h, ref, computed, onMounted, shallowRef } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
   HomeRound as HomeIcon,
@@ -14,8 +14,16 @@ import {
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
+import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
+import { useArenaSeasonStore } from '@/stores/arenaSeason'
 const { t } = useI18n()
 const useHandlerMenuLeft = useHandlerMenuLeftStore()
+const useFetchDataUser9C = useFetchDataUser9CStore()
+const arenaSeasonStore = useArenaSeasonStore()
+
+// Ngăn click leaderboard khi chưa join arena
+const isUseFetchArena = computed(() => useFetchDataUser9C.isUseFetchArena)
+
 const selectedKey = ref(useHandlerMenuLeft.selectedKey)
 const menuRef = shallowRef(null)
 const selectAndExpand = (key) => {
@@ -90,11 +98,14 @@ const menuOptions = [
           {
             label: () =>
               h(
-                RouterLink,
+                isUseFetchArena.value ? RouterLink : 'span',
                 {
                   to: {
                     name: 'arena-leaderboard-route',
-                    params: { agentAddress: '0x123Home' }
+                    params: {
+                      champId: arenaSeasonStore.champIdActive,
+                      roundId: arenaSeasonStore.roundIdActive
+                    }
                   }
                 },
                 { default: () => t('page.arena.leaderboard') }
@@ -105,12 +116,13 @@ const menuOptions = [
               {
                 label: () =>
                   h(
-                    RouterLink,
+                    isUseFetchArena.value ? RouterLink : 'span',
                     {
                       to: {
                         name: 'arena-before-attack-route',
                         params: {
-                          agentAddress: '0x123Home',
+                          champId: arenaSeasonStore.champIdActive,
+                          roundId: arenaSeasonStore.roundIdActive,
                           agentEmeny: '0x999'
                         }
                       }

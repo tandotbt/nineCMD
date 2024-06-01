@@ -42,8 +42,15 @@
                   :options="planetOptions"
                   label="planet"
                   @update:value="changePlanet($event)"
+                  :disabled="useFetchDataUser9C.isFetchingDataUser9C"
                 ></n-select>
 
+                <n-select
+                  v-model:value="selectedNode"
+                  :options="nodeOptions"
+                  @update:value="changeNode($event)"
+                  :disabled="useFetchDataUser9C.isFetchingDataUser9C"
+                ></n-select>
                 <n-select
                   v-model:value="locale"
                   :options="langOptions"
@@ -51,13 +58,6 @@
                   :render-tag="renderSingleSelectTag"
                   @update:value="changeLang($event)"
                 ></n-select>
-
-                <n-select
-                  v-model:value="selectedNode"
-                  :options="nodeOptions"
-                  @update:value="changeNode($event)"
-                ></n-select>
-
                 <n-switch
                   :round="true"
                   v-model:value="isDarkMode"
@@ -116,9 +116,11 @@ import { darkTheme, NIcon, NAvatar, NText } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { URL_NINE_CHRONICLES_SERVE } from '@/utilities/constants'
 import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
+import { useConfigURLStore } from '@/stores/configURL'
+import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
 import { DarkModeFilled as DarkIcon, LightModeFilled as LightIcon } from '@vicons/material'
-import { useConfigURLStore } from '@/stores/configURL'
+
 // Thu gọn khi click ra ngoài
 const collapsed = ref(true)
 const menuLeftRef = ref(null)
@@ -129,6 +131,7 @@ const { t, locale, availableLocales } = useI18n()
 
 const webSocketBlockStore = useWebSocketBlockStore()
 const configURLStore = useConfigURLStore()
+const useFetchDataUser9C = useFetchDataUser9CStore()
 const nodeOptions = computed(() =>
   configURLStore.dataConfig[0]['rpcEndpoints']['headless.gql']
     // Node bắt đầu http không hoạt động khi đang chạy trên web https
@@ -152,14 +155,13 @@ const langOptions = availableLocales.map((item) => ({
   value: item
 }))
 const selectedPlanet = ref(webSocketBlockStore.selectedPlanet)
-
+const randomNodeIndex = computed(() => Math.floor(Math.random() * nodeOptions.value.length))
 const changePlanet = (value) => {
   webSocketBlockStore.changePlanet(value)
   // Tự chọn node đầu tiên tùy theo planet dc chọn
   // selectedNode.value = nodeOptions.value[0].value
   // Tự chọn node ngẫu nhiên sau khi đổi server
-  const randomIndex = computed(() => Math.floor(Math.random() * nodeOptions.value.length))
-  selectedNode.value = nodeOptions.value[randomIndex.value].value
+  selectedNode.value = nodeOptions.value[randomNodeIndex.value].value
   configURLStore.changeNode(selectedNode.value)
   // Lưu planet vào local
   settingNineCMD.value.lastPlanet = value
@@ -296,6 +298,10 @@ if (settingNineCMD.value.isDarkMode) {
 // Kiểm tra xem khóa lastPlanet
 if (settingNineCMD.value.lastPlanet) {
   changePlanet(settingNineCMD.value.lastPlanet)
+} else {
+  // Chạy 1 lần để tự chọn node cho odin
+  selectedNode.value = nodeOptions.value[randomNodeIndex.value].value
+  configURLStore.changeNode(selectedNode.value)
 }
 // Kiểm tra khóa Lang
 if (settingNineCMD.value.lang) {

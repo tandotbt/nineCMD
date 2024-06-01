@@ -52,18 +52,34 @@
       }
     }
   },
+  "@--views--ArenaMain-vue": {
+    "messageJoinArenaFirst": "Join Arena and use 1 ticket first, will support later ...",
+    "messageLoading": "Wait info block ..."
+  },
   "@--components--HeaderNineCMD-vue": {
-    "header": "HEADER",
     "popconfirm": {
       "refillAP-info": "Blocks to next refill AP: {block}/{DAILY_REWARD_INTERVAL}",
+      "refillAP-info-2": "The time calculated by blocks to re-fill the action bar",
       "refillAP-bar": "Change AP",
       "refillAP-potion": "Use AP potion",
-      "AP-info": "AP have now: {APNow}/{ACTION_POINT_MAX}.",
-      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} NCG staked) | Cost AP: {costAP} ({stakeNCG} NCGs staked)",
+      "AP-info": "AP have now: {APNow}/{ACTION_POINT_MAX}",
+      "AP-info-2": "Action Potion (AP) will decrease when you take a specific action.",
+      "costAP-info": "Cost AP: {costAP} (haven't staked yet) | Cost AP: {costAP} ({stakeNCG} NCG staked) | Cost AP: {costAP} ({stakeNCG} NCGs staked)",
       "NCG-info": "NCG is the main currency, earning activities in the game or buying P2P from other players.",
       "NCG-have": "No money :D | Have {NCG} NCG | Have {NCG} NCGs",
       "Crystal-info": "Crystal is used to cost joining Arena Season, World Boss, unlock new world and formula craft, compensate for the material is not enough.",
-      "Crystal-have": "No money :D | Have {Crystal} crystal | Have {Crystal} crystals"
+      "Crystal-have": "No money :D | Have {Crystal} crystal | Have {Crystal} crystals",
+      "blocks-total": "Blocks total of season: ",
+      "round-total": "Round total of season: ",
+      "blocks-round": "Blocks of round: ",
+      "stake-NCG-have": "Haven't staked yet | Staked {NCG} NCG | Stake {NCG} NCGs",
+      "stake-NCG-info": "Stake NCG will receive weekly rewards, increase Arena season rewards and many other benefits.",
+      "ticket-arena-info": "Free Arena tickets will be refresh after each round (default 8), no reserve for next round.",
+      "ticket-arena-have": "Out of free tickets | Have free {ticket} ticket | Have free {ticket} tickets",
+      "ticket-arena-buy-info": "You can buy more arena tickets, limited in each round (default 8), people often buy tickets for the last 5 rounds before the end of the season 😉.",
+      "ticket-arena-buy-have": "Not bought ticket yet | Bought {ticket} ticket | Bought {ticket} tickets",
+      "ticket-arena-bought-info": "There is a limit to the total number of tickets that can be purchased in the season (default 40), in high rankings often buy maximum tickets.",
+      "ticket-arena-bought-have": "Not bought ticket yet | Bought {ticket} ticket | Bought {ticket} tickets"
     }
   },
   "@--components--tabSettingNinecmd-vue": {
@@ -87,10 +103,33 @@
       "step10": "Get payload"
     },
     "message": {
-      "createMessage": "Wait {timeoutComputed}",
+      "createMessage": "Wait {timeoutComputed}s",
       "createMessageError": "Error at step {stepHasError}, tried {now}/{max}",
       "createMessageErrorNoSuccess": "You need to creat {action} manual in game",
-      "createMessageStop": "Stop at steps {currentStep}"
+      "createMessageStop": "Stop at step {currentStep}"
+    }
+  },
+  "@--components--leadboardArena-vue": {
+    "placeholder": {
+      "addressTemp": "Temporary avatar ...",
+      "nameSearch": "Search by avatar name ...",
+      "guildSearch": "Search by name Guild ..."
+    },
+    "title": {
+      "rank": "#",
+      "level": "Avatar",
+      "nameGuild": "Guild",
+      "nameWithHash": "Name & tag",
+      "cp": "CP",
+      "totalCPGuild": "CP Guild",
+      "rankGuild": "Rank Guild",
+      "rankMember": "Rank member",
+      "win": "Win",
+      "lose": "Lose",
+      "winScore": "Reward score",
+      "actionAttack": "Attack",
+      "winRate": "Win rate",
+      "empty": "-"
     }
   },
   "page": {

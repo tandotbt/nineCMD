@@ -19,6 +19,13 @@ export default defineConfig({
     port: 2828
   },
   build: {
-    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari12']
+    target: ['es2015', 'edge88', 'firefox78', 'chrome87', 'safari12'],
+    minify: 'terser',
+    terserOptions: {
+      ecma: 5,
+      ie8: true,
+      safari10: true,
+      toplevel: true
+    }
   }
 })

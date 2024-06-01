@@ -14,6 +14,7 @@ import {
   NumbersRound as AttackIcon
 } from '@vicons/material'
 import breadcrumbPage from '@/components/other/breadcrumbPage.vue'
+
 const { t } = useI18n()
 const pages = ref([
   { title: 'page.home', path: { name: 'home-route' }, icon: markRaw(HomeIcon) },
@@ -22,7 +23,7 @@ const pages = ref([
     title: 'page.arena.leaderboard',
     path: {
       name: 'arena-leaderboard-route',
-      params: { agentAddress: '0x123Home' }
+      params: { champId: 0, roundId: 0 }
     },
     icon: markRaw(LeaderboardIcon)
   },
@@ -31,7 +32,8 @@ const pages = ref([
     path: {
       name: 'arena-before-attack-route',
       params: {
-        agentAddress: '0x123Home',
+        champ: 0,
+        round: 0,
         agentEmeny: '0x999'
       }
     },

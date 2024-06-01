@@ -1,125 +1,83 @@
 <template>
-  <Transition name="slide-right" mode="out-in">
-    <div class="container" v-if="isDCC">
-      <div class="layer-img">
-        <img :src="frameDCC" class="img-frame" />
-        <img :src="imgDCC" class="img-avatar" />
-      </div>
-      <div class="layer-bgLevel">
-        <img :src="bgLevel" class="img-bg" />
-        <n-gradient-text type="warning" class="text-layer">{{ level }}</n-gradient-text>
-      </div>
-    </div>
+  <n-input v-model:value="address"></n-input>
+  <n-input v-model:value="nineCMD"></n-input>
+  <n-input v-model:value="unsignTx"></n-input>
+  <n-switch v-model:value="active" />
+  <n-p>Public key: {{ statePublicKey }} | {{ isReadyPublicKey }} | {{ isLoadingPublicKey }}</n-p>
+  <n-p>List addresss: {{ listAddresss }}</n-p>
+  <n-button @click="tryConnect">Connect</n-button>
+  <n-button @click="executeGetPublicKey(0, {})">getPublicKey</n-button>
+  <n-button @click="getUnsignTx">getUnsignTx</n-button>
+  <n-button @click="getPlayload">getPlayload</n-button>
 
-    <div class="container" v-else>
-      <div class="layer-img">
-        <img :src="frameAvatar" class="img-frame" />
-        <img :src="imgAvatar" class="img-avatar" />
-      </div>
-      <div class="layer-bgLevel">
-        <img :src="bgLevel" class="img-bg" />
-        <n-gradient-text type="warning" class="text-layer">{{ level }}</n-gradient-text>
-      </div>
-    </div>
-  </Transition>
-  <n-switch v-model:value="isDCC"></n-switch>
+  <n-p>isConnect: {{ isConnected }}</n-p>
+  <n-p>unsignTx: {{ unsignTx }}</n-p>
+  <n-p>payload: {{ payload }}</n-p>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import { computedAsync } from '@vueuse/core'
+import { useConfigURLStore } from '@/stores/configURL'
+import buffer2Hex from '@/utilities/buffer2Hex'
+const useConfigURL = useConfigURLStore()
 
-// https://api.dccnft.com/v1/9c/avatars/all
+const address = ref('0x6374fe5f54cded72ff334d09980270c61bc95186')
+const nineCMD = ref('')
+const unsignTx = ref('')
+const listAddresss = ref()
 
-const isDCC = ref(true)
-const level = ref(123)
+const payload = ref('')
+const active = ref(false)
+const tryConnect = async () => {
+  await window.chronoWallet.connect()
+  // Chọn planet cho chrono
+  await window.chronoWallet.switchNetwork(useConfigURL.planetId)
+  listAddresss.value = await window.chronoWallet.listAccounts()
+}
 
-const idDCC = ref(216)
-const imgDCC = getImageBase64FromCacheOrFetch(
-  'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/PFP/' +
-    idDCC.value +
-    '.png'
+const isConnected = computedAsync(
+  async () => {
+    return await window.chronoWallet.isConnected()
+  },
+  null // initial state
 )
-const frameDCC = getImageBase64FromCacheOrFetch(
-  'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png'
-)
-const portraitId = ref(10200000)
-const imgAvatar = getImageBase64FromCacheOrFetch(
-  'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/' +
-    portraitId.value +
-    '.png'
-)
-const frameAvatar = getImageBase64FromCacheOrFetch(
-  'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png'
+import { useAsyncState } from '@vueuse/core'
+const {
+  state: statePublicKey,
+  isReady: isReadyPublicKey,
+  isLoading: isLoadingPublicKey,
+  execute: executeGetPublicKey
+} = useAsyncState(
+  // eslint-disable-next-line no-unused-vars
+  async (args) => {
+    try {
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (active.value) {
+            clearInterval(interval)
+            resolve()
+          }
+        }, 100)
+      })
+      let a = await window.chronoWallet.getPublicKey(address.value)
+      return a.toHex('compressed')
+    } catch (error) {
+      return error
+    }
+  }
 )
 
-const bgLevel = getImageBase64FromCacheOrFetch(
-  'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png'
-)
+function getUnsignTx() {
+  let temp = window.chronoWallet.sign(address.value, nineCMD.value)
+  console.log(temp)
+  unsignTx.value = buffer2Hex(temp)
+}
+async function getPlayload() {
+  let temp = await window.chronoWallet.sign(address.value, unsignTx.value)
+  console.log(temp)
+  payload.value = buffer2Hex(temp)
+}
 </script>
 
-<style scoped>
-.container {
-  position: relative;
-  height: 62px;
-  width: 70px;
-}
-
-.section {
-  position: relative;
-}
-
-.layer-img {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 0;
-}
-.layer-bgLevel {
-  position: absolute;
-  top: -10%;
-  right: -5%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-}
-.img-frame,
-.img-bg {
-  position: absolute;
-  z-index: 0;
-}
-.text-layer {
-  z-index: 1;
-}
-/* Chuyển cảnh */
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: all 0.25s ease-out;
-}
-
-.slide-up-enter-from {
-  opacity: 0;
-  transform: translateY(30px);
-}
-
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
-}
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: all 0.25s ease-out;
-}
-
-.slide-right-enter-from {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.slide-right-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-</style>
+<style scoped></style>

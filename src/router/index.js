@@ -11,13 +11,13 @@ const routes = [
     component: () => import('@/views/ArenaMain.vue')
   },
   {
-    path: '/arena/:agentAddress',
+    path: '/arena/:champId/:roundId',
     name: 'arena-leaderboard-route',
     meta: { transition: 'slide-right' },
     component: () => import('@/views/ArenaLeaderboard.vue')
   },
   {
-    path: '/arena/:agentAddress/attack/:agentEmeny',
+    path: '/arena/:champId/:roundId/attack/:agentEmeny',
     name: 'arena-before-attack-route',
     meta: { transition: 'slide-right' },
     component: () => import('@/views/ArenaBeforeAttack.vue')

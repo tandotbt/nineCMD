@@ -1,7 +1,13 @@
 <template>
   <n-grid cols="24" item-responsive responsive="screen">
     <n-grid-item span="1 m:1 l:1" style="height: 10vh">
-      <headerAvatar />
+      <router-link :to="{ name: 'login-route' }" @click="showOption('go-login-route')">
+        <headerAvatar
+          :avatarAddress="useFetchDataUser9C.avatarAddress"
+          :portraitId="portraitId"
+          :level="level"
+        />
+      </router-link>
     </n-grid-item>
     <n-grid-item
       offset="0 m:0 l:0"
@@ -27,7 +33,7 @@
         style="height: 8vh"
         draggable
       >
-        <n-popconfirm :positive-text="null">
+        <n-popconfirm :positive-text="null" style="max-width: 250px">
           <template #trigger>
             <n-progress
               type="line"
@@ -46,12 +52,12 @@
           </template>
 
           <template #action>
-            <n-button :disabled="percentageAP === 100">
+            <n-button :disabled="percentageAP === 100 || isShowGuest">
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-potion') }}
             </n-button>
             <n-button
               @click="useHandlerCreatNewAction.handleActionNew('refillAP')"
-              :disabled="percentageBlockReffilAP !== 100 || percentageAP === 100"
+              :disabled="percentageBlockReffilAP !== 100 || percentageAP === 100 || isShowGuest"
             >
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-bar') }}
             </n-button>
@@ -65,9 +71,12 @@
                 })
               }}
             </n-h6>
+            <n-p>
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.refillAP-info-2') }}
+            </n-p>
           </n-text>
         </n-popconfirm>
-        <n-popconfirm :positive-text="null">
+        <n-popconfirm :positive-text="null" style="max-width: 250px">
           <template #trigger>
             <n-progress
               type="line"
@@ -76,8 +85,8 @@
               :indicator-placement="'inside'"
               :border-radius="4"
               :fill-border-radius="0"
-              :color="themeVars.primaryColor"
-              :rail-color="changeColor(themeVars.primaryColor, { alpha: 0.2 })"
+              :color="themeVars.infoColor"
+              :rail-color="changeColor(themeVars.infoColor, { alpha: 0.2 })"
             >
               <img v-if="isShowGuest" class="loading-gif" :src="listImg.gifLoading" />
               <n-ellipsis style="max-width: 15vw" v-else>
@@ -104,6 +113,59 @@
                   },
                   Math.floor(stakeNCG)
                 )
+              }}
+            </n-p>
+            <n-p>
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.AP-info-2') }}
+            </n-p>
+          </n-text>
+        </n-popconfirm>
+
+        <n-popconfirm :positive-text="null" style="max-width: 250px">
+          <template #trigger>
+            <n-progress
+              type="line"
+              :height="20"
+              :percentage="
+                (arenaSeasonStore.seasonActiveNow['blockEndRound'] /
+                  arenaSeasonStore.ROUND_BLOCKS) *
+                100
+              "
+              :indicator-placement="'inside'"
+              :border-radius="4"
+              :fill-border-radius="0"
+              :color="themeVars.primaryColor"
+              :rail-color="
+                changeColor(themeVars[`${arenaSeasonStore.seasonActiveNow['statusSeason']}Color`], {
+                  alpha: 0.2
+                })
+              "
+              :processing="true"
+            >
+              <n-icon size="24">
+                <img
+                  style="width: -webkit-fill-available"
+                  :src="arenaSeasonStore.seasonActiveNow['img']"
+                />
+              </n-icon>
+            </n-progress>
+          </template>
+          <n-text>
+            <n-h6> {{ arenaSeasonStore.seasonActiveNow['titleArena'] }} </n-h6>
+            <n-p>
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.blocks-total') }}
+              {{ arenaSeasonStore.seasonActiveNow['blockToEndSeason'] }}
+            </n-p>
+            <n-p>
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.round-total') }}
+              {{ arenaSeasonStore.seasonActiveNow['nowRound'] }}/{{
+                arenaSeasonStore.seasonActiveNow['totalRound']
+              }}
+            </n-p>
+            <n-p>
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.blocks-round') }}
+              {{ arenaSeasonStore.seasonActiveNow['blockEndRound'] }}/{{
+                arenaSeasonStore.ROUND_BLOCKS
               }}
             </n-p>
           </n-text>
@@ -139,6 +201,25 @@
             </n-p>
           </n-text>
         </n-popconfirm>
+
+        <n-popconfirm :positive-text="null" style="max-width: 80vw; max-height: 60vh" scrollable>
+          <template #trigger>
+            <headerCurrency type="NCG_STAKE" :value="n(stakeNCG, 'NCG')" />
+          </template>
+          <n-text>
+            <n-h6>
+              {{
+                t(
+                  '@--components--HeaderNineCMD-vue.popconfirm.stake-NCG-have',
+                  { NCG: n(stakeNCG, 'decimal') },
+                  Math.floor(stakeNCG)
+                )
+              }}
+            </n-h6>
+            <n-p> {{ t('@--components--HeaderNineCMD-vue.popconfirm.stake-NCG-info') }}</n-p>
+          </n-text>
+        </n-popconfirm>
+
         <n-popconfirm :positive-text="null" style="max-width: 80vw; max-height: 60vh" scrollable>
           <template #trigger>
             <headerCurrency type="CRYSTAL" :value="n(Crystal, 'Crystal')" />
@@ -158,6 +239,61 @@
             </n-p>
           </n-text>
         </n-popconfirm>
+
+        <n-popconfirm :positive-text="null" style="max-width: 80vw; max-height: 60vh" scrollable>
+          <template #trigger>
+            <headerCurrency type="ARENA_TICKET" :value="ticketsArena" />
+          </template>
+          <n-text>
+            <n-h6>
+              {{
+                t(
+                  '@--components--HeaderNineCMD-vue.popconfirm.ticket-arena-have',
+                  { ticket: n(ticketsArena, 'decimal') },
+                  Math.floor(ticketsArena)
+                )
+              }}
+            </n-h6>
+            <n-p> {{ t('@--components--HeaderNineCMD-vue.popconfirm.ticket-arena-info') }}</n-p>
+          </n-text>
+        </n-popconfirm>
+
+        <n-popconfirm :positive-text="null" style="max-width: 80vw; max-height: 60vh" scrollable>
+          <template #trigger>
+            <headerCurrency type="ARENA_TICKET_BUY" :value="ticketsArenaBuy" />
+          </template>
+          <n-text>
+            <n-h6>
+              {{
+                t(
+                  '@--components--HeaderNineCMD-vue.popconfirm.ticket-arena-buy-have',
+                  { ticket: n(ticketsArenaBuy, 'decimal') },
+                  Math.floor(ticketsArenaBuy)
+                )
+              }}
+            </n-h6>
+            <n-p> {{ t('@--components--HeaderNineCMD-vue.popconfirm.ticket-arena-buy-info') }}</n-p>
+          </n-text>
+        </n-popconfirm>
+        <n-popconfirm :positive-text="null" style="max-width: 80vw; max-height: 60vh" scrollable>
+          <template #trigger>
+            <headerCurrency type="ARENA_TICKET_BOUGHT" :value="ticketsArenaBought" />
+          </template>
+          <n-text>
+            <n-h6>
+              {{
+                t(
+                  '@--components--HeaderNineCMD-vue.popconfirm.ticket-arena-bought-have',
+                  { ticket: n(ticketsArenaBought, 'decimal') },
+                  Math.floor(ticketsArenaBought)
+                )
+              }}
+            </n-h6>
+            <n-p>
+              {{ t('@--components--HeaderNineCMD-vue.popconfirm.ticket-arena-bought-info') }}</n-p
+            >
+          </n-text>
+        </n-popconfirm>
       </n-carousel>
     </n-grid-item>
   </n-grid>
@@ -169,10 +305,12 @@ import { useThemeVars } from 'naive-ui'
 import { changeColor } from 'seemly'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
-import { ref, computed } from 'vue'
 import { useConfigURLStore } from '@/stores/configURL'
+import { ref, computed } from 'vue'
 import { CONFIG_GAME_CONFIG_SHEET } from '@/utilities/constants'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
+import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
+import { useArenaSeasonStore } from '@/stores/arenaSeason'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import headerCurrency from '@/components/other/headerCurrency.vue'
 import headerAvatar from '@/components/other/headerAvatar.vue'
@@ -181,9 +319,11 @@ import headerName from '@/components/other/headerName.vue'
 const themeVars = useThemeVars()
 const { t, n } = useI18n()
 const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
-
+const useHandlerMenuLeft = useHandlerMenuLeftStore()
+const showOption = useHandlerMenuLeft.showOption
 const useConfigURL = useConfigURLStore()
 const webSocketBlockStore = useWebSocketBlockStore()
+const arenaSeasonStore = useArenaSeasonStore()
 // Lấy giá trị cố định
 const ACTION_POINT_MAX = computed(() =>
   useConfigURL.dataGameConfigSheet !== null
@@ -197,26 +337,77 @@ const DAILY_REWARD_INTERVAL = computed(() =>
 )
 // Lấy giá trị của user
 const useFetchDataUser9C = useFetchDataUser9CStore()
-const isShowGuest = computed(() => (useFetchDataUser9C.dataUser9C !== null ? false : true))
+const isShowGuest = computed(() =>
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? false
+    : true
+)
 const blockRefillAP = computed(() =>
   useFetchDataUser9C.dataUser9C !== null
     ? useFetchDataUser9C.dataUser9C.blockRefillAP
     : blockNow.value
 )
 const APNow = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.AP : 0
+  useFetchDataUser9C.dataUser9C !== null &&
+  useFetchDataUser9C.isFetchingDataUser9C === false &&
+  useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.AP
+    : 0
 )
 const stakeNCG = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.stakeNCG : 0
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.stakeNCG
+    : 0
 )
 const costAP = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.costAP : 5
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.costAP
+    : 5
 )
 const NCG = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.ncg : 0
+  useFetchDataUser9C.dataUser9C !== null &&
+  useFetchDataUser9C.isFetchingDataUser9C === false &&
+  useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.ncg
+    : 0
 )
 const Crystal = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.crystal : 0
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.crystal
+    : 0
+)
+const portraitId = computed(() =>
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.portraitId
+    : 10200000
+)
+const level = computed(() =>
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C.level
+    : 0
+)
+const ticketsArena = computed(() => {
+  if (
+    useFetchDataUser9C.dataUser9C !== null &&
+    useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
+  ) {
+    return arenaSeasonStore.roundActive - 1 >
+      useFetchDataUser9C.dataUser9C.arenaInfo.ticketResetCount
+      ? arenaSeasonStore.maxPurchaseCountDuringIntervalActive
+      : useFetchDataUser9C.dataUser9C.arenaInfo.ticket
+  } else {
+    return 0
+  }
+})
+const ticketsArenaBought = computed(() =>
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
+    ? useFetchDataUser9C.dataUser9C.arenaInfo.purchasedTicketCount
+    : 0
+)
+const ticketsArenaBuy = computed(() =>
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
+    ? useFetchDataUser9C.ticketArenaBuy
+    : 0
 )
 // Tính toán
 const blockNow = computed(() => webSocketBlockStore.calculateAVG.blockNow)

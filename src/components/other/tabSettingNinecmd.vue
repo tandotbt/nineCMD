@@ -135,9 +135,52 @@ const steps = ref([
 ])
 const urlYourServerPath = ref('/publicKey')
 
+// Tạo dữ liệu đầu vào cho nineCMD api
+function creatNextPostDataJsonAll() {
+  function formatRunes(inputRunes) {
+    const array = inputRunes.split(',')
+    const formattedArray = []
+    for (let i = 0; i < array.length - 1; i += 2) {
+      formattedArray.push([array[i], array[i + 1]])
+    }
+    return formattedArray
+  }
+  url9cmdServerPath.value = `/${dataBegin.value.pathNineCMD}`
+  switch (useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[0]) {
+    case 'refillAP':
+      postDataJsonAll.value = {
+        agentAddress: dataBegin.value.agent,
+        avatarAddress: dataBegin.value.avatar,
+        serverPlanet: dataBegin.value.planet,
+        locale: dataBegin.value.locale
+      }
+      return
+    case 'battleArena':
+      postDataJsonAll.value = {
+        agentAddress: dataBegin.value.agent,
+        avatarAddress: dataBegin.value.avatar,
+        avatarAddressEnemy: dataBegin.value.avatarAddressEnemy,
+        champId: 0,
+        roundId: 0,
+        ticket: parseInt(dataBegin.value.ticket),
+        equipments: dataBegin.value.equipments ? dataBegin.value.equipments.split(',') : [],
+        costumes: dataBegin.value.costumes ? dataBegin.value.costumes.split(',') : [],
+        runeInfos: dataBegin.value.runeInfos ? formatRunes(dataBegin.value.runeInfos) : [],
+        auras: dataBegin.value.auras ? dataBegin.value.auras.split(',') : [],
+        serverPlanet: dataBegin.value.planet,
+        locale: dataBegin.value.locale,
+        isLimit: dataBegin.value.isLimit.toLowerCase() === 'true'
+      }
+      return
+    default:
+      console.log('error tạo dữ liệu cho nineCMD api')
+  }
+}
 // Hàm chọn data post cho bước sau
 function afterFetchStep(data) {
   switch (currentStep.value) {
+    case 2:
+      break
     case 3:
       urlYourServerPath.value = '/publicKey'
       // Post cho get public key
@@ -147,15 +190,10 @@ function afterFetchStep(data) {
         locale: dataBegin.value.locale
       }
       break
+    // Tạo dữ liệu cho nineCMD
     case 4:
       data = data.message
-      url9cmdServerPath.value = `/${dataBegin.value.pathNineCMD}`
-      postDataJsonAll.value = {
-        agentAddress: dataBegin.value.agent,
-        avatarAddress: dataBegin.value.avatar,
-        serverPlanet: dataBegin.value.planet,
-        locale: dataBegin.value.locale
-      }
+      creatNextPostDataJsonAll()
       break
     case 5:
       data = data.message
@@ -267,7 +305,27 @@ async function getDataBegin() {
         web9cscan: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[5],
         agent: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[6],
         avatar: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[7],
-        pathNineCMD: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[0]
+        pathNineCMD: 'refillAP'
+      }
+      return
+    case 'battleArena':
+      dataBegin.value = {
+        typeAction: LIST_ACTIONS_AVAILABLE.battleArena,
+        planet: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[1],
+        locale: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[2],
+        urlNode: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[3],
+        api9cscan: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[4],
+        web9cscan: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[5],
+        agent: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[6],
+        avatar: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[7],
+        avatarAddressEnemy: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[8],
+        ticket: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[9],
+        equipments: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[10],
+        costumes: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[11],
+        runeInfos: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[12],
+        auras: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[13],
+        isLimit: useHandlerCreatNewAction.listActionStartNext[0].split('<br/>')[14],
+        pathNineCMD: 'attackArena'
       }
       return
     default:
@@ -638,6 +696,17 @@ const { execute: executeYourServer, onFetchError: onFetchErrorYourServer } = use
       timeRetryYourServer.value += 1
       ctx.data = null
       return ctx
+    },
+    updateDataOnError: true,
+    onFetchError(ctx) {
+      // ctx.data can be null when 5xx response
+      if (ctx.data.error !== undefined && ctx.data.error !== 0) {
+        console.log(ctx.data)
+        postDataJsonStep.value[currentStep.value] = ctx.data.message
+      } else {
+        postDataJsonStep.value[currentStep.value] = null
+      }
+      return ctx
     }
   }
 )
@@ -645,7 +714,7 @@ const { execute: executeYourServer, onFetchError: onFetchErrorYourServer } = use
   .post(postDataJsonAll)
 
 onFetchErrorYourServer(() => {
-  postDataJsonStep.value[currentStep.value] = null
+  // postDataJsonStep.value[currentStep.value] = null
   currentStepStatus.value = 'error'
   timeRetryYourServer.value += 1
 })
@@ -689,6 +758,17 @@ const { execute: execute9cmdServer, onFetchError: onFetchError9cmdServer } = use
       timeRetry9cmdServer.value += 1
       ctx.data = null
       return ctx
+    },
+    updateDataOnError: true,
+    onFetchError(ctx) {
+      // ctx.data can be null when 5xx response
+      if (ctx.data.error !== undefined && ctx.data.error !== 0) {
+        console.log(ctx.data)
+        postDataJsonStep.value[currentStep.value] = ctx.data.message
+      } else {
+        postDataJsonStep.value[currentStep.value] = null
+      }
+      return ctx
     }
   }
 )
@@ -696,7 +776,7 @@ const { execute: execute9cmdServer, onFetchError: onFetchError9cmdServer } = use
   .post(postDataJsonAll)
 
 onFetchError9cmdServer(() => {
-  postDataJsonStep.value[currentStep.value] = null
+  // postDataJsonStep.value[currentStep.value] = null
   currentStepStatus.value = 'error'
   timeRetry9cmdServer.value += 1
 })

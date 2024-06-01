@@ -25,7 +25,7 @@ const useFetchDataUser9C = useFetchDataUser9CStore()
 
 const nameAndTag = computed(() =>
   useFetchDataUser9C.dataUser9C !== null
-    ? `${useFetchDataUser9C.dataUser9C.name} #${useFetchDataUser9C.avatarAddress.slice(0, 6)}`
+    ? `${useFetchDataUser9C.dataUser9C.name} #${useFetchDataUser9C.avatarAddress.slice(2, 6)}`
     : t('fetchDataUser9c.guest')
 )
 </script>

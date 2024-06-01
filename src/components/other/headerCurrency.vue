@@ -2,10 +2,10 @@
   <n-flex justify="center">
     <n-icon>
       <n-grid cols="12" item-responsive responsive="screen">
-        <n-grid-item offset="12 m:0 l:0" span="0 m:1 l:1" class="carousel-container">
+        <n-grid-item offset="0 m:0 l:0" span="1 m:1 l:1" class="carousel-container">
           <img style="display: none; transform: translateX(-10px)" :src="listImg.UI_bar_02_bg" />
         </n-grid-item>
-        <n-grid-item offset="12 m:0 l:0" span="1 m:1 l:1" class="carousel-container">
+        <n-grid-item offset="0 m:0 l:0" span="1 m:1 l:1" class="carousel-container">
           <img class="icon" :src="listImg.imgType" />
         </n-grid-item>
       </n-grid>

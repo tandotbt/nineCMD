@@ -26,7 +26,9 @@
           placeholder="0xabc..."
           clearable
           :loading="useDataArenaParticipate.isFetchingAgentFinded ? true : undefined"
-          :disabled="useDataArenaParticipate.isUseAvatartLogin"
+          :disabled="
+            useDataArenaParticipate.isUseAvatartLogin || useFetchDataUser9C.isFetchingDataUser9C
+          "
         />
       </n-form-item-gi>
       <n-form-item-gi
@@ -58,13 +60,14 @@
           clearable
           tag
           :clear-filter-after-select="false"
-          :disabled="disabledAvatarWhenAgentNotOk"
+          :disabled="disabledAvatarWhenAgentNotOk || useFetchDataUser9C.isFetchingDataUser9C"
         />
       </n-form-item-gi>
       <n-form-item-gi label=" " span="40 xs:35 s:30 m:20 l:20 xl:20 xxl:20">
         <n-switch
           v-model:value="useDataArenaParticipate.isUseAvatartLogin"
           @update:value="resetValue"
+          :disabled="useFetchDataUser9C.isFetchingDataUser9C"
         >
           <template #checked>
             {{ t('@--views--LoginMain-vue.switch.checked') }}
@@ -149,8 +152,20 @@ const useFetchDataUser9C = useFetchDataUser9CStore()
 // Hỗ trợ dịch
 const { t } = useI18n()
 
-// Thanh loading khi fetch data
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
+// Hook để kiểm tra trước khi rời khỏi route ngăn thank loading.Bar lỗi
+router.beforeEach((to, from, next) => {
+  if (isFetching.value && to.path !== '/login') {
+    // Nếu đang trong quá trình fetching và đường dẫn không phải là '/login', chuyển hướng đến trang '/login'
+    next('/login')
+  } else {
+    // Trường hợp còn lại, cho phép chuyển trang bình thường
+    next()
+  }
+})
+// Thanh loading khi fetch data
 const loadingBar = useLoadingBar()
 const isFetching = computed(() => useFetchDataUser9C.isFetchingDataUser9C)
 // eslint-disable-next-line no-unused-vars
@@ -336,7 +351,8 @@ function renderLabel(option) {
         }
       },
       {
-        default: () => ` ${option.avataraddress !== null ? option.avataraddress.slice(0, 6) : ''}`
+        default: () =>
+          ` ${option.avataraddress !== undefined ? option.avataraddress.slice(0, 6) : ''}` // Có lỗi khi đổi planet mà dùng cách nhập bằng avatarAddress, khi đổi nếu agentAddress ko tồn tại bên planet đổi sang thì avatar == undefined
       }
     )
   ]

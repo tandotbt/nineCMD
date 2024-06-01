@@ -1,44 +1,42 @@
 <template>
-  <router-link :to="{ name: 'login-route' }" @click="showOption('go-login-route')">
-    <Transition name="slide-right" mode="out-in">
-      <div class="container" v-if="isDCC">
-        <div class="layer-img">
-          <img :src="imgList.frameDCC" class="img-frame" />
-          <img :src="imgList.imgDCC" class="img-avatar" />
-        </div>
-        <div class="layer-bgLevel">
-          <img :src="imgList.bgLevel" class="img-bg" />
-          <n-gradient-text type="warning" class="text-layer">{{ level }}</n-gradient-text>
-        </div>
+  <Transition name="slide-right" mode="out-in">
+    <div class="container" v-if="isDCC">
+      <div class="layer-img">
+        <img :src="imgList.frameDCC" class="img-frame" />
+        <img :src="imgList.imgDCC" class="img-avatar" />
       </div>
+      <div class="layer-bgLevel">
+        <img :src="imgList.bgLevel" class="img-bg" />
+        <n-gradient-text type="warning" class="text-layer">{{ level }}</n-gradient-text>
+      </div>
+    </div>
 
-      <div class="container" v-else>
-        <div class="layer-img">
-          <img :src="imgList.frameAvatar" class="img-frame" />
-          <img :src="imgList.imgAvatar" class="img-avatar" />
-        </div>
-        <div class="layer-bgLevel">
-          <img :src="imgList.bgLevel" class="img-bg" />
-          <n-gradient-text type="warning" class="text-layer">{{ level }}</n-gradient-text>
-        </div>
+    <div class="container" v-else>
+      <div class="layer-img">
+        <img :src="imgList.frameAvatar" class="img-frame" />
+        <img :src="imgList.imgAvatar" class="img-avatar" />
       </div>
-    </Transition>
-  </router-link>
+      <div class="layer-bgLevel">
+        <img :src="imgList.bgLevel" class="img-bg" />
+        <n-gradient-text type="warning" class="text-layer">{{ level }}</n-gradient-text>
+      </div>
+    </div>
+  </Transition>
 </template>
 
-<script setup>
+<!-- <script setup>
 import { ref, computed } from 'vue'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import getListDCCFromCacheOrFetch from '@/utilities/getListDCCFromCacheOrFetch'
 import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 
+import { computedAsync } from '@vueuse/core'
 const useHandlerMenuLeft = useHandlerMenuLeftStore()
 const useFetchDataUser9C = useFetchDataUser9CStore()
 // Giúp chọn thẻ login
 const showOption = useHandlerMenuLeft.showOption
 
-import { computedAsync } from '@vueuse/core'
 const isDCC = computedAsync(
   async () => await getListDCCFromCacheOrFetch(useFetchDataUser9C.avatarAddress)
 )
@@ -88,7 +86,7 @@ const imgList = ref({
 // )
 
 const portraitId = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.portraitId : 10200000
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false ? useFetchDataUser9C.dataUser9C.portraitId : 10200000
 )
 // const imgAvatar = computed(() =>
 //   !isDCC.value
@@ -108,8 +106,66 @@ const portraitId = computed(() =>
 // )
 
 const level = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null ? useFetchDataUser9C.dataUser9C.level : 0
+  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false ? useFetchDataUser9C.dataUser9C.level : 0
 )
+</script> -->
+
+<script>
+import { ref, computed } from 'vue'
+import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import getListDCCFromCacheOrFetch from '@/utilities/getListDCCFromCacheOrFetch'
+import { computedAsync } from '@vueuse/core'
+
+export default {
+  props: {
+    avatarAddress: {
+      type: String,
+      required: true
+    },
+    portraitId: {
+      type: Number,
+      default: 10200000
+    },
+    level: {
+      type: Number,
+      default: 0
+    }
+  },
+  setup(props) {
+    const isDCC = computedAsync(async () => await getListDCCFromCacheOrFetch(props.avatarAddress))
+    const idDCC = computed(() => isDCC.value)
+    const imgList = ref({
+      imgDCC: computed(() =>
+        isDCC.value
+          ? getImageBase64FromCacheOrFetch(
+              'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/PFP/' +
+                idDCC.value +
+                '.png'
+            )
+          : ''
+      ),
+      frameDCC: getImageBase64FromCacheOrFetch(
+        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png'
+      ),
+      imgAvatar: computed(() =>
+        !isDCC.value
+          ? getImageBase64FromCacheOrFetch(
+              'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/' +
+                props.portraitId +
+                '.png'
+            )
+          : ''
+      ),
+      frameAvatar: getImageBase64FromCacheOrFetch(
+        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png'
+      ),
+      bgLevel: getImageBase64FromCacheOrFetch(
+        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png'
+      )
+    })
+    return { isDCC, imgList }
+  }
+}
 </script>
 
 <style scoped>

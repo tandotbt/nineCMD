@@ -31,5 +31,19 @@
     "maximumFractionDigits": 2,
     "notation": "compact",
     "useGrouping": true
+  },
+  "CombatPotion": {
+    "style": "decimal",
+    "minimumFractionDigits": 0,
+    "maximumFractionDigits": 2,
+    "notation": "standard",
+    "useGrouping": true
+  },
+  "ScoreArena": {
+    "style": "decimal",
+    "minimumFractionDigits": 0,
+    "maximumFractionDigits": 2,
+    "notation": "standard",
+    "useGrouping": true
   }
 }

@@ -1,5 +1,6 @@
 import { useFetch, useBase64, useStorage } from '@vueuse/core'
 import { IMG_FALLBACK } from '@/utilities/constants'
+import optimizedStringToHash from '@/utilities/optimizedStringToHash'
 // function optimizedStringToHash(string) {
 //   let mixedString = string
 //   let hash = 0
@@ -13,17 +14,8 @@ import { IMG_FALLBACK } from '@/utilities/constants'
 //   return hash
 // }
 
-import CryptoJS from 'crypto-js'
-
-function optimizedStringToHash(string) {
-  // Tạo mã hash từ chuỗi sử dụng thuật toán SHA-256 của crypto-js
-  const hash = CryptoJS.SHA256(string).toString()
-  // Cắt đoạn mã hash để chỉ lấy 10 ký tự đầu tiên
-  const shortHash = hash.substring(0, 10)
-  // Trả về mã hash có độ dài cố định là 10 ký tự
-  return shortHash
-}
 const imageBase64FromCacheOrFetch = useStorage('image-base64-or-fetch', {}, sessionStorage)
+const saved = imageBase64FromCacheOrFetch.value
 const useApi = (url) => {
   return useFetch(url).blob()
 }
@@ -33,8 +25,8 @@ export function getImageBase64FromCacheOrFetch(imageUrl) {
   let savedImg = optimizedStringToHash(imageUrl)
 
   // Kiểm tra và trả về base64 từ lưu trữ nếu có
-  if (imageBase64FromCacheOrFetch.value[savedImg]) {
-    return imageBase64FromCacheOrFetch.value[savedImg]
+  if (saved[savedImg] !== null && saved[savedImg] !== undefined) {
+    return saved[savedImg]
   }
 
   // Fetch ảnh từ URL
@@ -47,7 +39,7 @@ export function getImageBase64FromCacheOrFetch(imageUrl) {
   const { base64: imageBase64 } = useBase64(dataImg)
 
   // Lưu base64 vào lưu trữ
-  imageBase64FromCacheOrFetch.value[savedImg] = imageBase64
+  saved[savedImg] = imageBase64
 
   return imageUrl
 }

@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { useFetch } from '@vueuse/core'
 import { computed, ref, watch, reactive } from 'vue'
 import { useConfigURLStore } from './configURL'
+import { useWebSocketBlockStore } from './webSocketBlock'
+import { useArenaSeasonStore } from './arenaSeason'
 import {
   COST_AP_BY_STAKE,
   COST_AP_BY_STAKE_MIN,
@@ -12,7 +14,8 @@ import { useTimeoutPoll } from '@vueuse/core'
 
 export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () => {
   const useConfigURL = useConfigURLStore()
-
+  const useWebSocketBlock = useWebSocketBlockStore()
+  const useArenaSeason = useArenaSeasonStore()
   // const formDataUser9C = ref({
   //     user: {
   //         agentAddress: '',
@@ -40,6 +43,19 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
       : `https://${serverUrl.value}.pythonanywhere.com`
   )
   const nodeChoosed = computed(() => useConfigURL.selectedNode)
+  const isUseFetchArena = ref(true)
+  const queryFetchArena = computed(() => {
+    if (isUseFetchArena.value) {
+      return `arenaInformation(championshipId: ${useArenaSeason.champIdActive}, round: ${useArenaSeason.roundIdActive}, avatarAddresses: ["${avatarAddress.value}"]){
+        avatarAddress
+        win
+        lose
+        ticket
+        ticketResetCount
+        purchasedTicketCount
+      }`
+    } else { return '' }
+  })
   const postDataJson = computed(() => {
     return {
       query: `
@@ -164,6 +180,7 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
               level
               nameWithHash
             }
+            ${queryFetchArena.value}
           }
         }`
     }
@@ -176,6 +193,7 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
 
   // Biến lưu web9csan = planet trước
   const web9csanBefore = ref(null)
+
   const useApi = (url) => {
     return useFetch(
       url,
@@ -208,9 +226,14 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
 
         afterFetch(ctx) {
           if (ctx.data.errors) {
+            let isErrorFetchArena = false
             ctx.data.errors.forEach((error) => {
               console.log(error.message)
+              if (error.message.includes('arenaInformation')) isErrorFetchArena = true
             })
+            if (isErrorFetchArena) {
+              isUseFetchArena.value = false
+            }
             ctx.data = null
           } else {
             let stakeNCG = parseFloat(
@@ -226,14 +249,18 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
                 break // Kết thúc vòng lặp nếu tìm thấy mốc ncgStake phù hợp
               }
             }
-            let arenaParticipants = ctx.data.data.stateQuery.arenaParticipants
+            let arenaParticipants = ctx.data.data.stateQuery.arenaParticipants || []
             let participantArena = arenaParticipants.find(
-              (participant) => participant.avatarAddr === avatarAddress.value
-            )
+              (participant) => participant.avatarAddr.toLowerCase() === avatarAddress.value.toLowerCase()
+            ) || []
             let equipments = ctx.data.data.stateQuery.avatar.inventory.equipped
             let armorEquip = equipments.find((equip) => equip.itemSubType === 'ARMOR')
             let armorId = armorEquip ? armorEquip.id : 10200000
             let portraitId = participantArena ? participantArena.portraitId : armorId
+            let arenaInformation = ctx.data.data.stateQuery.arenaInformation || []
+            let arenaInfo = arenaInformation.find(
+              (adventure) => adventure.avatarAddress.toLowerCase() === avatarAddress.value.toLowerCase()
+            ) || []
             const defaultResponse = reactive({
               crystal: parseFloat(parseFloat(ctx.data.data.stateQuery.agent.crystal).toFixed(2)),
               ncg: parseFloat(parseFloat(ctx.data.data.stateQuery.agent.gold).toFixed(2)),
@@ -250,7 +277,8 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
               stakeNCG,
               costAP: costAPNow,
               arenaParticipants,
-              portraitId
+              portraitId,
+              arenaInfo
             })
             ctx.data = defaultResponse
           }
@@ -264,10 +292,11 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
   const {
     data: dataUser9C,
     error: errorDataUser9C,
-    isFetching: isFetchingDataUser9C,
+    isFetching: isFetchingDataUser9CMain,
     execute: executeUser9C
   } = useApi(nodeChoosed)
-
+  // Ngăn login khi block vẫn 0 để có thể nhận champId và roundId chuẩn
+  const isFetchingDataUser9C = computed(() => isFetchingDataUser9CMain.value || useWebSocketBlock.calculateAVG.blockNow === 0)
   // Hàm check tx của agent, nếu có tx mới sẽ refetch
   const urlCheckTX = computed(
     () =>
@@ -328,28 +357,22 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
       // Lưu lại TX mới hoặc agent mới nếu có
       agentPrevious.value = agentAddress.value
       TXprevious.value = dataCheckTX.value
+      // đồng thời đặt lại isUseFetchArena = true
+      isUseFetchArena.value = true
       await new Promise((resolve) => setTimeout(resolve, TIMEOUT_USE_NODE * 1000))
     }
   }
 
   const { resume } = useTimeoutPoll(fetchData, WAIT_CHECK_TX)
+  const ticketArenaBuy = ref(-1)
   return {
     nodeChoosed,
-    agentAddress,
-    avatarAddress,
-    urlYourServer,
-    dataUser9C,
-    errorDataUser9C,
-    isFetchingDataUser9C,
-    executeUser9C,
+    agentAddress, avatarAddress, urlYourServer,
+    dataUser9C, errorDataUser9C, isFetchingDataUser9C, executeUser9C, ticketArenaBuy,
     postDataJson,
-    dataCheckTX,
-    TXprevious,
-    userAgent,
-    userAvatar,
-    userPassword,
-    serverUrl,
-    serverUsername,
-    serverPassword
+    dataCheckTX, TXprevious,
+    userAgent, userAvatar, userPassword, serverUrl, serverUsername, serverPassword,
+    // Xử lý arena khi isUseFetchArena = false, dùng để xác định cần tạo action join_arena
+    isUseFetchArena
   }
 })

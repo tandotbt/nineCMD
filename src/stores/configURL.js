@@ -1,35 +1,53 @@
 import { defineStore } from 'pinia'
-import { useFetch } from '@vueuse/core'
+import { useFetch, useStorage, refDebounced } from '@vueuse/core'
 import {
   URL_CONFIG_URL_ALL_PLANET,
   CONFIG_URL_ALL_PLANET,
-  API_NINECMD,
+  URL_API_MIMIR,
   LINK_BANNER
 } from '@/utilities/constants'
 import { ref, computed } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
-import { useI18n } from 'vue-i18n'
 import Papa from 'papaparse'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 export const useConfigURLStore = defineStore('configURLStore', () => {
   const useWebSocketBlock = useWebSocketBlockStore()
   const selectedPlanet = computed(() => useWebSocketBlock.selectedPlanet.toLowerCase())
-  const { locale } = useI18n()
+  // Tạo độ trễ, giúp ngăn lỗi khi web sử dụng lại server Heimdall, việc đổi ngay lập tức Odin - > Heimdall khiến csv ko fecth kịp
+  const selectedPlanetDelay = refDebounced(computed(() => useWebSocketBlock.selectedPlanet.toLowerCase()), 5000)
 
+  const sessionStorageSheet = useStorage('sheet-csv', {}, sessionStorage)
   const useApi = (url) => {
     return useFetch(url, { refetch: true }).get().json()
   }
-  const getSheet = (url) => {
+  const getSheet = (url, nameSheet) => {
     return useFetch(
       url,
       { refetch: true },
       {
+        beforeFetch({ cancel, options }) {
+          if (sessionStorageSheet.value[nameSheet.value]) {
+            getAllSheet()
+            cancel()
+
+          }
+          // "text/csv" => SheetFormat.Csv,
+          // "application/json" => SheetFormat.Json,
+          options.headers = {
+            ...options.headers,
+            Accept: "text/csv",
+          }
+          return {
+            options,
+          }
+        },
         afterFetch(ctx) {
           Papa.parse(ctx.data, {
             complete: function (results) {
               ctx.data = results.data
             }
           })
+          sessionStorageSheet.value[nameSheet.value] = ctx.data
           return ctx
         }
       }
@@ -84,13 +102,43 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     error: errorMainConfig,
     isFetching: isFetchingMainConfig
   } = useApi(URL_CONFIG_URL_ALL_PLANET)
+
+  const urlGameConfigSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/GameConfigSheet`)
+  const nameGameConfigSheet = computed(() => `GameConfigSheet_${selectedPlanetDelay.value}`)
+  const urlArenaSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/ArenaSheet`)
+
+  const nameArenaSheet = computed(() => `ArenaSheet_${selectedPlanetDelay.value}`)
+  // GameConfigSheet
   const {
     data: dataGameConfigSheet,
     error: errorGameConfigSheet,
-    isFetching: isFetchingGameConfigSheet
+    isFetching: isFetchingGameConfigSheet,
+    // execute: executeGameConfigSheet
   } = getSheet(
-    `${API_NINECMD}/get9cBoardCSV?network=${selectedPlanet.value}&csv=GameConfigSheet&locale=${locale.value}`
+    urlGameConfigSheet, nameGameConfigSheet
   )
+
+
+
+  // ArenaSheet
+  const {
+    data: dataArenaSheet,
+    error: errorArenaSheet,
+    isFetching: isFetchingArenaSheet,
+    // execute: executeArenaSheet
+  } = getSheet(
+    urlArenaSheet, nameArenaSheet
+  )
+
+  function getAllSheet() {
+    if (sessionStorageSheet.value[nameGameConfigSheet.value])
+      dataGameConfigSheet.value = sessionStorageSheet.value[nameGameConfigSheet.value]
+    if (sessionStorageSheet.value[nameArenaSheet.value])
+      dataArenaSheet.value = sessionStorageSheet.value[nameArenaSheet.value]
+  }
+  // watchEffect(() => {
+  //   getAllSheet()
+  // })
   const {
     data: dataBanner,
     error: errorBanner,
@@ -106,41 +154,49 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
 
   const selectedNode = ref(null)
   // Tự chọn node đầu sau khi đổi server
-  selectedNode.value = dataConfig.value[0]['rpcEndpoints']['headless.gql'][0]
+  // selectedNode.value = dataConfig.value[0]['rpcEndpoints']['headless.gql'][0]
 
   function changeNode(newNode) {
     selectedNode.value = newNode
   }
   const isFetching = computed(
-    () => isFetchingMainConfig.value || isFetchingGameConfigSheet.value || isFetchingBanner.value
+    () => isFetchingMainConfig.value ||
+      isFetchingGameConfigSheet.value ||
+      isFetchingBanner.value ||
+      isFetchingArenaSheet.value
   )
   const hasError = computed(() => {
     return (
       errorMainConfig.value !== null ||
       errorGameConfigSheet.value !== null ||
-      errorBanner.value !== null
+      errorBanner.value !== null ||
+      errorArenaSheet.value !== null
     )
   })
 
   const web9cscanUrl = computed(() => dataConfig.value[0]['9cscanUrl'])
   const apiRest9cscan = computed(() => dataConfig.value[0]['rpcEndpoints']['9cscan.rest'][0])
+  const planetId = computed(() => dataConfig.value[0]['id'])
+  // // eslint-disable-next-line no-unused-vars
+  // watch(selectedPlanetDelay, (newValue, oldValue) => {
+  //   console.log(`Mới ${newValue} và cữ ${oldValue}`)
+  //   if (sessionStorageSheet.value[`GameConfigSheet_${newValue}`])
+  //     dataGameConfigSheet.value = sessionStorageSheet.value[`GameConfigSheet_${newValue}`]
+  //   else executeGameConfigSheet()
+  //   if (sessionStorageSheet.value[`ArenaSheet_${newValue}`])
+  //     dataArenaSheet.value = sessionStorageSheet.value[`ArenaSheet_${newValue}`]
+  //   else executeArenaSheet()
+  // })
+
   return {
     dataConfig,
-    dataMainConfig,
-    errorMainConfig,
-    isFetchingMainConfig,
-    dataGameConfigSheet,
-    errorGameConfigSheet,
-    isFetchingGameConfigSheet,
-    dataBanner,
-    errorBanner,
-    isFetchingBanner,
-    isFetching,
-    hasError,
-    selectedPlanet,
-    selectedNode,
-    changeNode,
-    web9cscanUrl,
-    apiRest9cscan
+    dataMainConfig, errorMainConfig, isFetchingMainConfig,
+    dataGameConfigSheet, errorGameConfigSheet, isFetchingGameConfigSheet,
+    dataArenaSheet, errorArenaSheet, isFetchingArenaSheet,
+    dataBanner, errorBanner, isFetchingBanner,
+    isFetching, hasError,
+    selectedPlanet, selectedNode, changeNode,
+    web9cscanUrl, apiRest9cscan, planetId,
+    urlGameConfigSheet, nameGameConfigSheet, urlArenaSheet, nameArenaSheet
   }
 })

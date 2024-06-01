@@ -52,18 +52,34 @@
       }
     }
   },
+  "@--views--ArenaMain-vue": {
+    "messageJoinArenaFirst": "Tham gia arena và sử dụng 1 vé trước, sẽ hỗ trợ sau ...",
+    "messageLoading": "Đợi thông tin block ..."
+  },
   "@--components--HeaderNineCMD-vue": {
-    "header": "ĐẦU TRANG",
     "popconfirm": {
       "refillAP-info": "Blocks tới lần hồi AP tiếp theo: {block}/{DAILY_REWARD_INTERVAL}",
+      "refillAP-info-2": "Thời gian làm mới thanh AP, tính theo blocks.",
       "refillAP-bar": "Hồi AP",
       "refillAP-potion": "Dùng bình AP",
-      "AP-info": "AP hiện có: {APNow}/{ACTION_POINT_MAX}.",
-      "costAP-info": "Cost AP: {costAP} (no staked) | Cost AP: {costAP} ({stakeNCG} NCG staked) | Cost AP: {costAP} ({stakeNCG} NCGs staked)",
+      "AP-info": "AP hiện có: {APNow}/{ACTION_POINT_MAX}",
+      "AP-info-2": "Action Potion (AP) sẽ giảm khi bạn thực hiện một số hành động cụ thể.",
+      "costAP-info": "Mức tiêu tốn AP: {costAP} (chưa staked) | Mức tiêu tốn AP: {costAP} ({stakeNCG} NCG staked) | Mức tiêu tốn AP: {costAP} ({stakeNCG} NCGs staked)",
       "NCG-info": "NCG là đồng tiền chính, kiếm được qua các hoạt động trong game hoặc mua p2p từ người chơi khác.",
       "NCG-have": "Rỗng túi :D | Hiện có {NCG} NCG | Hiện có {NCG} NCGs",
       "Crystal-info": "Crystal sử dụng để làm phí tham gia arena season, boss thế giới, mở khóa thế giới và công thức chế tạo, bù vào phần vật liệu chưa đủ.",
-      "Crystal-have": "Rỗng túi :D | Hiện có {Crystal} crystal | Hiện có {Crystal} crystals"
+      "Crystal-have": "Rỗng túi :D | Hiện có {Crystal} crystal | Hiện có {Crystal} crystals",
+      "blocks-total": "Tổng blocks cả mùa: ",
+      "round-total": "Tổng vòng đấu cả mùa: ",
+      "blocks-round": "Blocks mỗi vòng đấu: ",
+      "stake-NCG-have": "Chưa stake | Đang stake {NCG} NCG | Đang stake {NCG} NCGs",
+      "stake-NCG-info": "Stake NCG sẽ nhận quà hàng tuần, tăng phần thưởng mùa Arena và nhiều lợi ích khác.",
+      "ticket-arena-info": "Vé đấu trường miễn phí sẽ được làm mới sau mỗi vòng (mặc định 8), không có dự trữ cho vòng tiếp theo.",
+      "ticket-arena-have": "Hết vé miễn phí | Có sẵn {ticket} vé miễn phí | Có sẵn {ticket} vé miễn phí ",
+      "ticket-arena-buy-info": "Có thể mua thêm vé đấu trường, có giới hạn ở mỗi vòng (mặc định 8), mọi người thường mua vé cho 5 vòng cuối cùng trước khi kết thúc season 😉.",
+      "ticket-arena-buy-have": "Chưa mua vé | Đã mua {ticket} vé | Đã mua {ticket} vé ",
+      "ticket-arena-bought-info": "Có giới hạn tổng số vé có thể được mua trong mùa (mặc định 40), ở những thứ hạng cao thường mua tối đa vé.",
+      "ticket-arena-bought-have": "Chưa mua vé | Đã mua {ticket} vé | Đã mua {ticket} vé "
     }
   },
   "@--components--tabSettingNinecmd-vue": {
@@ -87,10 +103,33 @@
       "step10": "Nhận payload"
     },
     "message": {
-      "createMessage": "Chờ {timeoutComputed}",
+      "createMessage": "Chờ {timeoutComputed} giây",
       "createMessageError": "Lỗi tại bước {stepHasError}, đã thử {now}/{max}",
       "createMessageErrorNoSuccess": "Bạn cần tạo hành động {action} thủ công trong game",
       "createMessageStop": "Dừng ở bước {currentStep}"
+    }
+  },
+  "@--components--leadboardArena-vue": {
+    "placeholder": {
+      "addressTemp": "Nhân vật tạm thời ...",
+      "nameSearch": "Tìm kiếm theo tên nhân vật ...",
+      "guildSearch": "Tìm kiếm theo tên Guild ..."
+    },
+    "title": {
+      "rank": "#",
+      "level": "Nhân vật",
+      "nameGuild": "Bang hội",
+      "nameWithHash": "Tên & tag",
+      "cp": "CP",
+      "totalCPGuild": "CP Guild",
+      "rankGuild": "BXH Guild",
+      "rankMember": "BXH thành viên",
+      "win": "Thắng",
+      "lose": "Thua",
+      "winScore": "Điểm thưởng",
+      "actionAttack": "Tấn công",
+      "winRate": "Tỉ lệ thắng",
+      "empty": "-"
     }
   },
   "page": {
