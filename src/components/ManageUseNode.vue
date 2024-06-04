@@ -9,6 +9,7 @@
       :src="listImg.gifLoading"
     ></n-avatar>
     <n-avatar v-else size="medium" :src="listImg.pngLoading"></n-avatar>
+    <n-icon :component="listImg.serviceLogo" />
   </n-badge>
 
   <n-drawer v-model:show="showDrawer" placement="bottom" :height="drawerSize">
@@ -95,8 +96,9 @@
           </n-space>
         </n-tab-pane>
 
-        <n-tab-pane name="use AP potion setting" tab="AP potion"> Temp </n-tab-pane>
-        <n-tab-pane name="sweep setting" tab="Sweep"> Temp </n-tab-pane>
+        <n-tab-pane name="tabChronoSetting" tab="tabChronoSetting">
+          <tabChronoSetting />
+        </n-tab-pane>
         <n-tab-pane name="temp" tab="Temp"> <tabTemp /> </n-tab-pane>
       </n-tabs>
     </n-drawer-content>
@@ -104,23 +106,29 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, shallowRef } from 'vue'
+import { ref, reactive, computed, shallowRef, markRaw } from 'vue'
 import { DISPLAY_9CMD } from '@/utilities/constants'
 
 import { FullscreenExitRound as offFull, FullscreenRound as onFull } from '@vicons/material'
 
 import infoBlock from './other/infoBlock.vue'
+
+import tabChronoSetting from './tabChronoSetting.vue'
 import tabTemp from './tabTemp.vue'
 import tabSettingNinecmd from './other/tabSettingNinecmd.vue'
 import heartIcon from './icons/heartIcon.vue'
+import logoChrono from '@/components/icons/logoChrono.vue'
+import logoNineCMDSign from '@/components/icons/logoNineCMDSign.vue'
 
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
+import { useExtensionServiceStore } from '@/stores/extensionService'
+
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import { getEquipmentsAndRuneFrom9cscan } from '@/utilities/getEquipmentsAndRuneFrom9cscan'
 import { useI18n } from 'vue-i18n'
 import { useNow } from '@vueuse/core'
 const { t, d, locale } = useI18n()
-
+const useExtensionService = useExtensionServiceStore()
 const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
 // Hiển thị trước thông tin đầu vào action
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
@@ -223,10 +231,17 @@ const drawerSize = ref(DISPLAY_9CMD.drawerSize)
 const iconFull = shallowRef(onFull)
 const showDrawer = ref(false)
 
-const listImg = {
-  gifLoading: getImageBase64FromCacheOrFetch('/assets/gifs/run.gif'),
-  pngLoading: getImageBase64FromCacheOrFetch('/assets/gifs/run.png')
+const anhXaLogo = {
+  NineCMDSign: markRaw(logoNineCMDSign),
+  Chrono: markRaw(logoChrono)
 }
+const listImg = computed(() => {
+  return {
+    gifLoading: getImageBase64FromCacheOrFetch('/assets/gifs/run.gif'),
+    pngLoading: getImageBase64FromCacheOrFetch('/assets/gifs/run.png'),
+    serviceLogo: anhXaLogo[useExtensionService.selectServiceSign]
+  }
+})
 </script>
 
 <style scoped></style>

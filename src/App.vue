@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import { ref, h, computed } from 'vue'
+import { ref, h, computed, watch } from 'vue'
 import MenuLeft from '@/components/MenuLeft.vue'
 import HeaderNineCMD from '@/components/HeaderNineCMD.vue'
 import FooterBlock from '@/components/FooterBlock.vue'
@@ -155,13 +155,14 @@ const langOptions = availableLocales.map((item) => ({
   value: item
 }))
 const selectedPlanet = ref(webSocketBlockStore.selectedPlanet)
-const randomNodeIndex = computed(() => Math.floor(Math.random() * nodeOptions.value.length))
+const randomNodeIndex = () => Math.floor(Math.random() * nodeOptions.value.length)
 const changePlanet = (value) => {
   webSocketBlockStore.changePlanet(value)
   // Tự chọn node đầu tiên tùy theo planet dc chọn
   // selectedNode.value = nodeOptions.value[0].value
   // Tự chọn node ngẫu nhiên sau khi đổi server
-  selectedNode.value = nodeOptions.value[randomNodeIndex.value].value
+  selectedNode.value = nodeOptions.value[randomNodeIndex()].value
+  // console.log(`3 ${selectedNode.value}`)
   configURLStore.changeNode(selectedNode.value)
   // Lưu planet vào local
   settingNineCMD.value.lastPlanet = value
@@ -298,11 +299,15 @@ if (settingNineCMD.value.isDarkMode) {
 // Kiểm tra xem khóa lastPlanet
 if (settingNineCMD.value.lastPlanet) {
   changePlanet(settingNineCMD.value.lastPlanet)
-} else {
-  // Chạy 1 lần để tự chọn node cho odin
-  selectedNode.value = nodeOptions.value[randomNodeIndex.value].value
-  configURLStore.changeNode(selectedNode.value)
 }
+
+watch(nodeOptions, () => {
+  // Chạy 1 lần để tự chọn node cho odin
+  selectedNode.value = nodeOptions.value[randomNodeIndex()].value
+  // console.log(`1 ${selectedNode.value}`)
+  configURLStore.changeNode(selectedNode.value)
+})
+
 // Kiểm tra khóa Lang
 if (settingNineCMD.value.lang) {
   changeLang(settingNineCMD.value.lang)

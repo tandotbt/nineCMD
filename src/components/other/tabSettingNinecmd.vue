@@ -1,16 +1,24 @@
 <template>
   <n-flex justify="space-around" vertical>
-    <n-input-number
-      v-model:value="valueTimeout"
-      :placeholder="
-        t(
-          '@--components--tabSettingNinecmd-vue.placeholder.timeoutUseNode',
-          { TIMEOUT_USE_NODE },
-          TIMEOUT_USE_NODE
-        )
-      "
-      :min="TIMEOUT_USE_NODE"
-    />
+    <n-flex>
+      <n-input-number
+        v-model:value="valueTimeout"
+        :placeholder="
+          t(
+            '@--components--tabSettingNinecmd-vue.placeholder.timeoutUseNode',
+            { TIMEOUT_USE_NODE },
+            TIMEOUT_USE_NODE
+          )
+        "
+        :min="TIMEOUT_USE_NODE"
+      />
+      <n-select
+        style="width: 300px"
+        v-model:value="useExtensionService.selectServiceSign"
+        :options="useExtensionService.listServiceExtensions"
+        :disabled="useHandlerCreatNewAction.listActionStartNextLength !== 0"
+      />
+    </n-flex>
     <n-transfer
       ref="transfer"
       v-model:value="useHandlerCreatNewAction.listActionStartNext"
@@ -22,6 +30,7 @@
     />
 
     <n-steps
+      style="margin-left: 10px"
       vertical
       :current="currentStep"
       :update-value-on-input="false"
@@ -59,7 +68,7 @@
   </n-flex>
 </template>
 <script setup>
-import { ref, computed, h } from 'vue'
+import { ref, computed, h, reactive } from 'vue'
 import { useMessage, NEllipsis, NAvatar } from 'naive-ui'
 import { useFetch, watchImmediate } from '@vueuse/core'
 import {
@@ -72,12 +81,16 @@ import {
 import { useRefHistory } from '@vueuse/core'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
+import { useExtensionServiceStore } from '@/stores/extensionService'
+
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 //// Các biến
 // Giúp làm mới dữ liệu khi hoàn thành 1 quy trình
 const useFetchDataUser9C = useFetchDataUser9CStore()
 const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
+const useExtensionService = useExtensionServiceStore()
+
 // Trạng thái nút again
 const buttonType = computed(() => {
   switch (currentStepStatus.value) {
@@ -206,7 +219,6 @@ function afterFetchStep(data) {
           }
         `
       }
-
       break
     case 6:
       data = data.data.transaction.nextTxNonce
@@ -338,6 +350,11 @@ async function startNextStep() {
   showMessStop.value = true
   if (!useNodeRef.value) return
   console.log('=== Bắt đầu step' + currentStep.value)
+
+  const useExtension = {
+    Chrono: async (stepNow) => await processUseChrono(stepNow)
+  }
+  const tryUseExtension = useExtension[useExtensionService.selectServiceSign]
   switch (currentStep.value) {
     case 2:
       await getDataBegin()
@@ -346,23 +363,46 @@ async function startNextStep() {
     case 3:
       await checkSuccess(3)
       break
+    // Lấy public key
     case 4:
-      await checkYourServer(4)
+      if (tryUseExtension) {
+        await tryUseExtension(4)
+      } else {
+        await checkYourServer(4)
+      }
       break
+    // Dùng nineCMD API
     case 5:
       await check9cmdServer(5)
       break
+    // Nhận nextTxNonce
     case 6:
-      await processUseNode(6)
+      if (tryUseExtension) {
+        await tryUseExtension(6)
+      } else {
+        await processUseNode(6)
+      }
       break
     case 7:
-      await processUseNode(7)
+      if (tryUseExtension) {
+        await tryUseExtension(7)
+      } else {
+        await processUseNode(7)
+      }
       break
     case 8:
-      await checkYourServer(8)
+      if (tryUseExtension) {
+        await tryUseExtension(8)
+      } else {
+        await processUseNode(8)
+      }
       break
     case 9:
-      await processUseNode(9)
+      if (tryUseExtension) {
+        await tryUseExtension(9)
+      } else {
+        await processUseNode(9)
+      }
       break
     case 10:
       await processUseNode(10)
@@ -965,7 +1005,8 @@ async function check9cmdServer(stepNow) {
     currentStepStatus.value = 'wait'
     await resetTimeTry()
     await handleNextClick()
-    createMessage()
+    // createMessage() // Bỏ qua chờ đợi
+    startNextStep()
   }
 }
 // Logic chung cho việc sử dụng node
@@ -1015,6 +1056,125 @@ async function processUseNode(stepNow) {
     } else {
       createMessage()
     }
+  }
+}
+
+// Logic chung cho việc sử dụng chrono
+const dataInputExtensionChrono = reactive({
+  4: computed(() => useFetchDataUser9C.agentAddress),
+  6: computed(() => useFetchDataUser9C.agentAddress),
+  7: computed(() => useFetchDataUser9C.agentAddress),
+  8: computed(() => useFetchDataUser9C.agentAddress),
+  9: computed(() => {
+    return { agent: useFetchDataUser9C.agentAddress, plainValue: postDataJsonStep.value[5] }
+  })
+})
+const useExtensionChrono = {
+  // 4: async (agent) => await useExtensionService.executeGetPublicKeyChrono(0, { agent }),
+  4: async (agent) => console.log(`Bỏ qua lấy public key của ${agent}`),
+  6: async (agent) => console.log(`Bỏ qua lấy nextTxNonce của ${agent}`),
+  7: async (agent) => console.log(`Bỏ qua lấy unsignedTransaction của ${agent}`),
+  8: async (agent) => console.log(`Bỏ qua lấy signature của ${agent}`),
+  9: async (args) => await useExtensionService.executeGetSignTransactionChrono(0, args)
+}
+
+const dataOutputExtensionChrono = reactive({
+  // 4: computed(() => useExtensionService.allData.Chrono.publicKey.state)
+  4: computed(() => t('@--components--tabSettingNinecmd-vue.other.messageSkipStep')),
+  6: computed(() => t('@--components--tabSettingNinecmd-vue.other.messageSkipStep')),
+  7: computed(() => t('@--components--tabSettingNinecmd-vue.other.messageSkipStep')),
+  8: computed(() => t('@--components--tabSettingNinecmd-vue.other.messageSkipStep')),
+  9: computed(() => useExtensionService.allData.Chrono.signTransaction.state)
+})
+const checkDataOutputExtensionChrono = reactive({
+  // 4: async (output) => output.lenth == 0 || output.includes(' ')
+  // eslint-disable-next-line no-unused-vars
+  4: async (output) => false,
+  // eslint-disable-next-line no-unused-vars
+  6: async (output) => false,
+  // eslint-disable-next-line no-unused-vars
+  7: async (output) => false,
+  // eslint-disable-next-line no-unused-vars
+  8: async (output) => false,
+  9: async (output) => output.lenth == 0 || output.includes(' ')
+})
+const afterFetchStepExtensionChrono = reactive({
+  // eslint-disable-next-line no-unused-vars
+  4: async (output) => {
+    return {
+      message: 'temp'
+    }
+  },
+  // eslint-disable-next-line no-unused-vars
+  6: async (output) => {
+    return {
+      data: { transaction: { nextTxNonce: 0 } }
+    }
+  },
+  // eslint-disable-next-line no-unused-vars
+  7: async (output) => {
+    return {
+      data: { transaction: { unsignedTransaction: 'temp' } }
+    }
+  },
+  // eslint-disable-next-line no-unused-vars
+  8: async (output) => {
+    return {
+      message: 'temp'
+    }
+  },
+  9: async (output) => {
+    return {
+      data: { transaction: { signTransaction: output } }
+    }
+  }
+})
+
+async function processUseChrono(stepNow) {
+  currentStepStatus.value = 'wait'
+  // Chặn dùng nút again
+  canAgainPreStep.value = false
+  // Hủy nếu không sử dụng node nữa
+  if (!useNodeRef.value) return
+
+  // Nếu dùng again thì sẽ break để chạy tới case trước
+  if (currentStep.value !== stepNow) {
+    return
+  }
+
+  // Fetch lấy dữ liệu
+  currentStepStatus.value = 'process'
+
+  const tryUseExtension = useExtensionChrono[stepNow]
+  const dataInput = dataInputExtensionChrono[stepNow]
+  const checkDataOutput = checkDataOutputExtensionChrono[stepNow]
+  const afterFetchStepInput = afterFetchStepExtensionChrono[stepNow]
+  if (tryUseExtension) {
+    await tryUseExtension(dataInput)
+    const dataOutput = dataOutputExtensionChrono[stepNow]
+    postDataJsonStep.value[stepNow] = dataOutput
+    const isError = await checkDataOutput(dataOutput)
+    if (isError) {
+      await createMessageError(stepNow, 1, 1)
+      await canAbortUseNode()
+      // Xóa action đang chạy khỏi list giống ở bước cuối
+      useHandlerCreatNewAction.listActionStartNext.shift()
+      return
+    }
+    // Nếu ko có lỗi
+    const afterFetchStepInputData = await afterFetchStepInput(dataOutput)
+    afterFetchStep(afterFetchStepInputData)
+    currentStepStatus.value = 'wait'
+    await resetTimeTry()
+    await handleNextClick()
+    startNextStep()
+  } else {
+    // Dừng khi ko tìm thấy tiến trình
+    currentStepStatus.value = 'wait'
+    await createMessageError(stepNow, 1, 1)
+    await canAbortUseNode()
+    // Xóa action đang chạy khỏi list giống ở bước cuối
+    useHandlerCreatNewAction.listActionStartNext.shift()
   }
 }
 

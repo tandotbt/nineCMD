@@ -50,6 +50,24 @@
         "start0x": "Ví cần bắt đầu bằng 0x",
         "length42": "Độ dài yêu cầu 42 kí tự"
       }
+    },
+    "typeService": {
+      "selfHosting": "Dịch vụ tự lưu trữ",
+      "extensions": "Tiện ích trình duyệt",
+      "recommended": "Khuyên dùng"
+    },
+    "thing": {
+      "NineCMDSign": {
+        "header": "Nine CMD Sign",
+        "description": "Máy chủ hỗ trợ cho Nine Chronicles thông qua Python và Flask",
+        "content": "Máy chủ giúp ký các giao dịch bạn gửi tới, sử dụng dịch vụ lưu trữ Pythonanywhere miễn phí."
+      },
+      "Chrono": {
+        "header": "Chrono",
+        "connectButton": "Ví Chrono",
+        "description": "Công cụ quản lý ví cho Nine Chronicles",
+        "content": "Đây là một dịch vụ ví tiền điện tử, sử dụng qua tiện ích Chrome dành cho Nine Chronicles blockchain."
+      }
     }
   },
   "@--views--ArenaMain-vue": {
@@ -107,6 +125,10 @@
       "createMessageError": "Lỗi tại bước {stepHasError}, đã thử {now}/{max}",
       "createMessageErrorNoSuccess": "Bạn cần tạo hành động {action} thủ công trong game",
       "createMessageStop": "Dừng ở bước {currentStep}"
+    },
+    "other": {
+      "messageSkipStep": "Bỏ qua",
+      "messageNeedInstallChronoFirst": "Cài đặt Chrono trước tiên"
     }
   },
   "@--components--leadboardArena-vue": {

@@ -29,7 +29,7 @@
       "checked": "Use avatar",
       "unchecked": "Use agent"
     },
-    "divider": "Server sign",
+    "divider": "Service sign",
     "submit": "Login",
     "message": {
       "loginSuccess": {
@@ -49,6 +49,24 @@
         "required": "Please input/choose your avatar address",
         "start0x": "Address need start with 0x",
         "length42": "Length address needs 42 characters"
+      }
+    },
+    "typeService": {
+      "selfHosting": "Self-hosting server",
+      "extensions": "Extensions",
+      "recommended": "Recommended"
+    },
+    "thing": {
+      "NineCMDSign": {
+        "header": "Nine CMD Sign",
+        "description": "Server support for Nine Chronicles via Python and Flask",
+        "content": "The server helps to sign the transactions you send to, use free Pythonanywhere cloud storage service."
+      },
+      "Chrono": {
+        "header": "Chrono",
+        "connectButton": "Chrono Wallet",
+        "description": "Wallet for Nine Chronicles",
+        "content": "This is a crypto wallet service of chrome extension for Nine Chronicles blockchain."
       }
     }
   },
@@ -107,6 +125,10 @@
       "createMessageError": "Error at step {stepHasError}, tried {now}/{max}",
       "createMessageErrorNoSuccess": "You need to creat {action} manual in game",
       "createMessageStop": "Stop at step {currentStep}"
+    },
+    "other": {
+      "messageSkipStep": "Skip",
+      "messageNeedInstallChronoFirst": "Install Chrono first"
     }
   },
   "@--components--leadboardArena-vue": {
