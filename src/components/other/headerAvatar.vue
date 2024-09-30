@@ -85,9 +85,17 @@ const imgList = ref({
 //   'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png'
 // )
 
-const portraitId = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false ? useFetchDataUser9C.dataUser9C.portraitId : 10200000
-)
+const portraitId = computed(() => {
+  if (
+    useFetchDataUser9C.dataUser9C_normal !== null &&
+    useFetchDataUser9C.dataUser9C_arena !== null &&
+    useFetchDataUser9C.isFetchingDataUser9C === false
+  ) {
+    if (useFetchDataUser9C.dataUser9C_arena.portraitId !== 0)
+      return useFetchDataUser9C.dataUser9C_arena.portraitId
+    else return useFetchDataUser9C.dataUser9C_normal.armorId
+  } else return 10200000
+})
 // const imgAvatar = computed(() =>
 //   !isDCC.value
 //     ? getImageBase64FromCacheOrFetch(
@@ -106,7 +114,7 @@ const portraitId = computed(() =>
 // )
 
 const level = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false ? useFetchDataUser9C.dataUser9C.level : 0
+  useFetchDataUser9C.dataUser9C_normal !== null && useFetchDataUser9C.isFetchingDataUser9C === false ? useFetchDataUser9C.dataUser9C_normal.level : 0
 )
 </script> -->
 

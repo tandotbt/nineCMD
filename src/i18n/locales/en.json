@@ -66,13 +66,18 @@
         "header": "Chrono",
         "connectButton": "Chrono Wallet",
         "description": "Wallet for Nine Chronicles",
-        "content": "This is a crypto wallet service of chrome extension for Nine Chronicles blockchain."
+        "content": "This is a crypto wallet service of chrome extension for Nine Chronicles blockchain, designed to provide users with a seamless experience in managing their assets on the Nine Chronicles blockchain."
       }
     }
   },
   "@--views--ArenaMain-vue": {
     "messageJoinArenaFirst": "Join Arena and use 1 ticket first, will support later ...",
     "messageLoading": "Wait info block ..."
+  },
+  "@--views--ArenaLeaderboard-vue": {
+    "button": {
+      "backArenaMain": "Back"
+    }
   },
   "@--components--HeaderNineCMD-vue": {
     "popconfirm": {

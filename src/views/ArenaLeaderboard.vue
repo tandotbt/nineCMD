@@ -1,94 +1,103 @@
 <template>
   <breadcrumbPage :pages="pages" />
-  <n-gradient-text :size="24" type="info">{{ t('page.arena.leaderboard') }}</n-gradient-text>
+  <n-gradient-text :size="24" type="info"
+    >{{ t('page.arena.leaderboard') }} <n-divider vertical />
+    {{ useArenaSeason.realTomeSeasonEnd.hours }}:{{ useArenaSeason.realTomeSeasonEnd.minutes }}:{{
+      useArenaSeason.realTomeSeasonEnd.seconds
+    }}</n-gradient-text
+  >
 
-  <n-flex v-if="arenaSeasonStore.isActive" justify="space-around" size="large" vertical>
+  <n-flex v-if="useArenaSeason.isActive" justify="space-around" size="large" vertical>
     <span>
-      <n-gradient-text :size="20" :type="arenaSeasonStore.seasonNowData['statusSeason']">
-        {{ arenaSeasonStore.seasonNowData['titleArena'] }}
-        <img class="carousel-img" :src="arenaSeasonStore.seasonNowData['img']" />
+      <n-gradient-text :size="20" :type="useArenaSeason.seasonNowData['statusSeason']">
+        {{ useArenaSeason.seasonNowData['titleArena'] }}
+        <img class="carousel-img" :src="useArenaSeason.seasonNowData['img']" />
       </n-gradient-text>
       <n-divider vertical />
-      <n-gradient-text :size="20" :type="arenaSeasonStore.seasonNowData['statusSeason']">
+      <n-gradient-text :size="20" :type="useArenaSeason.seasonNowData['statusSeason']">
         {{ ticketsArena }}/8
         <img class="carousel-img" :src="imgList.ticket" />
       </n-gradient-text>
       <n-divider vertical />
-      <n-gradient-text :size="20" :type="arenaSeasonStore.seasonNowData['statusSeason']">
+      <n-gradient-text :size="20" :type="useArenaSeason.seasonNowData['statusSeason']">
         {{ useFetchDataUser9C.ticketArenaBuy }}/{{
-          arenaSeasonStore.maxPurchaseCountDuringIntervalActive
+          useArenaSeason.maxPurchaseCountDuringIntervalActive
         }}
         <img class="carousel-img" :src="imgList.ticketBuy" />
       </n-gradient-text>
       <n-divider vertical />
-      <n-gradient-text :size="20" :type="arenaSeasonStore.seasonNowData['statusSeason']">
-        {{ ticketsArenaBought }}/{{ arenaSeasonStore.maxPurchaseCountActive }}
+      <n-gradient-text :size="20" :type="useArenaSeason.seasonNowData['statusSeason']">
+        {{ ticketsArenaBought }}/{{ useArenaSeason.maxPurchaseCountActive }}
         <img class="carousel-img" :src="imgList.ticketBought" />
       </n-gradient-text>
     </span>
     <n-progress
       type="line"
-      :status="arenaSeasonStore.seasonNowData['statusSeason']"
+      :status="useArenaSeason.seasonNowData['statusSeason']"
       :rail-color="
-        changeColor(themeVars[`${arenaSeasonStore.seasonNowData['statusSeason']}Color`], {
+        changeColor(themeVars[`${useArenaSeason.seasonNowData['statusSeason']}Color`], {
           alpha: 0.2
         })
       "
-      :percentage="arenaSeasonStore.seasonNowData['percentageSeason']"
+      :percentage="useArenaSeason.seasonNowData['percentageSeason']"
       :height="24"
       :border-radius="4"
       :fill-border-radius="0"
       :indicator-placement="'inside'"
-      :processing="arenaSeasonStore.seasonNowData['statusSeason'] === 'success'"
+      :processing="useArenaSeason.seasonNowData['statusSeason'] === 'success'"
     >
-      {{ arenaSeasonStore.seasonNowData['blockToEndSeason'] }}
+      {{ useArenaSeason.seasonNowData['blockToEndSeason'] }}
     </n-progress>
     <n-progress
       type="line"
-      :status="arenaSeasonStore.seasonNowData['statusSeason']"
+      :status="useArenaSeason.seasonNowData['statusSeason']"
       :rail-color="
-        changeColor(themeVars[`${arenaSeasonStore.seasonNowData['statusSeason']}Color`], {
+        changeColor(themeVars[`${useArenaSeason.seasonNowData['statusSeason']}Color`], {
           alpha: 0.2
         })
       "
       :percentage="
-        ((arenaSeasonStore.seasonNowData['nowRound'] * 100) /
-          (arenaSeasonStore.seasonNowData['totalRound'] * 100)) *
+        ((useArenaSeason.seasonNowData['nowRound'] * 100) /
+          (useArenaSeason.seasonNowData['totalRound'] * 100)) *
         100
       "
       :height="24"
       :border-radius="4"
       :fill-border-radius="0"
       :indicator-placement="'inside'"
-      :processing="arenaSeasonStore.seasonNowData['statusSeason'] === 'success'"
+      :processing="useArenaSeason.seasonNowData['statusSeason'] === 'success'"
     >
-      {{ arenaSeasonStore.seasonNowData['nowRound'] }}/{{
-        arenaSeasonStore.seasonNowData['totalRound']
+      {{ useArenaSeason.seasonNowData['nowRound'] }}/{{
+        useArenaSeason.seasonNowData['totalRound']
       }}
     </n-progress>
     <n-progress
       type="line"
-      :status="arenaSeasonStore.seasonNowData['statusSeason']"
+      :status="useArenaSeason.seasonNowData['statusSeason']"
       :rail-color="
-        changeColor(themeVars[`${arenaSeasonStore.seasonNowData['statusSeason']}Color`], {
+        changeColor(themeVars[`${useArenaSeason.seasonNowData['statusSeason']}Color`], {
           alpha: 0.2
         })
       "
       :percentage="
-        (arenaSeasonStore.seasonNowData['blockEndRound'] / arenaSeasonStore.ROUND_BLOCKS) * 100
+        (useArenaSeason.seasonNowData['blockEndRound'] / useArenaSeason.ROUND_BLOCKS) * 100
       "
       :height="24"
       :border-radius="4"
       :fill-border-radius="0"
       :indicator-placement="'inside'"
-      :processing="arenaSeasonStore.seasonNowData['statusSeason'] === 'success'"
+      :processing="useArenaSeason.seasonNowData['statusSeason'] === 'success'"
     >
-      {{ arenaSeasonStore.seasonNowData['blockEndRound'] }}/{{ arenaSeasonStore.ROUND_BLOCKS }}
+      {{ useArenaSeason.seasonNowData['blockEndRound'] }}/{{ useArenaSeason.ROUND_BLOCKS }}
     </n-progress>
   </n-flex>
-  <n-flex v-else><n-button @click="goBack">Quay lại</n-button></n-flex>
+  <n-flex v-else
+    ><n-button @click="goBack">
+      {{ t('@--views--ArenaLeaderboard-vue.button.backArenaMain') }}
+    </n-button>
+  </n-flex>
   <leadboardArena
-    :isActive="arenaSeasonStore.isActive"
+    :isActive="useArenaSeason.isActive"
     :champIdSelect="parseInt(route.params.champId)"
     :roundIdSelect="parseInt(route.params.roundId)"
   />
@@ -113,7 +122,7 @@ import { useThemeVars } from 'naive-ui'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 const themeVars = useThemeVars()
 const useFetchDataUser9C = useFetchDataUser9CStore()
-const arenaSeasonStore = useArenaSeasonStore()
+const useArenaSeason = useArenaSeasonStore()
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
@@ -138,20 +147,21 @@ const goBack = () => {
 
 const ticketsArena = computed(() => {
   if (
-    useFetchDataUser9C.dataUser9C !== null &&
-    useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
+    useFetchDataUser9C.dataUser9C_normal !== null &&
+    useFetchDataUser9C.dataUser9C_normal.arenaInfo.length !== 0
   ) {
-    return arenaSeasonStore.roundActive - 1 >
-      useFetchDataUser9C.dataUser9C.arenaInfo.ticketResetCount
-      ? arenaSeasonStore.maxPurchaseCountDuringIntervalActive
-      : useFetchDataUser9C.dataUser9C.arenaInfo.ticket
+    return useArenaSeason.roundActive - 1 >
+      useFetchDataUser9C.dataUser9C_normal.arenaInfo.ticketResetCount
+      ? useArenaSeason.maxPurchaseCountDuringIntervalActive
+      : useFetchDataUser9C.dataUser9C_normal.arenaInfo.ticket
   } else {
     return 0
   }
 })
 const ticketsArenaBought = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
-    ? useFetchDataUser9C.dataUser9C.arenaInfo.purchasedTicketCount
+  useFetchDataUser9C.dataUser9C_normal !== null &&
+  useFetchDataUser9C.dataUser9C_normal.arenaInfo.length !== 0
+    ? useFetchDataUser9C.dataUser9C_normal.arenaInfo.purchasedTicketCount
     : 0
 )
 
@@ -163,12 +173,12 @@ const imgList = ref({
 })
 
 onBeforeMount(() => {
-  arenaSeasonStore.champId = route.params.champId
-  arenaSeasonStore.roundId = route.params.roundId
+  useArenaSeason.champId = route.params.champId
+  useArenaSeason.roundId = route.params.roundId
 })
 onUpdated(() => {
-  arenaSeasonStore.champId = route.params.champId
-  arenaSeasonStore.roundId = route.params.roundId
+  useArenaSeason.champId = route.params.champId
+  useArenaSeason.roundId = route.params.roundId
 })
 </script>
 <style scoped>

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useWebSocket } from '@/utilities/websocket'
 import { ref, computed } from 'vue'
 import { AVG_BLOCK, AVG_TRANS, URL_NINE_CHRONICLES_SERVE } from '@/utilities/constants'
-import convertToSeconds from '@/utilities/convertToSeconds'
+import { convertToSeconds } from '@/utilities/convertToSeconds'
 import { useDataArenaParticipateStore } from './dataArenaParticipate'
 
 export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {

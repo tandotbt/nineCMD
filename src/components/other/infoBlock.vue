@@ -20,12 +20,12 @@ export default {
     const { n } = useI18n()
     const useFetchDataUser9C = useFetchDataUser9CStore()
     const webSocketBlockStore = useWebSocketBlockStore()
-    const configURLStore = useConfigURLStore()
+    const useConfigURL = useConfigURLStore()
     const loadingBar = useLoadingBar()
     const isFetching = computed(
-      () => configURLStore.isFetching || useFetchDataUser9C.isFetchingDataUser9C
+      () => useConfigURL.isFetching || useFetchDataUser9C.isFetchingDataUser9C
     )
-    const hasError = computed(() => configURLStore.hasError)
+    const hasError = computed(() => useConfigURL.hasError)
     // Hàm xử lý hiển thị loadingBar
     // eslint-disable-next-line no-unused-vars
     watch(isFetching, (newValue, oldValue) => {
@@ -41,7 +41,7 @@ export default {
       blockNow: computed(() => n(webSocketBlockStore.calculateAVG.blockNow, 'decimal')),
       avgBlockNow: computed(() => n(webSocketBlockStore.calculateAVG.avgBlockNow, 'decimal')),
       avgTransNow: computed(() => n(webSocketBlockStore.calculateAVG.avgTransNow, 'decimal')),
-      selectedPlanet: computed(() => configURLStore.selectedPlanet)
+      selectedPlanet: computed(() => useConfigURL.selectedPlanet)
     }
   }
 }

@@ -11,8 +11,8 @@ export const useHandlerCreatNewActionStore = defineStore('handlerCreatNewActionS
   const useFetchDataUser9C = useFetchDataUser9CStore()
   const useConfigURL = useConfigURLStore()
   const nameAndTag = computed(() =>
-    useFetchDataUser9C.dataUser9C !== null
-      ? `${useFetchDataUser9C.dataUser9C.name} #${useFetchDataUser9C.avatarAddress.slice(2, 6)}`
+    useFetchDataUser9C.dataUser9C_normal !== null
+      ? `${useFetchDataUser9C.dataUser9C_normal.name} #${useFetchDataUser9C.avatarAddress.slice(2, 6)}`
       : t('fetchDataUser9c.guest')
   )
   const listActions = ref([])

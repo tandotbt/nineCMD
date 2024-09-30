@@ -1,6 +1,11 @@
 <template>
   <breadcrumbPage :pages="pages" />
-  <n-gradient-text :size="24" type="info"> {{ t('page.arena.main') }} </n-gradient-text>
+  <n-gradient-text :size="24" type="info">
+    {{ t('page.arena.main') }} <n-divider vertical />
+    {{ useArenaSeason.realTomeSeasonEnd.hours }}:{{ useArenaSeason.realTomeSeasonEnd.minutes }}:{{
+      useArenaSeason.realTomeSeasonEnd.seconds
+    }}</n-gradient-text
+  >
   <div v-if="!useFetchDataUser9C.isFetchingDataUser9C">
     <n-carousel
       v-if="useFetchDataUser9C.isUseFetchArena"
@@ -20,7 +25,7 @@
     >
       <n-carousel-item
         style="width: 100%"
-        v-for="(season, index) in arenaSeasonStore.seasonArenaInfo"
+        v-for="(season, index) in useArenaSeason.seasonArenaInfoAll"
         :key="index"
         ><n-flex justify="space-around" size="large" vertical>
           <router-link
@@ -68,14 +73,14 @@
             type="line"
             :status="season.statusSeason"
             :rail-color="changeColor(themeVars[`${season.statusSeason}Color`], { alpha: 0.2 })"
-            :percentage="(season.blockEndRound / arenaSeasonStore.ROUND_BLOCKS) * 100"
+            :percentage="(season.blockEndRound / useArenaSeason.ROUND_BLOCKS) * 100"
             :height="24"
             :border-radius="4"
             :fill-border-radius="0"
             :indicator-placement="'inside'"
             :processing="season.statusSeason === 'success'"
           >
-            {{ season.blockEndRound }}/{{ arenaSeasonStore.ROUND_BLOCKS }}
+            {{ season.blockEndRound }}/{{ useArenaSeason.ROUND_BLOCKS }}
           </n-progress>
         </n-flex>
       </n-carousel-item>
@@ -105,7 +110,7 @@ import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
 
 import { changeColor } from 'seemly'
 import { useThemeVars } from 'naive-ui'
-const arenaSeasonStore = useArenaSeasonStore()
+const useArenaSeason = useArenaSeasonStore()
 const useHandlerMenuLeft = useHandlerMenuLeftStore()
 const useFetchDataUser9C = useFetchDataUser9CStore()
 const { t } = useI18n()
@@ -120,11 +125,11 @@ const goToIndex = (index) => {
 }
 
 onUpdated(() => {
-  if (useFetchDataUser9C.isUseFetchArena) goToIndex(arenaSeasonStore.seasonIndex)
+  if (useFetchDataUser9C.isUseFetchArena) goToIndex(useArenaSeason.seasonIndex)
 })
 onMounted(() => {
   // Gọi hàm bạn muốn khi component được mounted và khi đã join arena
-  if (useFetchDataUser9C.isUseFetchArena) goToIndex(arenaSeasonStore.seasonIndex)
+  if (useFetchDataUser9C.isUseFetchArena) goToIndex(useArenaSeason.seasonIndex)
 })
 const showOption = useHandlerMenuLeft.showOption
 const themeVars = useThemeVars()

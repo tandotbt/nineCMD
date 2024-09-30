@@ -4,13 +4,14 @@ import { CONFIG_GAME_CONFIG_SHEET, CONFIG_ARENA_SHEET } from '@/utilities/consta
 import { ref, computed } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
 import { useConfigURLStore } from './configURL'
+import { secondConvertToTime } from '@/utilities/convertToSeconds'
 import checkHaveArena from '@/utilities/checkHaveArena.js'
 export const useArenaSeasonStore = defineStore('arenaSeasonStore', () => {
   const useConfigURL = useConfigURLStore()
   const webSocketBlockStore = useWebSocketBlockStore()
   const ROUND_BLOCKS = computed(() =>
     useConfigURL.dataGameConfigSheet !== null
-      ? useConfigURL.dataGameConfigSheet.find((item) => item[0] === 'daily_arena_interval')[1]
+      ? useConfigURL.dataGameConfigSheet['daily_arena_interval']['value']
       : CONFIG_GAME_CONFIG_SHEET.daily_arena_interval
   )
   const arenaSheet = computed(() =>
@@ -21,8 +22,9 @@ export const useArenaSeasonStore = defineStore('arenaSeasonStore', () => {
   const seasonArenaInfo = computed(() =>
     checkHaveArena(webSocketBlockStore.calculateAVG.blockNow, arenaSheet.value, ROUND_BLOCKS.value, useConfigURL.selectedPlanet)
   )
+  const seasonArenaInfoAll = computed(() => seasonArenaInfo.value['all'])
   const seasonActiveNow = computed(
-    () => seasonArenaInfo.value.filter((season) => season.active)[0]
+    () => seasonArenaInfo.value['active']
   )
 
   const champIdActive = computed(
@@ -47,17 +49,17 @@ export const useArenaSeasonStore = defineStore('arenaSeasonStore', () => {
 
   const champId = ref(0)
   const roundId = ref(0)
-  const seasonPick = computed(() =>
-    seasonArenaInfo.value.filter(
-      (season) =>
-        season.championshipId == champId.value && season.roundId == roundId.value
-    )
+  const seasonPick = computed(() => {
+    const season = seasonArenaInfoAll.value[`${champId.value}_${roundId.value}`]
+    if (season) return season
+    return {}
+  }
   )
-  const isActive = computed(() => (seasonPick.value.length == 1 ? seasonPick.value[0].active : false))
+  const isActive = computed(() => (seasonPick.value['active'] ? seasonPick.value['active'] : false))
 
 
   const seasonNowData = computed(() => {
-    if (seasonPick.value.length == 1) return seasonPick.value[0]
+    if (seasonPick.value['championshipId']) return seasonPick.value
     else
       return {
         championshipId: 0,
@@ -81,10 +83,18 @@ export const useArenaSeasonStore = defineStore('arenaSeasonStore', () => {
 
   const isMergeListArena = ref(false)
 
+  // Tính ra số giờ pút giây còn
+  const totalSeconds = computed(() =>
+    Math.floor((ROUND_BLOCKS.value - seasonActiveNow.value['blockEndRound']) * webSocketBlockStore.calculateAVG.avgBlockNow)
+  )
+  const realTomeSeasonEnd = computed(() => secondConvertToTime(totalSeconds.value))
+  // Xác định có đang là mùa season hay off
+  const isSeason = computed(() => !seasonActiveNow.value['titleArena'].includes('Off'))
   return {
-    seasonArenaInfo, ROUND_BLOCKS, seasonIndex,
+    seasonArenaInfo, ROUND_BLOCKS, seasonIndex, seasonArenaInfoAll,
     isActive, champId, roundId, seasonNowData,
-    seasonActiveNow, champIdActive, roundIdActive, roundActive, maxPurchaseCountActive, maxPurchaseCountDuringIntervalActive,
-    isMergeListArena
+    seasonActiveNow, champIdActive, roundIdActive, roundActive, maxPurchaseCountActive, maxPurchaseCountDuringIntervalActive, isSeason,
+    isMergeListArena,
+    totalSeconds, realTomeSeasonEnd
   }
 })

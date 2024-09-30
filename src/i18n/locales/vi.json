@@ -66,13 +66,18 @@
         "header": "Chrono",
         "connectButton": "Ví Chrono",
         "description": "Công cụ quản lý ví cho Nine Chronicles",
-        "content": "Đây là một dịch vụ ví tiền điện tử, sử dụng qua tiện ích Chrome dành cho Nine Chronicles blockchain."
+        "content": "Đây là một dịch vụ ví tiền điện tử của tiện ích Chrome cho chuỗi khối Nine Chronicles, được thiết kế để cung cấp cho người dùng trải nghiệm liền mạch trong việc quản lý tài sản trên chuỗi khối Nine Chronicles."
       }
     }
   },
   "@--views--ArenaMain-vue": {
     "messageJoinArenaFirst": "Tham gia arena và sử dụng 1 vé trước, sẽ hỗ trợ sau ...",
     "messageLoading": "Đợi thông tin block ..."
+  },
+  "@--views--ArenaLeaderboard-vue": {
+    "button": {
+      "backArenaMain": "Quay lại"
+    }
   },
   "@--components--HeaderNineCMD-vue": {
     "popconfirm": {

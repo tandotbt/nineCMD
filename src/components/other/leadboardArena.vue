@@ -50,8 +50,8 @@
     />
     <n-button
       type="success"
-      :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
-      :disabled="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+      :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
+      :disabled="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
       ghost
       @click="filterLowestCP()"
       :style="{ width: '5%' }"
@@ -62,8 +62,8 @@
     </n-button>
     <n-button
       type="info"
-      :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
-      :disabled="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+      :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
+      :disabled="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
       ghost
       @click="refreshArena()"
       :style="{ width: '5%' }"
@@ -74,8 +74,8 @@
     </n-button>
     <n-button
       type="info"
-      :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
-      :disabled="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+      :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
+      :disabled="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
       ghost
       @click="filterAllGuild()"
       :style="{ width: '5%' }"
@@ -86,8 +86,8 @@
     </n-button>
     <n-button
       type="info"
-      :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
-      :disabled="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+      :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
+      :disabled="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
       ghost
       @click="savingSorterAndFilter()"
       :style="{ width: '5%' }"
@@ -97,8 +97,8 @@
       </template>
     </n-button>
     <n-button
-      :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
-      :disabled="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+      :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
+      :disabled="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
       ghost
       strong
       type="error"
@@ -110,8 +110,8 @@
       </template>
     </n-button>
     <n-button
-      :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
-      :disabled="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+      :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
+      :disabled="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
       ghost
       strong
       circle
@@ -133,7 +133,7 @@
     :max-height="maxHeight"
     :scroll-x="scrollXTable"
     striped
-    :loading="isFetchingDataUser9C || arenaSeasonStore.isMergeListArena"
+    :loading="isFetchingDataUser9C || useArenaSeason.isMergeListArena"
     @update:sorter="handleUpdateSorted"
   >
     <template #loading>
@@ -144,7 +144,7 @@
   <n-collapse>
     <n-collapse-item title="isFetchingDataUser9C" name="1">
       <pre>{{ isFetchingDataUser9C }}</pre>
-      <pre>{{ arenaSeasonStore.seasonActiveNow }}</pre>
+      <pre>{{ useArenaSeason.seasonActiveNow }}</pre>
     </n-collapse-item>
     <n-collapse-item title="rawArena" name="2">
       <pre>{{ rawArena }}</pre>
@@ -190,7 +190,7 @@ import { useSorted, useArrayFilter, useStorage, watchDebounced, useFetch } from 
 const { t, n } = useI18n()
 const useConfigURL = useConfigURLStore()
 const useFetchDataUser9C = useFetchDataUser9CStore()
-const arenaSeasonStore = useArenaSeasonStore()
+const useArenaSeason = useArenaSeasonStore()
 // Các nút nhấn
 const dataTempNineCMD = useStorage('nine-cmd-data-temp', {}, sessionStorage)
 const maxHeight = 225
@@ -227,14 +227,14 @@ function tryAttack(row) {
   }
   useHandlerCreatNewAction.handleActionNew('battleArena', dataInput)
 }
-import { URL_API_MIMIR } from '@/utilities/constants.js'
+import { URL_API_9CAPI, API_URL_MERGE_ARENA } from '@/utilities/constants.js'
 const urlCheckWinRate = computed(
-  () => `${URL_API_MIMIR}/${useConfigURL.selectedPlanet}/arena/simulate`
+  () =>
+    `${URL_API_9CAPI}/arenaSim${useConfigURL.selectedPlanet.charAt(0).toUpperCase() + useConfigURL.selectedPlanet.slice(1)}`
 )
 const postCheckWinRate = reactive({
-  myAvatarAddress: '',
-  enemyAvatarAddress: '',
-  seed: 0
+  avatarAddress: '',
+  enemyAddress: ''
 })
 const {
   data: dataCheckWinRate,
@@ -252,13 +252,13 @@ const {
       return options
     },
     afterFetch(ctx) {
-      if (ctx.data.winRate === undefined || ctx.data.winRate === null) {
+      if (ctx.data.winPercentage === undefined || ctx.data.winPercentage === null) {
         console.log('Lỗi CheckWinRate')
         console.error(ctx.data)
         ctx.data = -1
         return ctx
       }
-      ctx.data = ctx.data.winRate
+      ctx.data = ctx.data.winPercentage ? ctx.data.winPercentage : -1
       return ctx
     },
     updateDataOnError: true,
@@ -273,13 +273,13 @@ const {
   .post(postCheckWinRate)
 
 async function tryCheckWinRate(row) {
-  arenaSeasonStore.isMergeListArena = true
+  useArenaSeason.isMergeListArena = true
   const myAvatarAddress = useFetchDataUser9C.avatarAddress
     ? useFetchDataUser9C.avatarAddress.toLowerCase()
     : addressTemp.value.toLowerCase()
   const enemyAvatarAddress = row.avatarAddr.toLowerCase()
-  postCheckWinRate.myAvatarAddress = myAvatarAddress
-  postCheckWinRate.enemyAvatarAddress = enemyAvatarAddress
+  postCheckWinRate.avatarAddress = myAvatarAddress
+  postCheckWinRate.enemyAddress = enemyAvatarAddress
   const indexMyAvatar = dataArenaFinal.value.findIndex(
     (item) => item.avatarAddr.toLowerCase() === myAvatarAddress
   )
@@ -308,7 +308,7 @@ async function tryCheckWinRate(row) {
 
   reUseWinRate()
 
-  arenaSeasonStore.isMergeListArena = false
+  useArenaSeason.isMergeListArena = false
 }
 // Sử dụng lại winRate đã lưu
 function reUseWinRate() {
@@ -490,7 +490,9 @@ function filterLowestCP() {
     group.map((item) => item.avatarAddr)
   )
   nameSearch.value = addressArray.concat(
-    useFetchDataUser9C.dataUser9C ? useFetchDataUser9C.dataUser9C.arenaInfo.avatarAddress : null
+    useFetchDataUser9C.dataUser9C_normal
+      ? useFetchDataUser9C.dataUser9C_normal.arenaInfo.avatarAddress
+      : null
   )
 }
 
@@ -1088,7 +1090,7 @@ const columns = reactive([
     },
     render(row) {
       return row.ticketBuy || row.ticketBuy === 0
-        ? h('span', `${row.ticketBuy}/${arenaSeasonStore.maxPurchaseCountDuringIntervalActive}`)
+        ? h('span', `${row.ticketBuy}/${useArenaSeason.maxPurchaseCountDuringIntervalActive}`)
         : h(
             NText,
             { depth: 3 },
@@ -1111,7 +1113,7 @@ const columns = reactive([
     },
     render(row) {
       return row.purchasedTicketCount || row.purchasedTicketCount === 0
-        ? h('span', `${row.purchasedTicketCount}/${arenaSeasonStore.maxPurchaseCountActive}`)
+        ? h('span', `${row.purchasedTicketCount}/${useArenaSeason.maxPurchaseCountActive}`)
         : h(
             NText,
             { depth: 3 },
@@ -1276,9 +1278,8 @@ const columns = reactive([
             {
               size: 'small',
               type: mapWinRateToType(row.winRate, anhXaType),
-              disabled:
-                (!addressTemp.value && !useFetchDataUser9C.avatarAddress) ||
-                useConfigURL.selectedPlanet !== 'heimdall',
+              disabled: !addressTemp.value && !useFetchDataUser9C.avatarAddress,
+              // || useConfigURL.selectedPlanet !== 'heimdall',
               secondary: true,
               strong: true,
               onClick: async () => await tryCheckWinRate(row)
@@ -1330,12 +1331,11 @@ const dataArenaFinalCopy = computed(() => {
   return [...dataArenaFinal.value]
 })
 const rawArena = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.arenaParticipants
+  useFetchDataUser9C.dataUser9C_arena !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C_arena.arenaParticipants
     : []
 )
 
-import { API_URL_MERGE_ARENA } from '@/utilities/constants'
 const addresses = computed(() =>
   JSON.stringify(
     rawArena.value
@@ -1344,7 +1344,7 @@ const addresses = computed(() =>
       .filter(Boolean)
   )
 )
-const postDataJson = computed(() => {
+const postDataJson_normal = computed(() => {
   return {
     query: `
             query {
@@ -1357,6 +1357,30 @@ const postDataJson = computed(() => {
                   ticketResetCount
                   purchasedTicketCount
                 }
+                # arenaParticipants(
+                #   avatarAddress: "0x0000000000000000000000000000000000000000"
+                #   filterBounds: false
+                # ) {
+                #   avatarAddr
+                #   score
+                #   rank
+                #   winScore
+                #   loseScore
+                #   cp
+                #   portraitId
+                #   level
+                #   nameWithHash
+                # }
+              }
+            }
+          `
+  }
+})
+const postDataJson_arena = computed(() => {
+  return {
+    query: `
+            query {
+              stateQuery {
                 arenaParticipants(
                   avatarAddress: "0x0000000000000000000000000000000000000000"
                   filterBounds: false
@@ -1376,14 +1400,15 @@ const postDataJson = computed(() => {
           `
   }
 })
-const urlMerge = computed(() => useConfigURL.selectedNode)
+const urlMerge_normal = computed(() => useConfigURL.selectedNode)
+const urlMerge_arena = computed(() => useConfigURL.selectedNode_arena)
 const urlMerge2 = computed(() => API_URL_MERGE_ARENA[useConfigURL.selectedPlanet])
 const {
-  data: dataArenaWinLose,
-  execute: executeUrlMerge,
-  abort: abortUrlMerge
+  data: dataArenaWinLose_normal,
+  execute: executeUrlMerge_normal,
+  abort: abortUrlMerge_normal
 } = useFetch(
-  urlMerge,
+  urlMerge_normal,
   { immediate: false },
   {
     beforeFetch({ options }) {
@@ -1396,31 +1421,65 @@ const {
     afterFetch(ctx) {
       if (ctx.data.errors !== undefined || ctx.data.data === null) {
         console.log(ctx.data.errors[0].message)
-        ctx.data = {
-          arenaInformation: [],
-          arenaParticipants: []
-        }
+        ctx.data = []
         return ctx
       }
-      ctx.data = {
-        arenaInformation: ctx.data.data.stateQuery.arenaInformation || [],
-        arenaParticipants: ctx.data.data.stateQuery.arenaParticipants || []
-      }
+      ctx.data = ctx.data.data.stateQuery.arenaInformation || []
       return ctx
     },
     updateDataOnError: true,
     onFetchError(ctx) {
-      console.log('Lỗi gì đó executeUrlMerge')
-      ctx.data = {
-        arenaInformation: [],
-        arenaParticipants: []
-      }
+      console.log('Lỗi gì đó executeUrlMerge ' + ctx.error)
+      ctx.data = []
       return ctx
     }
   }
 )
   .json()
-  .post(postDataJson)
+  .post(postDataJson_normal)
+
+const {
+  data: dataArenaWinLose_arena,
+  execute: executeUrlMerge_arena,
+  abort: abortUrlMerge_arena
+} = useFetch(
+  urlMerge_arena,
+  { immediate: false },
+  {
+    beforeFetch({ options }) {
+      options.headers = {
+        ...options.headers,
+        'Content-Type': 'application/json'
+      }
+      return options
+    },
+    afterFetch(ctx) {
+      if (ctx.data.errors !== undefined || ctx.data.data === null) {
+        console.log(ctx.data.errors[0].message)
+        ctx.data = []
+        return ctx
+      }
+      ctx.data = ctx.data.data.stateQuery.arenaParticipants || []
+      return ctx
+    },
+    updateDataOnError: true,
+    onFetchError(ctx) {
+      console.log('Lỗi gì đó executeUrlMerge ' + ctx.error)
+      ctx.data = []
+      return ctx
+    }
+  }
+)
+  .json()
+  .post(postDataJson_arena)
+
+const dataArenaWinLose = computed(() => {
+  return {
+    arenaInformation: dataArenaWinLose_normal.value,
+    arenaParticipants: dataArenaWinLose_arena.value
+  }
+})
+
 const {
   data: dataArenaTicketBought,
   execute: executeUrlMerge2,
@@ -1443,32 +1502,33 @@ const {
   .get()
 watch(isFetchingDataUser9C, async (newValue) => {
   if (!newValue) {
-    arenaSeasonStore.isMergeListArena = true
-    await Promise.all([executeUrlMerge(), executeUrlMerge2()])
-    if (arenaSeasonStore.isMergeListArena)
+    useArenaSeason.isMergeListArena = true
+    await Promise.all([executeUrlMerge_normal(), executeUrlMerge_arena(), executeUrlMerge2()])
+    if (useArenaSeason.isMergeListArena)
       dataArenaFinal.value = await mergeListArena(
         rawArena.value,
         props.champIdSelect,
         props.roundIdSelect,
-        arenaSeasonStore.roundActive,
+        useArenaSeason.roundActive,
         useConfigURL.selectedNode,
         useConfigURL.selectedPlanet,
         useFetchDataUser9C.avatarAddress,
-        arenaSeasonStore.maxPurchaseCountDuringIntervalActive,
+        useArenaSeason.maxPurchaseCountDuringIntervalActive,
         dataArenaWinLose.value,
         dataArenaTicketBought.value
       )
     else dataArenaFinal.value = rawArena.value
     useSavingSorterAndFilter()
-    arenaSeasonStore.isMergeListArena = false
+    useArenaSeason.isMergeListArena = false
   }
 })
 
 onBeforeUnmount(() => {
-  abortUrlMerge()
+  abortUrlMerge_normal()
+  abortUrlMerge_arena()
   abortUrlMerge2()
   abortCheckWinRate()
-  arenaSeasonStore.isMergeListArena = false
+  useArenaSeason.isMergeListArena = false
 })
 onMounted(() => {
   refreshArena()

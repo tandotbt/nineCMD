@@ -113,7 +113,7 @@ import { FullscreenExitRound as offFull, FullscreenRound as onFull } from '@vico
 
 import infoBlock from './other/infoBlock.vue'
 
-import tabChronoSetting from './tabChronoSetting.vue'
+import tabChronoSetting from './other/tabChronoSetting.vue'
 import tabTemp from './tabTemp.vue'
 import tabSettingNinecmd from './other/tabSettingNinecmd.vue'
 import heartIcon from './icons/heartIcon.vue'
@@ -137,8 +137,8 @@ const timeNow = useNow()
 const useFetchDataUser9C = useFetchDataUser9CStore()
 const useConfigURL = useConfigURLStore()
 const nameAndTag = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null
-    ? `${useFetchDataUser9C.dataUser9C.name} #${useFetchDataUser9C.avatarAddress.slice(2, 6)}`
+  useFetchDataUser9C.dataUser9C_normal !== null
+    ? `${useFetchDataUser9C.dataUser9C_normal.name} #${useFetchDataUser9C.avatarAddress.slice(2, 6)}`
     : t('fetchDataUser9c.guest')
 )
 const typeAction = reactive({

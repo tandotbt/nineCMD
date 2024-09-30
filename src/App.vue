@@ -8,95 +8,98 @@
   >
     <n-loading-bar-provider>
       <!-- <n-theme-editor> -->
-      <n-message-provider :closable="true" :duration="5000">
-        <n-space vertical>
-          <n-layout style="height: 100vh">
-            <n-layout-header
-              style="height: 10vh; padding: 0vh"
-              :inverted="false"
-              bordered
-              position="absolute"
-            >
-              <HeaderNineCMD />
-            </n-layout-header>
-            <n-layout position="absolute" style="top: 10vh; bottom: 10vh" has-sider>
-              <n-layout-sider
-                ref="menuLeftRef"
-                bordered
-                show-trigger="bar"
-                collapse-mode="width"
-                position="absolute"
-                :collapsed-width="0"
-                :width="300"
-                :native-scrollbar="false"
+      <n-modal-provider>
+        <n-message-provider :closable="true" :duration="5000">
+          <n-space vertical>
+            <n-layout style="height: 100vh">
+              <n-layout-header
+                style="height: 10vh; padding: 0vh"
                 :inverted="false"
-                style="max-height: 80vh"
-                :collapsed="collapsed"
-                @collapse="collapsed = true"
-                @expand="collapsed = false"
+                bordered
+                position="absolute"
               >
-                <MenuLeft />
-
-                <n-select
-                  v-model:value="selectedPlanet"
-                  :options="planetOptions"
-                  label="planet"
-                  @update:value="changePlanet($event)"
-                  :disabled="useFetchDataUser9C.isFetchingDataUser9C"
-                ></n-select>
-
-                <n-select
-                  v-model:value="selectedNode"
-                  :options="nodeOptions"
-                  @update:value="changeNode($event)"
-                  :disabled="useFetchDataUser9C.isFetchingDataUser9C"
-                ></n-select>
-                <n-select
-                  v-model:value="locale"
-                  :options="langOptions"
-                  :render-label="renderLabel"
-                  :render-tag="renderSingleSelectTag"
-                  @update:value="changeLang($event)"
-                ></n-select>
-                <n-switch
-                  :round="true"
-                  v-model:value="isDarkMode"
-                  @update:value="toggleTheme($event)"
+                <HeaderNineCMD />
+              </n-layout-header>
+              <n-layout position="absolute" style="top: 10vh; bottom: 10vh" has-sider>
+                <n-layout-sider
+                  ref="menuLeftRef"
+                  bordered
+                  show-trigger="bar"
+                  collapse-mode="width"
+                  position="absolute"
+                  :collapsed-width="0"
+                  :width="300"
+                  :native-scrollbar="false"
+                  :inverted="false"
+                  style="max-height: 80vh"
+                  :collapsed="collapsed"
+                  @collapse="collapsed = true"
+                  @expand="collapsed = false"
                 >
-                  <template #checked> {{ t(themeTitle) }} </template>
-                  <template #unchecked> {{ t(themeTitle) }} </template>
-                  <template #checked-icon>
-                    <n-icon :component="DarkIcon" />
-                  </template>
-                  <template #unchecked-icon>
-                    <n-icon :component="LightIcon" />
-                  </template>
-                </n-switch>
-              </n-layout-sider>
-              <n-layout style="max-height: 80vh">
-                <!-- z-index để tránh banner quảng cáo đè lên các phần khác -->
-                <n-scrollbar :style="{ 'z-index': 0 }">
-                  <router-view v-slot="{ Component, route }">
-                    <Transition :name="route.meta.transition || 'fade'" mode="out-in">
-                      <div :key="route.name">
-                        <component :is="Component"></component>
-                      </div>
-                    </Transition>
-                  </router-view>
-                </n-scrollbar>
+                  <MenuLeft />
+
+                  <n-select
+                    v-model:value="selectedPlanet"
+                    :options="planetOptions"
+                    label="planet"
+                    @update:value="changePlanet($event)"
+                    :disabled="useFetchDataUser9C.isFetchingDataUser9C"
+                  ></n-select>
+
+                  <n-select
+                    v-model:value="selectedNode"
+                    :options="nodeOptions"
+                    @update:value="changeNode($event)"
+                    :disabled="useFetchDataUser9C.isFetchingDataUser9C"
+                  ></n-select>
+                  <n-select
+                    v-model:value="locale"
+                    :options="langOptions"
+                    :render-label="renderLabel"
+                    :render-tag="renderSingleSelectTag"
+                    @update:value="changeLang($event)"
+                  ></n-select>
+                  <n-switch
+                    :round="true"
+                    v-model:value="isDarkMode"
+                    @update:value="toggleTheme($event)"
+                  >
+                    <template #checked> {{ t(themeTitle) }} </template>
+                    <template #unchecked> {{ t(themeTitle) }} </template>
+                    <template #checked-icon>
+                      <n-icon :component="DarkIcon" />
+                    </template>
+                    <template #unchecked-icon>
+                      <n-icon :component="LightIcon" />
+                    </template>
+                  </n-switch>
+                </n-layout-sider>
+                <n-layout style="max-height: 80vh">
+                  <!-- z-index để tránh banner quảng cáo đè lên các phần khác -->
+                  <n-scrollbar :style="{ 'z-index': 0 }">
+                    <router-view v-slot="{ Component, route }">
+                      <Transition :name="route.meta.transition || 'fade'" mode="out-in">
+                        <div :key="route.name">
+                          <component :is="Component"></component>
+                        </div>
+                      </Transition>
+                    </router-view>
+                  </n-scrollbar>
+                </n-layout>
               </n-layout>
+              <n-layout-footer
+                style="height: 10vh; padding: 3vh"
+                :inverted="false"
+                bordered
+                position="absolute"
+              >
+                <FooterBlock />
+              </n-layout-footer>
+              <FloatButtonSetting />
             </n-layout>
-            <n-layout-footer
-              style="height: 10vh; padding: 3vh"
-              :inverted="false"
-              bordered
-              position="absolute"
-            >
-              <FooterBlock />
-            </n-layout-footer>
-          </n-layout>
-        </n-space>
-      </n-message-provider>
+          </n-space>
+        </n-message-provider>
+      </n-modal-provider>
       <!-- </n-theme-editor> -->
     </n-loading-bar-provider>
 
@@ -107,6 +110,7 @@
 <script setup>
 import { ref, h, computed, watch } from 'vue'
 import MenuLeft from '@/components/MenuLeft.vue'
+import FloatButtonSetting from '@/components/FloatButtonSetting.vue'
 import HeaderNineCMD from '@/components/HeaderNineCMD.vue'
 import FooterBlock from '@/components/FooterBlock.vue'
 import { useStorage, onClickOutside } from '@vueuse/core'
@@ -130,10 +134,10 @@ onClickOutside(menuLeftRef, () => (collapsed.value = true))
 const { t, locale, availableLocales } = useI18n()
 
 const webSocketBlockStore = useWebSocketBlockStore()
-const configURLStore = useConfigURLStore()
+const useConfigURL = useConfigURLStore()
 const useFetchDataUser9C = useFetchDataUser9CStore()
 const nodeOptions = computed(() =>
-  configURLStore.dataConfig[0]['rpcEndpoints']['headless.gql']
+  useConfigURL.dataConfig[0]['rpcEndpoints']['headless.gql']
     // Node bắt đầu http không hoạt động khi đang chạy trên web https
     .filter((item) => item.startsWith('https'))
     .map((item) => ({
@@ -142,13 +146,13 @@ const nodeOptions = computed(() =>
     }))
 )
 
-const selectedNode = ref(configURLStore.selectedNode)
+const selectedNode = ref(useConfigURL.selectedNode)
 const planetOptions = URL_NINE_CHRONICLES_SERVE.map((item) => ({
   label: item.planet,
   value: item.planet
 }))
 const changeNode = (value) => {
-  configURLStore.changeNode(value)
+  useConfigURL.changeNode(value)
 }
 const langOptions = availableLocales.map((item) => ({
   label: CONFIG_i18n_LANGUAGES.find((data) => data.lang === item).label,
@@ -163,7 +167,7 @@ const changePlanet = (value) => {
   // Tự chọn node ngẫu nhiên sau khi đổi server
   selectedNode.value = nodeOptions.value[randomNodeIndex()].value
   // console.log(`3 ${selectedNode.value}`)
-  configURLStore.changeNode(selectedNode.value)
+  useConfigURL.changeNode(selectedNode.value)
   // Lưu planet vào local
   settingNineCMD.value.lastPlanet = value
   // Đổi lựa chọn của select
@@ -305,7 +309,7 @@ watch(nodeOptions, () => {
   // Chạy 1 lần để tự chọn node cho odin
   selectedNode.value = nodeOptions.value[randomNodeIndex()].value
   // console.log(`1 ${selectedNode.value}`)
-  configURLStore.changeNode(selectedNode.value)
+  useConfigURL.changeNode(selectedNode.value)
 })
 
 // Kiểm tra khóa Lang

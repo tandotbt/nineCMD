@@ -19,7 +19,7 @@ import { useArenaSeasonStore } from '@/stores/arenaSeason'
 const { t } = useI18n()
 const useHandlerMenuLeft = useHandlerMenuLeftStore()
 const useFetchDataUser9C = useFetchDataUser9CStore()
-const arenaSeasonStore = useArenaSeasonStore()
+const useArenaSeason = useArenaSeasonStore()
 
 // Ngăn click leaderboard khi chưa join arena
 const isUseFetchArena = computed(() => useFetchDataUser9C.isUseFetchArena)
@@ -103,8 +103,8 @@ const menuOptions = [
                   to: {
                     name: 'arena-leaderboard-route',
                     params: {
-                      champId: arenaSeasonStore.champIdActive,
-                      roundId: arenaSeasonStore.roundIdActive
+                      champId: useArenaSeason.champIdActive,
+                      roundId: useArenaSeason.roundIdActive
                     }
                   }
                 },
@@ -121,8 +121,8 @@ const menuOptions = [
                       to: {
                         name: 'arena-before-attack-route',
                         params: {
-                          champId: arenaSeasonStore.champIdActive,
-                          roundId: arenaSeasonStore.roundIdActive,
+                          champId: useArenaSeason.champIdActive,
+                          roundId: useArenaSeason.roundIdActive,
                           agentEmeny: '0x999'
                         }
                       }

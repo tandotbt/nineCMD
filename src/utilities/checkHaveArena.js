@@ -38,64 +38,84 @@ export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_ar
     arenaSeasonCount += seasonAdd.value
     let championshipCount = 1;
     championshipCount += champAdd.value
-    dataSheet.forEach(row => {
-      if (row[2] === "Season") {
+
+    // Duyệt qua từng phần tử của indexedObject
+    let keyArenaActive = 0
+    let sameChamp = {}
+    for (const [blockStart, row] of Object.entries(dataSheet)) {
+      if (row['arena_type'] === "Season") {
         row.title = `Season ${arenaSeasonCount}!`;
-        row.img = `/assets/medalArena/70${String(championshipCount).padStart(2, '0')}${String(row[1]).padStart(2, '0')}.png`;
+        row.img = `/assets/medalArena/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
         arenaSeasonCount++;
-      } else if (row[2] === "Championship") {
-        row.img = `/assets/medalArena/70${String(championshipCount).padStart(2, '0')}${String(row[1]).padStart(2, '0')}.png`;
+      } else if (row['arena_type'] === "Championship") {
+        row.img = `/assets/medalArena/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
         row.title = `Championship ${championshipCount++}!`
-      } else if (row[2] === "OffSeason") {
+      } else if (row['arena_type'] === "OffSeason") {
         row.title = "Off season";
         row.img = "/assets/medalArena/offSeason.png";
       }
-    });
-
-    const matchingRows = dataSheet.filter(row => blockNow > parseInt(row[3]) && blockNow < parseInt(row[4]));
-
-    if (matchingRows.length > 0) {
-      const row = matchingRows[0];
-      const championshipId = parseInt(row[0]);
-
-      const filteredRows = dataSheet.filter(dataRow => parseInt(dataRow[0]) === championshipId);
-
-      const result = filteredRows.map(dataRow => {
-        const maxPurchaseCount = parseInt(dataRow[9])
-        const maxPurchaseCountDuringInterval = parseInt(dataRow[10])
-        const startBlockIndex = parseInt(dataRow[3]);
-        const endBlockIndex = parseInt(dataRow[4]);
-        const totalRound = parseFloat((endBlockIndex - startBlockIndex + 1) / GAME_CONFIG_daily_arena_interval).toFixed(2);
-        const nowRound = Math.floor((blockNow - startBlockIndex + 1) / GAME_CONFIG_daily_arena_interval + 1);
-
-        const blockEndRound = GAME_CONFIG_daily_arena_interval - Math.abs(blockNow - startBlockIndex + 1 - GAME_CONFIG_daily_arena_interval * nowRound);
-
-        return {
-          championshipId: parseInt(dataRow[0]),
-          roundId: parseInt(dataRow[1]),
-          titleArena: dataRow.title,
-          img: dataRow.img,
-          blockToEndSeason: `${blockNow - startBlockIndex + 1}/${endBlockIndex - startBlockIndex + 1}`,
-          statusSeason: getType((dataRow[1]), parseInt(row[1])),
-          percentageSeason: ((blockNow - startBlockIndex + 1) / (endBlockIndex - startBlockIndex + 1)) * 100,
-          startBlockIndex,
-          endBlockIndex,
-          active: parseInt(dataRow[1]) === parseInt(row[1]),
-          totalRound,
-          nowRound,
-          blockEndRound,
-          maxPurchaseCount,
-          maxPurchaseCountDuringInterval
-        };
-      });
-
-      return result;
+      if (blockNow > blockStart) keyArenaActive = blockStart
+      // Thêm vào danh sách các mùa cùng champ
+      if (!sameChamp[row['id']]) {
+        sameChamp[row['id']] = [];
+      }
+      sameChamp[row['id']].push(blockStart);
     }
+    let result = {}
+    let resultAll = {}
+    result['active'] = handleError()
+    // Tìm ra arena đang diễn ra
+    if (keyArenaActive !== 0) {
 
-    return [handleError()]
+      const row = dataSheet[keyArenaActive]
 
+      const championshipId = row['id']
+      // Những arena có cùng champ
+      const listSameChamp = Object.values(sameChamp[championshipId])
+      for (const key of listSameChamp) {
+        if (Object.prototype.hasOwnProperty.call(dataSheet, key)) {
+          const season = dataSheet[key]
+          const maxPurchaseCount = season['max_purchase_count']
+          const maxPurchaseCountDuringInterval = season['max_purchase_count_during_interval']
+          const startBlockIndex = season['start_block_index']
+          const endBlockIndex = season['end_block_index']
+          const totalRound = parseFloat((endBlockIndex - startBlockIndex + 1) / GAME_CONFIG_daily_arena_interval).toFixed(2)
+          const nowRound = Math.floor((blockNow - startBlockIndex + 1) / GAME_CONFIG_daily_arena_interval + 1)
+          const blockEndRound = GAME_CONFIG_daily_arena_interval - Math.abs(blockNow - startBlockIndex + 1 - GAME_CONFIG_daily_arena_interval * nowRound)
+
+          const roundId = season['round']
+          const titleArena = season['title']
+          const img = season['img']
+
+          resultAll[`${championshipId}_${roundId}`] = {
+            championshipId,
+            roundId,
+            titleArena,
+            img,
+            blockToEndSeason: `${blockNow - startBlockIndex + 1}/${endBlockIndex - startBlockIndex + 1}`,
+            statusSeason: getType(keyArenaActive, key),
+            percentageSeason: ((blockNow - startBlockIndex + 1) / (endBlockIndex - startBlockIndex + 1)) * 100,
+            startBlockIndex,
+            endBlockIndex,
+            active: keyArenaActive === key,
+            totalRound,
+            nowRound,
+            blockEndRound,
+            maxPurchaseCount,
+            maxPurchaseCountDuringInterval
+          }
+          if (keyArenaActive === key) result['active'] = resultAll[`${championshipId}_${roundId}`]
+        } else {
+          resultAll[key] = handleError()
+        }
+      }
+      result['all'] = resultAll
+      return result
+    }
+    result['all'] = resultAll
+    return result
   } catch (error) {
     console.error("Error occurred:", error);
-    return [handleError()]
+    return handleError()
   }
 }

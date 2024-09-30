@@ -67,7 +67,7 @@ export const useExtensionServiceStore = defineStore('extensionServiceStore', () 
         return listAccounts
       } catch (error) {
         console.error(error)
-        message.warning(error)
+        message.warning(error.toString())
         return [{ address: "" }]
       }
     }, [{ address: "" }], { immediate: false, resetOnExecute: false }
@@ -81,10 +81,12 @@ export const useExtensionServiceStore = defineStore('extensionServiceStore', () 
   } = useAsyncState(
     async (args) => {
       try {
+        if (window.chronoWallet === undefined) throw t("@--components--tabSettingNinecmd-vue.other.messageNeedInstallChronoFirst")
         let a = await window.chronoWallet.getPublicKey(args.agent)
         return a.toHex('compressed')
       } catch (error) {
         console.error(error)
+        message.warning(error.toString())
         return error
       }
     }, "", { immediate: false }
@@ -100,13 +102,14 @@ export const useExtensionServiceStore = defineStore('extensionServiceStore', () 
   } = useAsyncState(
     async (args) => {
       try {
+        if (window.chronoWallet === undefined) throw t("@--components--tabSettingNinecmd-vue.other.messageNeedInstallChronoFirst")
         // Chọn planet cho chrono
         await window.chronoWallet.switchNetwork(useConfigURL.planetId)
         let a = await window.chronoWallet.sign(args.agent, args.plainValue)
         return buffer2Hex(a)
       } catch (error) {
         console.error(error)
-        message.warning(error)
+        message.warning(error.toString())
         return error
       }
     }, "", { immediate: false }

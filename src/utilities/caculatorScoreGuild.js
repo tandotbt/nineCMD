@@ -1,6 +1,6 @@
 import { useStorage } from '@vueuse/core';
 import fillMissingKeys from './fillMissingKeys';
-
+import { MEMBER_CALCULATE_TOTAL_SCORE_GUILD } from './constants'
 export default function caculatorScoreGuild(listAllArena) {
   const dataTempNineCMD = useStorage('nine-cmd-data-temp', {}, sessionStorage);
   const listGuild = dataTempNineCMD.value['listGuild'];
@@ -51,27 +51,18 @@ export default function caculatorScoreGuild(listAllArena) {
       rankMember: 0 // Initialize rankMember for each member in a guild
     });
 
-    guilds[member.nameGuild].totalScoreGuild += member.score || 0;
+    // guilds[member.nameGuild].totalScoreGuild += member.score || 0;
     guilds[member.nameGuild].totalCPGuild += member.cp || 0;
   });
 
-  // Sort guilds by total score
-  const sortedGuilds = Object.keys(guilds).sort((a, b) => guilds[b].totalScoreGuild - guilds[a].totalScoreGuild);
-
-  // Assign ranks to members and guilds
-  let guildRank = 1;
-
+  // Sort members of each guild by score
   let memberRankOld = 0;
   let memberRankOldScore = 0;
-  let guildRankOld = 0;
-  let guildRankOldScore = 0;
-  sortedGuilds.forEach(guildName => {
+  Object.keys(guilds).forEach(guildName => {
     const guild = guilds[guildName];
-    let memberRank = 1;
-
-    // Sort members of the guild by score
     guild.members.sort((a, b) => b.score - a.score);
-
+    let memberRank = 1;
+    guild.totalScoreGuild = 0
     // Assign rank for each member in the guild
     guild.members.forEach(member => {
       if (memberRank === 1) {
@@ -84,8 +75,21 @@ export default function caculatorScoreGuild(listAllArena) {
         memberRankOld = memberRank;
         memberRankOldScore = member.score;
       }
+      if (memberRank <= MEMBER_CALCULATE_TOTAL_SCORE_GUILD) guild.totalScoreGuild += member.score
       memberRank++;
     });
+  });
+  // Sort guilds by total score
+  const sortedGuilds = Object.keys(guilds).sort((a, b) => guilds[b].totalScoreGuild - guilds[a].totalScoreGuild);
+
+  // Assign ranks to members and guilds
+  let guildRank = 1;
+
+  let guildRankOld = 0;
+  let guildRankOldScore = 0;
+  sortedGuilds.forEach(guildName => {
+    const guild = guilds[guildName];
+
 
     if (guildRank === 1) {
       guildRankOld = 1;

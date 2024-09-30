@@ -37,48 +37,53 @@
         :key="index"
         @click="showOption(`go-${menu.path.name}`)"
       >
-        {{ t(menu.title) }}
-        <router-link :to="menu.path"> <img class="carousel-img" :src="menu.img" /> </router-link>
+        <!-- {{ t(menu.title) }} -->
+        <router-link :to="menu.path"> <component :is="menu.component"></component> </router-link>
       </n-carousel-item>
     </n-carousel>
   </n-scrollbar>
 </template>
 
 <script setup>
-import { useI18n } from 'vue-i18n'
-import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+// import { useI18n } from 'vue-i18n'
+// import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 import { useConfigURLStore } from '@/stores/configURL'
+import lobblyArena from '@/components/icons/lobblyArena.vue'
+import lobblyWorkshop from '@/components/icons/lobblyWorkshop.vue'
+import lobblyShop from '@/components/icons/lobblyShop.vue'
+import lobblyStage from '@/components/icons/lobblyStage.vue'
+import lobblyStake from '@/components/icons/lobblyStake.vue'
 const useHandlerMenuLeft = useHandlerMenuLeftStore()
 const useConfigURL = useConfigURLStore()
 const showOption = useHandlerMenuLeft.showOption
 import { computed } from 'vue'
-const { t } = useI18n()
+// const { t } = useI18n()
 const menus = [
   {
     title: 'page.arena.main',
     path: { name: 'arena-route' },
-    img: getImageBase64FromCacheOrFetch('/assets/lobby/arena.png')
+    component: lobblyArena
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: getImageBase64FromCacheOrFetch('/assets/lobby/craft.png')
+    component: lobblyWorkshop
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: getImageBase64FromCacheOrFetch('/assets/lobby/shop.png')
+    component: lobblyShop
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: getImageBase64FromCacheOrFetch('/assets/lobby/stage.png')
+    component: lobblyStage
   },
   {
     title: 'page.notFound',
     path: { name: 'not-found-route' },
-    img: getImageBase64FromCacheOrFetch('/assets/lobby/stake.png')
+    component: lobblyStake
   }
 ]
 // Fetch tự động

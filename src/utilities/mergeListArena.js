@@ -65,6 +65,8 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
       if (item.ticket !== undefined && item.ticketResetCount !== undefined) {
         item.ticket = roundActive - 1 >= item.ticketResetCount ? maxPurchaseCountDuringIntervalActive : item.ticket;
         item.ticketBuy = item.purchasedTicketCountOld !== undefined ? item.purchasedTicketCount - item.purchasedTicketCountOld : -1;
+      } else if (item.currenttickets) {
+        item.ticket = item.currenttickets // Sử dụng thông tin vé từ jsonblod
       }
       const nameGuild = getListGuildFromCacheOrFetch(item.avatarAddr);
       item.nameGuild = nameGuild !== undefined ? nameGuild : "";

@@ -47,7 +47,13 @@
               :rail-color="changeColor(themeVars.warningColor, { alpha: 0.2 })"
             >
               <img v-if="isShowGuest" class="loading-gif" :src="listImg.gifLoading" />
-              <span v-else> {{ hours }}:{{ minutes }}:{{ seconds }} </span>
+              <n-text v-else>
+                <n-ellipsis style="max-width: 15vw">
+                  {{ realTimeRefillAP.hours }}:{{ realTimeRefillAP.minutes }}:{{
+                    realTimeRefillAP.seconds
+                  }}
+                </n-ellipsis>
+              </n-text>
             </n-progress>
           </template>
 
@@ -89,9 +95,11 @@
               :rail-color="changeColor(themeVars.infoColor, { alpha: 0.2 })"
             >
               <img v-if="isShowGuest" class="loading-gif" :src="listImg.gifLoading" />
-              <n-ellipsis style="max-width: 15vw" v-else>
-                {{ APNow }}/{{ ACTION_POINT_MAX }}
-              </n-ellipsis>
+              <n-text v-else>
+                <n-ellipsis style="max-width: 15vw">
+                  {{ APNow }}/{{ ACTION_POINT_MAX }}
+                </n-ellipsis>
+              </n-text>
             </n-progress>
           </template>
           <n-text>
@@ -127,8 +135,7 @@
               type="line"
               :height="20"
               :percentage="
-                (arenaSeasonStore.seasonActiveNow['blockEndRound'] /
-                  arenaSeasonStore.ROUND_BLOCKS) *
+                (useArenaSeason.seasonActiveNow['blockEndRound'] / useArenaSeason.ROUND_BLOCKS) *
                 100
               "
               :indicator-placement="'inside'"
@@ -136,36 +143,51 @@
               :fill-border-radius="0"
               :color="themeVars.primaryColor"
               :rail-color="
-                changeColor(themeVars[`${arenaSeasonStore.seasonActiveNow['statusSeason']}Color`], {
+                changeColor(themeVars[`${useArenaSeason.seasonActiveNow['statusSeason']}Color`], {
                   alpha: 0.2
                 })
               "
               :processing="true"
             >
-              <n-icon size="24">
-                <img
-                  style="width: -webkit-fill-available"
-                  :src="arenaSeasonStore.seasonActiveNow['img']"
-                />
-              </n-icon>
+              <n-flex align="flex-end" :wrap="false">
+                <n-text>
+                  <n-ellipsis style="max-width: 15vw">
+                    {{ useArenaSeason.realTomeSeasonEnd.hours }}:{{
+                      useArenaSeason.realTomeSeasonEnd.minutes
+                    }}:{{ useArenaSeason.realTomeSeasonEnd.seconds }}
+                  </n-ellipsis>
+                </n-text>
+                <n-icon size="24">
+                  <img
+                    style="width: -webkit-fill-available"
+                    :src="useArenaSeason.seasonActiveNow['img']"
+                  />
+                </n-icon>
+              </n-flex>
             </n-progress>
           </template>
           <n-text>
-            <n-h6> {{ arenaSeasonStore.seasonActiveNow['titleArena'] }} </n-h6>
+            <n-h6>
+              {{ useArenaSeason.seasonActiveNow['titleArena'] }}
+              <n-divider vertical />
+              {{ useArenaSeason.realTomeSeasonEnd.hours }}:{{
+                useArenaSeason.realTomeSeasonEnd.minutes
+              }}:{{ useArenaSeason.realTomeSeasonEnd.seconds }}
+            </n-h6>
             <n-p>
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.blocks-total') }}
-              {{ arenaSeasonStore.seasonActiveNow['blockToEndSeason'] }}
+              {{ useArenaSeason.seasonActiveNow['blockToEndSeason'] }}
             </n-p>
             <n-p>
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.round-total') }}
-              {{ arenaSeasonStore.seasonActiveNow['nowRound'] }}/{{
-                arenaSeasonStore.seasonActiveNow['totalRound']
+              {{ useArenaSeason.seasonActiveNow['nowRound'] }}/{{
+                useArenaSeason.seasonActiveNow['totalRound']
               }}
             </n-p>
             <n-p>
               {{ t('@--components--HeaderNineCMD-vue.popconfirm.blocks-round') }}
-              {{ arenaSeasonStore.seasonActiveNow['blockEndRound'] }}/{{
-                arenaSeasonStore.ROUND_BLOCKS
+              {{ useArenaSeason.seasonActiveNow['blockEndRound'] }}/{{
+                useArenaSeason.ROUND_BLOCKS
               }}
             </n-p>
           </n-text>
@@ -308,6 +330,7 @@ import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
 import { useConfigURLStore } from '@/stores/configURL'
 import { ref, computed } from 'vue'
 import { CONFIG_GAME_CONFIG_SHEET } from '@/utilities/constants'
+import { secondConvertToTime } from '@/utilities/convertToSeconds'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
 import { useHandlerMenuLeftStore } from '@/stores/handlerMenuLeft'
 import { useArenaSeasonStore } from '@/stores/arenaSeason'
@@ -323,89 +346,98 @@ const useHandlerMenuLeft = useHandlerMenuLeftStore()
 const showOption = useHandlerMenuLeft.showOption
 const useConfigURL = useConfigURLStore()
 const webSocketBlockStore = useWebSocketBlockStore()
-const arenaSeasonStore = useArenaSeasonStore()
+const useArenaSeason = useArenaSeasonStore()
+
 // Lấy giá trị cố định
 const ACTION_POINT_MAX = computed(() =>
   useConfigURL.dataGameConfigSheet !== null
-    ? useConfigURL.dataGameConfigSheet.find((item) => item[0] === 'action_point_max')[1]
+    ? useConfigURL.dataGameConfigSheet['action_point_max']['value']
     : CONFIG_GAME_CONFIG_SHEET.action_point_max
 )
 const DAILY_REWARD_INTERVAL = computed(() =>
   useConfigURL.dataGameConfigSheet !== null
-    ? useConfigURL.dataGameConfigSheet.find((item) => item[0] === 'daily_reward_interval')[1]
+    ? useConfigURL.dataGameConfigSheet['daily_reward_interval']['value']
     : CONFIG_GAME_CONFIG_SHEET.daily_reward_interval
 )
 // Lấy giá trị của user
 const useFetchDataUser9C = useFetchDataUser9CStore()
 const isShowGuest = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+  useFetchDataUser9C.dataUser9C_normal !== null && useFetchDataUser9C.isFetchingDataUser9C === false
     ? false
     : true
 )
 const blockRefillAP = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null
-    ? useFetchDataUser9C.dataUser9C.blockRefillAP
+  useFetchDataUser9C.dataUser9C_normal !== null
+    ? useFetchDataUser9C.dataUser9C_normal.blockRefillAP
     : blockNow.value
 )
 const APNow = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null &&
+  useFetchDataUser9C.dataUser9C_normal !== null &&
   useFetchDataUser9C.isFetchingDataUser9C === false &&
   useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.AP
+    ? useFetchDataUser9C.dataUser9C_normal.AP
     : 0
 )
 const stakeNCG = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.stakeNCG
+  useFetchDataUser9C.dataUser9C_normal !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C_normal.stakeNCG
     : 0
 )
 const costAP = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.costAP
+  useFetchDataUser9C.dataUser9C_normal !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C_normal.costAP
     : 5
 )
 const NCG = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null &&
+  useFetchDataUser9C.dataUser9C_normal !== null &&
   useFetchDataUser9C.isFetchingDataUser9C === false &&
   useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.ncg
+    ? useFetchDataUser9C.dataUser9C_normal.ncg
     : 0
 )
 const Crystal = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.crystal
+  useFetchDataUser9C.dataUser9C_normal !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C_normal.crystal
     : 0
 )
-const portraitId = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.portraitId
-    : 10200000
-)
+const portraitId = computed(() => {
+  if (
+    useFetchDataUser9C.dataUser9C_normal !== null &&
+    useFetchDataUser9C.dataUser9C_arena !== null &&
+    useFetchDataUser9C.isFetchingDataUser9C === false
+  ) {
+    if (useFetchDataUser9C.dataUser9C_arena.portraitId !== 0)
+      return useFetchDataUser9C.dataUser9C_arena.portraitId
+    else return useFetchDataUser9C.dataUser9C_normal.armorId
+  } else return 10200000
+})
 const level = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.isFetchingDataUser9C === false
-    ? useFetchDataUser9C.dataUser9C.level
+  useFetchDataUser9C.dataUser9C_normal !== null && useFetchDataUser9C.isFetchingDataUser9C === false
+    ? useFetchDataUser9C.dataUser9C_normal.level
     : 0
 )
 const ticketsArena = computed(() => {
   if (
-    useFetchDataUser9C.dataUser9C !== null &&
-    useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
+    useFetchDataUser9C.dataUser9C_normal !== null &&
+    useFetchDataUser9C.dataUser9C_normal.arenaInfo.length !== 0
   ) {
-    return arenaSeasonStore.roundActive - 1 >
-      useFetchDataUser9C.dataUser9C.arenaInfo.ticketResetCount
-      ? arenaSeasonStore.maxPurchaseCountDuringIntervalActive
-      : useFetchDataUser9C.dataUser9C.arenaInfo.ticket
+    return useArenaSeason.roundActive - 1 >
+      useFetchDataUser9C.dataUser9C_normal.arenaInfo.ticketResetCount
+      ? useArenaSeason.maxPurchaseCountDuringIntervalActive
+      : useFetchDataUser9C.dataUser9C_normal.arenaInfo.ticket
   } else {
     return 0
   }
 })
 const ticketsArenaBought = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
-    ? useFetchDataUser9C.dataUser9C.arenaInfo.purchasedTicketCount
+  useFetchDataUser9C.dataUser9C_normal !== null &&
+  useFetchDataUser9C.dataUser9C_normal.arenaInfo.length !== 0
+    ? useFetchDataUser9C.dataUser9C_normal.arenaInfo.purchasedTicketCount
     : 0
 )
 const ticketsArenaBuy = computed(() =>
-  useFetchDataUser9C.dataUser9C !== null && useFetchDataUser9C.dataUser9C.arenaInfo.length !== 0
+  useFetchDataUser9C.dataUser9C_normal !== null &&
+  useFetchDataUser9C.dataUser9C_normal.arenaInfo.length !== 0
     ? useFetchDataUser9C.ticketArenaBuy
     : 0
 )
@@ -434,12 +466,7 @@ const processingBlockReffilAP = computed(() =>
 const totalSeconds = computed(() =>
   Math.abs((DAILY_REWARD_INTERVAL.value - block.value) * avgBlockNow.value)
 )
-// Chuyển đổi thành giờ, phút, giây
-const hours = computed(() => String(Math.floor(totalSeconds.value / 3600)).padStart(2, '0'))
-const minutes = computed(() =>
-  String(Math.floor((totalSeconds.value % 3600) / 60)).padStart(2, '0')
-)
-const seconds = computed(() => String(Math.floor(totalSeconds.value % 60)).padStart(2, '0'))
+const realTimeRefillAP = computed(() => secondConvertToTime(totalSeconds.value))
 
 const listImg = ref({
   gifLoading: getImageBase64FromCacheOrFetch('/assets/gifs/loading_blocks.gif')

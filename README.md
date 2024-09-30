@@ -1,35 +1,33 @@
-# vue-project
+<div align="center">
+    <a href="https://9cmd.top/" target="_blank"><img src="./public/icon/icon.png" width="144" /></a>
+    <h2>9CMD.top</h2>
+    <p>Play Nine Chronicles in your browser!</p>
+</div>
 
-This template should help get you started developing with Vue 3 in Vite.
+## What is 9CMD?
 
-## Recommended IDE Setup
+With the desire to continue the process of exploring the world Nine Chronicles on my iPhone 6 device, and other devices as long as the Chrome browser installed :v
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## How to use?
 
-## Customize configuration
+You will need to deploy a self-hosting server [Nine_CMD_sign](https://github.com/tandotbt/Nine_CMD_sign) or use the server I deployed to test at [ninecmd.pythonanywhere.com](https://ninecmd.pythonanywhere.com/)
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+A better option is to use [Chrono](https://nine-chronicles.dev/general/chrono/how-to-use-chrono)!
 
-## Project Setup
+## Feature
 
-```sh
-npm install
-```
+- [x] Refill AP
+- [x] Arena PvP
+- [ ] Buy / sell gear, rune, food, ...
+- [ ] Repeat / Sweep stage
+- [ ] Craft / upgrade gear, food
+- [ ] Worldboss
+- [ ] Receive Patrol reward
 
-### Compile and Hot-Reload for Development
+... and more!
 
-```sh
-npm run dev
-```
+## Contact
 
-### Compile and Minify for Production
+###### Group Tele: [🇻🇳[Tiếng Việt] VN Language Nine Chronicles](https://t.me/viNineChronicles)
 
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+###### Discord: [@tanbt](https://discordapp.com/users/466271401796567071)

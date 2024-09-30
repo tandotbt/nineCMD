@@ -1,20 +1,9 @@
 import { useFetch, useBase64, useStorage } from '@vueuse/core'
 import { IMG_FALLBACK } from '@/utilities/constants'
 import optimizedStringToHash from '@/utilities/optimizedStringToHash'
-// function optimizedStringToHash(string) {
-//   let mixedString = string
-//   let hash = 0
 
-//   for (let i = 0; i < mixedString.length; i++) {
-//     let char = mixedString.charCodeAt(i)
-//     hash = (hash << 5) - hash + char
-//     hash |= 0 // Convert to 32-bit integer
-//   }
-
-//   return hash
-// }
-
-const imageBase64FromCacheOrFetch = useStorage('image-base64-or-fetch', {}, sessionStorage)
+const imageBase64FromCacheOrFetch = useStorage('image-base64-or-fetch', {}, sessionStorage,
+  { mergeDefaults: true, initOnMounted: true })
 const saved = imageBase64FromCacheOrFetch.value
 const useApi = (url) => {
   return useFetch(url).blob()
@@ -22,7 +11,7 @@ const useApi = (url) => {
 
 export function getImageBase64FromCacheOrFetch(imageUrl) {
   // Tính toán hash
-  let savedImg = optimizedStringToHash(imageUrl)
+  const savedImg = optimizedStringToHash(imageUrl)
 
   // Kiểm tra và trả về base64 từ lưu trữ nếu có
   if (saved[savedImg] !== null && saved[savedImg] !== undefined) {

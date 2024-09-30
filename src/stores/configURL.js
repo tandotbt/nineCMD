@@ -4,12 +4,15 @@ import {
   URL_CONFIG_URL_ALL_PLANET,
   CONFIG_URL_ALL_PLANET,
   URL_API_MIMIR,
-  LINK_BANNER
+  LINK_BANNER,
+  URL_GITHUB_NineChronicles,
+  CONFIG_URL_FALL_BACK_DATA_CSV
 } from '@/utilities/constants'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
 import Papa from 'papaparse'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import { arrayToIndexedObject } from '@/utilities/arrayToIndexedObject'
 export const useConfigURLStore = defineStore('configURLStore', () => {
   const useWebSocketBlock = useWebSocketBlockStore()
   const selectedPlanet = computed(() => useWebSocketBlock.selectedPlanet.toLowerCase())
@@ -20,16 +23,18 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
   const useApi = (url) => {
     return useFetch(url, { refetch: true }).get().json()
   }
-  const getSheet = (url, nameSheet) => {
+  const getSheet = (url, nameSheet, keyPropertyNames, fallBackData, isSaveSeason) => {
     return useFetch(
       url,
       { refetch: true },
       {
-        beforeFetch({ cancel, options }) {
-          if (sessionStorageSheet.value[nameSheet.value]) {
+        beforeFetch({ cancel, options, url }) {
+          if (url.includes('mimir.nine-chronicles.dev')) {
+            cancel()
+          }
+          if (sessionStorageSheet.value[nameSheet.value] || dataGetAllSheet[selectedPlanetDelay.value].isGetFull) {
             getAllSheet()
             cancel()
-
           }
           // "text/csv" => SheetFormat.Csv,
           // "application/json" => SheetFormat.Json,
@@ -42,14 +47,20 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
           }
         },
         afterFetch(ctx) {
-          Papa.parse(ctx.data, {
-            complete: function (results) {
-              ctx.data = results.data
-            }
-          })
-          sessionStorageSheet.value[nameSheet.value] = ctx.data
+          ctx.data = parseCsvToIndexedObject(ctx.data, keyPropertyNames)
+          if (isSaveSeason)
+            sessionStorageSheet.value[nameSheet.value] = ctx.data
           return ctx
-        }
+        },
+        updateDataOnError: true,
+        onFetchError(ctx) {
+          ctx.data = parseCsvToIndexedObject(fallBackData, keyPropertyNames)
+          if (isSaveSeason)
+            sessionStorageSheet.value[nameSheet.value] = ctx.data
+          const mess = ctx.data.message ? ctx.data.message : "Lỗi ko tìm thấy csv"
+          ctx.error = new Error(mess) // Modifies the error
+          return ctx
+        },
       }
     ).get()
   }
@@ -105,9 +116,134 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
 
   const urlGameConfigSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/GameConfigSheet`)
   const nameGameConfigSheet = computed(() => `GameConfigSheet_${selectedPlanetDelay.value}`)
-  const urlArenaSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/ArenaSheet`)
-
   const nameArenaSheet = computed(() => `ArenaSheet_${selectedPlanetDelay.value}`)
+  const urlArenaSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/ArenaSheet`)
+  const nameItemNameSheet = computed(() => `ItemNameSheet_${selectedPlanetDelay.value}`)
+  const urlItemNameSheet = computed(() => `${URL_GITHUB_NineChronicles}/nekoyume/Assets/StreamingAssets/Localization/item_name.csv#${selectedPlanetDelay.value}`)
+  const nameSkillSheet = computed(() => `SkillSheet_${selectedPlanetDelay.value}`)
+  const urlSkillSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/SkillSheet`)
+  const nameSkillNameSheet = computed(() => `SkillNameSheet_${selectedPlanetDelay.value}`)
+  const urlSkillNameSheet = computed(() => `${URL_GITHUB_NineChronicles}/nekoyume/Assets/StreamingAssets/Localization/skill_name.csv#${selectedPlanetDelay.value}`)
+  const nameItemRequirementSheet = computed(() => `ItemRequirementSheet_${selectedPlanetDelay.value}`)
+  const urlItemRequirementSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/ItemRequirementSheet`)
+  const nameCostumeStatSheet = computed(() => `CostumeStatSheet_${selectedPlanetDelay.value}`)
+  const urlCostumeStatSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/CostumeStatSheet`)
+  const nameRuneOptionSheet = computed(() => `RuneOptionSheet_${selectedPlanetDelay.value}`)
+  const urlRuneOptionSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/RuneOptionSheet`)
+  const nameConsumableItemSheet = computed(() => `ConsumableItemSheet_${selectedPlanetDelay.value}`)
+  const urlConsumableItemSheet = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/sheets/ConsumableItemSheet`)
+
+
+  const postDataGetAllSheet = computed(() => {
+    return {
+      query: `
+        query {
+          GameConfigSheet: sheet(sheetName: "GameConfigSheet") {
+            csv
+          }
+          ArenaSheet: sheet(sheetName: "ArenaSheet") {
+            csv
+          }
+          SkillSheet: sheet(sheetName: "SkillSheet") {
+            csv
+          }
+          ItemRequirementSheet: sheet(sheetName: "ItemRequirementSheet") {
+            csv
+          }
+          CostumeStatSheet: sheet(sheetName: "CostumeStatSheet") {
+            csv
+          }
+          RuneOptionSheet: sheet(sheetName: "RuneOptionSheet") {
+            csv
+          }
+          ConsumableItemSheet: sheet(sheetName: "ConsumableItemSheet") {
+            csv
+          }
+        }
+      `}
+  })
+  const dataGetAllSheet = reactive({
+    odin: {
+      isGetFull: false,
+      GameConfigSheet: "",
+      ArenaSheet: "",
+      SkillSheet: "",
+      ItemRequirementSheet: "",
+      CostumeStatSheet: "",
+      RuneOptionSheet: "",
+      ConsumableItemSheet: "",
+    },
+    heimdall: {
+      isGetFull: false,
+      GameConfigSheet: "",
+      ArenaSheet: "",
+      SkillSheet: "",
+      ItemRequirementSheet: "",
+      CostumeStatSheet: "",
+      RuneOptionSheet: "",
+      ConsumableItemSheet: "",
+    },
+
+  })
+  const parseCsvToIndexedObject = (input, keyPropertyNames) => {
+    let output = {}
+    Papa.parse(input, {
+
+      header: true,
+      dynamicTyping: true,
+      comments: '_',
+      newline: "",
+      complete: function (results) {
+        output = arrayToIndexedObject(results.data, keyPropertyNames)
+      }
+    })
+
+    return output
+  }
+
+  const getSheet_mimir_graphql = (url) => {
+    return useFetch(
+      url,
+      { refetch: true },
+      {
+        beforeFetch({ cancel, options }) {
+          if (dataGetAllSheet[selectedPlanetDelay.value].isGetFull) {
+            getAllSheet()
+            cancel()
+          }
+          // "text/csv" => SheetFormat.Csv,
+          // "application/json" => SheetFormat.Json,
+          options.headers = {
+            ...options.headers,
+          }
+          return {
+            options,
+          }
+        },
+        afterFetch(ctx) {
+          if (ctx.data.data === null) return ctx
+          // eslint-disable-next-line no-unused-vars
+          Object.entries(dataGetAllSheet[selectedPlanetDelay.value]).forEach(([key, value]) => {
+            if (ctx.data.data && ctx.data.data[key]) {
+              dataGetAllSheet[selectedPlanetDelay.value][key] = ctx.data.data[key]["csv"]
+              dataGetAllSheet[selectedPlanetDelay.value].isGetFull = true
+            }
+          })
+          getAllSheet()
+          return ctx
+        },
+        updateDataOnError: true,
+        onFetchError(ctx) {
+          const mess = ctx.data.message ? ctx.data.message : "Lỗi ko tìm thấy csv"
+          ctx.error = new Error(mess) // Modifies the error
+          return ctx
+        },
+      }
+    ).json()
+      .post(postDataGetAllSheet)
+  }
+
+
   // GameConfigSheet
   const {
     data: dataGameConfigSheet,
@@ -115,10 +251,8 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     isFetching: isFetchingGameConfigSheet,
     // execute: executeGameConfigSheet
   } = getSheet(
-    urlGameConfigSheet, nameGameConfigSheet
+    urlGameConfigSheet, nameGameConfigSheet, ['key'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['GameConfigSheet'], true
   )
-
-
 
   // ArenaSheet
   const {
@@ -127,18 +261,136 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     isFetching: isFetchingArenaSheet,
     // execute: executeArenaSheet
   } = getSheet(
-    urlArenaSheet, nameArenaSheet
+    urlArenaSheet, nameArenaSheet, ['start_block_index'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['ArenaSheet'], true
   )
 
+  // ItemNameSheet
+  const {
+    data: dataItemNameSheet,
+    error: errorItemNameSheet,
+    isFetching: isFetchingItemNameSheet,
+    // execute: executeItemNameSheet
+  } = getSheet(
+    urlItemNameSheet, nameItemNameSheet, ['Key'], CONFIG_URL_FALL_BACK_DATA_CSV['all']['ItemNameSheet'], true
+  )
+
+  // SkillSheet
+  const {
+    data: dataSkillSheet,
+    error: errorSkillSheet,
+    isFetching: isFetchingSkillSheet,
+    // execute: executeSkillSheet
+  } = getSheet(
+    urlSkillSheet, nameSkillSheet, ['id'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['SkillSheet'], true
+  )
+
+
+  // SkillNameSheet
+  const {
+    data: dataSkillNameSheet,
+    error: errorSkillNameSheet,
+    isFetching: isFetchingSkillNameSheet,
+    // execute: executeSkillNameSheet
+  } = getSheet(
+    urlSkillNameSheet, nameSkillNameSheet, ['Key'], CONFIG_URL_FALL_BACK_DATA_CSV['all']['SkillNameSheet'], true
+  )
+
+  // ItemRequirementSheet
+  const {
+    data: dataItemRequirementSheet,
+    error: errorItemRequirementSheet,
+    isFetching: isFetchingItemRequirementSheet,
+    // execute: executeItemRequirementSheet
+  } = getSheet(
+    urlItemRequirementSheet, nameItemRequirementSheet, ['item_id'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['ItemRequirementSheet'], true
+  )
+
+  // CostumeStatSheet
+  const {
+    data: dataCostumeStatSheet,
+    error: errorCostumeStatSheet,
+    isFetching: isFetchingCostumeStatSheet,
+    // execute: executeCostumeStatSheet
+  } = getSheet(
+    urlCostumeStatSheet, nameCostumeStatSheet, ['id'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['CostumeStatSheet'], true
+  )
+
+  // RuneOptionSheet
+  const {
+    data: dataRuneOptionSheet,
+    error: errorRuneOptionSheet,
+    isFetching: isFetchingRuneOptionSheet,
+    // execute: executeRuneOptionSheet
+  } = getSheet(
+    urlRuneOptionSheet, nameRuneOptionSheet, ['rune_id', 'level'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['RuneOptionSheet'], false
+  )
+
+  // ConsumableItemSheet
+  const {
+    data: dataConsumableItemSheet,
+    error: errorConsumableItemSheet,
+    isFetching: isFetchingConsumableItemSheet,
+    // execute: executeConsumableItemSheet
+  } = getSheet(
+    urlConsumableItemSheet, nameConsumableItemSheet, ['id'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['ConsumableItemSheet'], true
+  )
+  const url_mimir_graphql = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/graphql`)
+  const {
+    data: dataMimirSheet,
+    error: errorMimirSheet,
+    isFetching: isFetchingMimirSheet,
+  } = getSheet_mimir_graphql(url_mimir_graphql)
+
   function getAllSheet() {
-    if (sessionStorageSheet.value[nameGameConfigSheet.value])
+    if (dataGetAllSheet[selectedPlanetDelay.value].GameConfigSheet) {
+      dataGameConfigSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].GameConfigSheet, ['key'])
+      sessionStorageSheet.value[nameGameConfigSheet.value] = dataGameConfigSheet.value
+    } else if (sessionStorageSheet.value[nameGameConfigSheet.value])
       dataGameConfigSheet.value = sessionStorageSheet.value[nameGameConfigSheet.value]
-    if (sessionStorageSheet.value[nameArenaSheet.value])
+
+    if (dataGetAllSheet[selectedPlanetDelay.value].ArenaSheet) {
+      dataArenaSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].ArenaSheet, ['start_block_index'])
+      sessionStorageSheet.value[nameArenaSheet.value] = dataArenaSheet.value
+    } else if (sessionStorageSheet.value[nameArenaSheet.value])
       dataArenaSheet.value = sessionStorageSheet.value[nameArenaSheet.value]
+
+    if (sessionStorageSheet.value[nameItemNameSheet.value])
+      dataItemNameSheet.value = sessionStorageSheet.value[nameItemNameSheet.value]
+
+    if (dataGetAllSheet[selectedPlanetDelay.value].SkillSheet) {
+      dataSkillSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].SkillSheet, ['id'])
+      sessionStorageSheet.value[nameSkillSheet.value] = dataSkillSheet.value
+    } else if (sessionStorageSheet.value[nameSkillSheet.value])
+      dataSkillSheet.value = sessionStorageSheet.value[nameSkillSheet.value]
+
+    if (sessionStorageSheet.value[nameSkillNameSheet.value])
+      dataSkillNameSheet.value = sessionStorageSheet.value[nameSkillNameSheet.value]
+
+    if (dataGetAllSheet[selectedPlanetDelay.value].ItemRequirementSheet) {
+      dataItemRequirementSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].ItemRequirementSheet, ['item_id'])
+      sessionStorageSheet.value[nameItemRequirementSheet.value] = dataItemRequirementSheet.value
+    } else if (sessionStorageSheet.value[nameItemRequirementSheet.value])
+      dataItemRequirementSheet.value = sessionStorageSheet.value[nameItemRequirementSheet.value]
+
+    if (dataGetAllSheet[selectedPlanetDelay.value].CostumeStatSheet) {
+      dataCostumeStatSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].CostumeStatSheet, ['id'])
+      sessionStorageSheet.value[nameCostumeStatSheet.value] = dataCostumeStatSheet.value
+    } else if (sessionStorageSheet.value[nameCostumeStatSheet.value])
+      dataCostumeStatSheet.value = sessionStorageSheet.value[nameCostumeStatSheet.value]
+
+    if (dataGetAllSheet[selectedPlanetDelay.value].RuneOptionSheet) {
+      dataRuneOptionSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].RuneOptionSheet, ['rune_id', 'level'])
+      // sessionStorageSheet.value[nameRuneOptionSheet.value] = dataRuneOptionSheet.value
+    } else if (sessionStorageSheet.value[nameRuneOptionSheet.value])
+      dataRuneOptionSheet.value = sessionStorageSheet.value[nameRuneOptionSheet.value]
+
+    if (dataGetAllSheet[selectedPlanetDelay.value].ConsumableItemSheet) {
+      dataConsumableItemSheet.value = parseCsvToIndexedObject(dataGetAllSheet[selectedPlanetDelay.value].ConsumableItemSheet, ['id'])
+      sessionStorageSheet.value[nameConsumableItemSheet.value] = dataConsumableItemSheet.value
+    } else if (sessionStorageSheet.value[nameConsumableItemSheet.value])
+      dataConsumableItemSheet.value = sessionStorageSheet.value[nameConsumableItemSheet.value]
   }
-  // watchEffect(() => {
-  //   getAllSheet()
-  // })
+
   const {
     data: dataBanner,
     error: errorBanner,
@@ -153,8 +405,7 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
   })
 
   const selectedNode = ref(null)
-  // Tự chọn node đầu sau khi đổi server
-  // selectedNode.value = dataConfig.value[0]['rpcEndpoints']['headless.gql'][0]
+  const selectedNode_arena = computed(() => CONFIG_URL_ALL_PLANET.filter((item) => item.name === selectedPlanet.value)[0]['rpcEndpoints']['arena.gql'][0])
 
   function changeNode(newNode) {
     selectedNode.value = newNode
@@ -163,14 +414,28 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     () => isFetchingMainConfig.value ||
       isFetchingGameConfigSheet.value ||
       isFetchingBanner.value ||
-      isFetchingArenaSheet.value
+      isFetchingArenaSheet.value ||
+      isFetchingItemNameSheet.value ||
+      isFetchingSkillSheet.value ||
+      isFetchingSkillNameSheet.value ||
+      isFetchingItemRequirementSheet.value ||
+      isFetchingCostumeStatSheet.value ||
+      isFetchingRuneOptionSheet.value ||
+      isFetchingConsumableItemSheet.value
   )
   const hasError = computed(() => {
     return (
       errorMainConfig.value !== null ||
       errorGameConfigSheet.value !== null ||
       errorBanner.value !== null ||
-      errorArenaSheet.value !== null
+      errorArenaSheet.value !== null ||
+      errorItemNameSheet.value !== null ||
+      errorSkillSheet.value !== null ||
+      errorSkillNameSheet.value !== null ||
+      errorItemRequirementSheet.value !== null ||
+      errorCostumeStatSheet.value !== null ||
+      errorRuneOptionSheet.value !== null ||
+      errorConsumableItemSheet.value !== null
     )
   })
 
@@ -193,10 +458,27 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     dataMainConfig, errorMainConfig, isFetchingMainConfig,
     dataGameConfigSheet, errorGameConfigSheet, isFetchingGameConfigSheet,
     dataArenaSheet, errorArenaSheet, isFetchingArenaSheet,
+    dataItemNameSheet, errorItemNameSheet, isFetchingItemNameSheet,
+    dataSkillSheet, errorSkillSheet, isFetchingSkillSheet,
+    dataSkillNameSheet, errorSkillNameSheet, isFetchingSkillNameSheet,
+    dataItemRequirementSheet, errorItemRequirementSheet, isFetchingItemRequirementSheet,
+    dataCostumeStatSheet, errorCostumeStatSheet, isFetchingCostumeStatSheet,
+    dataRuneOptionSheet, errorRuneOptionSheet, isFetchingRuneOptionSheet,
+    dataConsumableItemSheet, errorConsumableItemSheet, isFetchingConsumableItemSheet,
+    dataMimirSheet, errorMimirSheet, isFetchingMimirSheet,
     dataBanner, errorBanner, isFetchingBanner,
     isFetching, hasError,
-    selectedPlanet, selectedNode, changeNode,
+    selectedPlanet, selectedNode, selectedNode_arena, changeNode,
     web9cscanUrl, apiRest9cscan, planetId,
-    urlGameConfigSheet, nameGameConfigSheet, urlArenaSheet, nameArenaSheet
+    urlGameConfigSheet, nameGameConfigSheet,
+    urlArenaSheet, nameArenaSheet,
+    urlItemNameSheet, nameItemNameSheet,
+    urlSkillSheet, nameSkillSheet,
+    urlSkillNameSheet, nameSkillNameSheet,
+    urlItemRequirementSheet, nameItemRequirementSheet,
+    urlCostumeStatSheet, nameCostumeStatSheet,
+    urlRuneOptionSheet, nameRuneOptionSheet,
+    urlConsumableItemSheet, nameConsumableItemSheet,
+    url_mimir_graphql, dataGetAllSheet
   }
 })
