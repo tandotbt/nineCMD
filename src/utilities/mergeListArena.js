@@ -16,8 +16,8 @@ const exempleData =
   "avatarAddr": "0xabc",
   "score": 0,
   "rank": 888888,
-  "winScore": 0,
-  "loseScore": 0,
+  "winScore": 20,
+  "loseScore": -1,
   "cp": 0,
   "portraitId": 10200000,
   "level": 0,
@@ -49,8 +49,16 @@ const exempleData =
 export default async function mergeListArena(rawArena, champIdSelect, roundIdSelect, roundActive, selectedNode, selectedPlanet, avatarAddress, maxPurchaseCountDuringIntervalActive, dataArenaWinLose, dataArenaTicketBought) {
 
   try {
-
-    const rawArenaUsing = rawArena.length > 0 ? rawArena : dataArenaWinLose.arenaParticipants
+    const dataTemp = dataArenaWinLose.arenaParticipants.length > 0 ? dataArenaWinLose.arenaParticipants : dataArenaTicketBought.map(item => {
+      return {
+        rank: item.rankid,
+        avatarAddr: item.avataraddress,
+        avatarAddress: item.avataraddress,
+        nameWithHash: `${item.avatarname} <size=80%><color=#A68F7E>#${item.avataraddress.slice(2, 6)}</color></size>`,
+        ...item
+      }
+    })
+    const rawArenaUsing = rawArena.length > 0 ? rawArena : dataTemp
     const mergedArray = rawArenaUsing.map(obj1 => {
       const obj2 = dataArenaWinLose.arenaInformation.find(obj2 => obj2.avatarAddress.toLowerCase() === obj1.avatarAddr.toLowerCase()) || {};
       return { ...obj1, ...obj2 };
@@ -58,9 +66,20 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
 
     const mergedArray2 = mergedArray.map(obj1 => {
       const obj2 = dataArenaTicketBought.find(obj2 => obj2.avataraddress.toLowerCase() === obj1.avatarAddr.toLowerCase()) || {};
-      return { ...obj1, ...obj2 };
+      return {
+        ...obj1,
+        win: obj2.win,
+        lose: obj2.lose,
+        currenttickets: obj2.currenttickets,
+        purchasedTicketCount: obj2.purchasedTicketCount,
+        purchasedTicketNCG: obj2.purchasedTicketNCG,
+        nextPTNCG: obj2.nextPTNCG,
+        stake: obj2.stake,
+        purchasedTicketCountOld: obj2.purchasedTicketCountOld,
+        cp: obj2.cp,
+        portraitId: obj2.portraitId
+      };
     });
-
     let result = mergedArray2.map(item => {
       if (item.ticket !== undefined && item.ticketResetCount !== undefined) {
         item.ticket = roundActive - 1 >= item.ticketResetCount ? maxPurchaseCountDuringIntervalActive : item.ticket;
@@ -75,7 +94,7 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
     });
 
     // Thêm dữ liệu guild
-    const listScoreGuild = caculatorScoreGuild(dataArenaWinLose.arenaParticipants)
+    const listScoreGuild = caculatorScoreGuild(dataTemp)
     dataTempNineCMD.value['listGuildScore'] = listScoreGuild
     result
       .filter(member => member.nameGuild && member.nameGuild !== "")

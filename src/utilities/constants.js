@@ -1,13 +1,13 @@
 export const LIST_API_NINECMD = [
-  'https://api-1.9cmd.top',
-  'https://api-2.9cmd.top',
-  'https://api-3.9cmd.top'
+  'https://steep-carolee-9cmd-701971d5.koyeb.app',
+  'https://ineapi-tandotbt6668-zt8p2j3s.leapcell.dev',
+  'https://api-03.9cmd.top'
 ]
 export const URL_API_GUILD = 'https://guild.nine-chronicles.com'
 export const URL_API_MIMIR = 'https://mimir.nine-chronicles.dev'
 export const URL_API_9CAPI = 'https://api.9capi.com'
-const versionGithubNineChronicles = 'development'
-export const URL_GITHUB_NineChronicles = `https://raw.githubusercontent.com/planetarium/NineChronicles/${versionGithubNineChronicles}`
+export const V_GITHUB_NINECHRONICLES = 'release/220.0.3' // Hiện avatar cách cũ
+export const URL_GITHUB_NineChronicles = `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}`
 // export const LIST_API_NINECMD = ['http://127.0.0.1:8000']
 export const API_NINECMD = LIST_API_NINECMD[Math.floor(Math.random() * LIST_API_NINECMD.length)]
 export const API_URL_PROXY = `${API_NINECMD}/proxy?url=`

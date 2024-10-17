@@ -29,7 +29,6 @@ function handleError() {
 
 import { computed } from 'vue'
 
-
 export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_arena_interval, selectedPlanet) {
   try {
     const seasonAdd = computed(() => selectedPlanet === "odin" ? 4 : 1)
@@ -45,10 +44,10 @@ export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_ar
     for (const [blockStart, row] of Object.entries(dataSheet)) {
       if (row['arena_type'] === "Season") {
         row.title = `Season ${arenaSeasonCount}!`;
-        row.img = `/assets/medalArena/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
+        row.img = `https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
         arenaSeasonCount++;
       } else if (row['arena_type'] === "Championship") {
-        row.img = `/assets/medalArena/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
+        row.img = `https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
         row.title = `Championship ${championshipCount++}!`
       } else if (row['arena_type'] === "OffSeason") {
         row.title = "Off season";

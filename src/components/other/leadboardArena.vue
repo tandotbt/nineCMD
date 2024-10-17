@@ -184,6 +184,7 @@ import {
   AutorenewRound as RenewIcon
 } from '@vicons/material'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import { convertToArenaParticipants } from '@/utilities/convertToArenaParticipants'
 import mergeListArena from '@/utilities/mergeListArena'
 import { useSorted, useArrayFilter, useStorage, watchDebounced, useFetch } from '@vueuse/core'
 
@@ -227,7 +228,7 @@ function tryAttack(row) {
   }
   useHandlerCreatNewAction.handleActionNew('battleArena', dataInput)
 }
-import { URL_API_9CAPI, API_URL_MERGE_ARENA } from '@/utilities/constants.js'
+import { URL_API_9CAPI, API_URL_MERGE_ARENA, URL_API_MIMIR } from '@/utilities/constants.js'
 const urlCheckWinRate = computed(
   () =>
     `${URL_API_9CAPI}/arenaSim${useConfigURL.selectedPlanet.charAt(0).toUpperCase() + useConfigURL.selectedPlanet.slice(1)}`
@@ -252,13 +253,16 @@ const {
       return options
     },
     afterFetch(ctx) {
-      if (ctx.data.winPercentage === undefined || ctx.data.winPercentage === null) {
+      if (
+        (ctx.data.winPercentage === undefined || ctx.data.winPercentage === null) &&
+        ctx.data.winPercentage !== 0
+      ) {
         console.log('Lỗi CheckWinRate')
         console.error(ctx.data)
         ctx.data = -1
         return ctx
       }
-      ctx.data = ctx.data.winPercentage ? ctx.data.winPercentage : -1
+      ctx.data = ctx.data.winPercentage ? ctx.data.winPercentage / 100 : -1
       return ctx
     },
     updateDataOnError: true,
@@ -1378,30 +1382,87 @@ const postDataJson_normal = computed(() => {
 })
 const postDataJson_arena = computed(() => {
   return {
+    // query: `
+    //   query {
+    //     stateQuery {
+    //       arenaParticipants(
+    //         avatarAddress: "0x0000000000000000000000000000000000000000"
+    //         filterBounds: false
+    //       ) {
+    //         avatarAddr
+    //         score
+    //         rank
+    //         winScore
+    //         loseScore
+    //         cp
+    //         portraitId
+    //         level
+    //         nameWithHash
+    //       }
+    //     }
+    //   }
+    // `
     query: `
-            query {
-              stateQuery {
-                arenaParticipants(
-                  avatarAddress: "0x0000000000000000000000000000000000000000"
-                  filterBounds: false
-                ) {
-                  avatarAddr
-                  score
-                  rank
-                  winScore
-                  loseScore
-                  cp
-                  portraitId
-                  level
-                  nameWithHash
-                }
-              }
-            }
-          `
+      query {
+        arena {
+          rank_100: leaderboard(ranking: 1, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_200: leaderboard(ranking: 101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_300: leaderboard(ranking: 201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_400: leaderboard(ranking: 301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_500: leaderboard(ranking: 401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_600: leaderboard(ranking: 501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_700: leaderboard(ranking: 601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_800: leaderboard(ranking: 701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_900: leaderboard(ranking: 801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1000: leaderboard(ranking: 901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1100: leaderboard(ranking: 1001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1200: leaderboard(ranking: 1101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1300: leaderboard(ranking: 1201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1400: leaderboard(ranking: 1301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1500: leaderboard(ranking: 1401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1600: leaderboard(ranking: 1501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1700: leaderboard(ranking: 1601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1800: leaderboard(ranking: 1701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_1900: leaderboard(ranking: 1801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_2000: leaderboard(ranking: 1901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_2100: leaderboard(ranking: 2001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_2200: leaderboard(ranking: 2101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_2300: leaderboard(ranking: 2201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_2400: leaderboard(ranking: 2301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_2500: leaderboard(ranking: 2401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_2600: leaderboard(ranking: 2501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_2700: leaderboard(ranking: 2601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_2800: leaderboard(ranking: 2701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_2900: leaderboard(ranking: 2801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3000: leaderboard(ranking: 2901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3100: leaderboard(ranking: 3001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3200: leaderboard(ranking: 3101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3300: leaderboard(ranking: 3201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3400: leaderboard(ranking: 3301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3500: leaderboard(ranking: 3401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3600: leaderboard(ranking: 3501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3700: leaderboard(ranking: 3601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3800: leaderboard(ranking: 3701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_3900: leaderboard(ranking: 3801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4000: leaderboard(ranking: 3901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4100: leaderboard(ranking: 4001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4200: leaderboard(ranking: 4101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4300: leaderboard(ranking: 4201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4400: leaderboard(ranking: 4301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4500: leaderboard(ranking: 4401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4600: leaderboard(ranking: 4501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4700: leaderboard(ranking: 4601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4800: leaderboard(ranking: 4701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          #rank_4900: leaderboard(ranking: 4801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+        }
+      }`
   }
 })
 const urlMerge_normal = computed(() => useConfigURL.selectedNode)
-const urlMerge_arena = computed(() => useConfigURL.selectedNode_arena)
+// const urlMerge_arena = computed(() => useConfigURL.selectedNode_arena)
+const urlMerge_arena = computed(
+  () => `${URL_API_MIMIR}/${useConfigURL.selectedPlanet.toLowerCase()}/graphql`
+)
 const urlMerge2 = computed(() => API_URL_MERGE_ARENA[useConfigURL.selectedPlanet])
 const {
   data: dataArenaWinLose_normal,
@@ -1444,7 +1505,7 @@ const {
   abort: abortUrlMerge_arena
 } = useFetch(
   urlMerge_arena,
-  { immediate: false },
+  { timeout: 15000, immediate: false },
   {
     beforeFetch({ options }) {
       options.headers = {
@@ -1459,7 +1520,13 @@ const {
         ctx.data = []
         return ctx
       }
-      ctx.data = ctx.data.data.stateQuery.arenaParticipants || []
+      // let leaderboardByAvatarAddress = ctx.data.data.arena.leaderboardByAvatarAddress || []
+      let leaderboardByAvatarAddress = []
+      for (let key in ctx.data.data.arena) {
+        leaderboardByAvatarAddress = leaderboardByAvatarAddress.concat(ctx.data.data.arena[key])
+      }
+      let arenaParticipants = convertToArenaParticipants(leaderboardByAvatarAddress, 0)
+      ctx.data = arenaParticipants || []
       return ctx
     },
     updateDataOnError: true,

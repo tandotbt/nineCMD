@@ -15,6 +15,7 @@ import {
 import { useTimeoutPoll } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { combatPotion, statAndSkillOption } from '@/utilities/gearCombatPotion'
+import { convertToArenaParticipants } from '@/utilities/convertToArenaParticipants'
 export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () => {
   const { locale } = useI18n()
   const useConfigURL = useConfigURLStore()
@@ -438,34 +439,8 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
               if (myAvatar) {
                 my_score = myAvatar.arenaScore.score
               }
-              let arenaParticipants = leaderboardByAvatarAddress.map(item => {
-                const avatarAddress = item.address
-                const hashedPart = avatarAddress.slice(2, 6)
-                const nameWithHash = `${item.simpleAvatar.name} <size=80%><color=#A68F7E>#${hashedPart}</color></size>`
-                // Tính winScore
-                let winScore = 0
-                const score = item.arenaScore.score
-
-                if (score >= my_score) {
-                  winScore = 20
-                } else if (score > my_score - 100) {
-                  winScore = 18
-                } else {
-                  winScore = 16
-                }
-                return {
-                  avatarAddr: avatarAddress,
-                  score: item.arenaScore.score,
-                  rank: item.rank,
-                  winScore: winScore,
-                  loseScore: -1,
-                  cp: 1,
-                  portraitId: 10200000,
-                  level: item.simpleAvatar.level,
-                  nameWithHash
-                };
-              });
-              let portraitId = 10200000
+              let arenaParticipants = convertToArenaParticipants(leaderboardByAvatarAddress, my_score)
+              let portraitId = useConfigURL.my_portraitId
               ctx.data = reactive({
                 arenaParticipants,
                 portraitId
