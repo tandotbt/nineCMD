@@ -16,7 +16,11 @@
 
 <script setup>
 import { ref, markRaw } from 'vue'
-import { FormatListBulletedRound as ListIcon, HomeRound as HomeIcon } from '@vicons/material'
+import {
+  FormatListBulletedRound as ListIcon,
+  HomeRound as HomeIcon,
+  Inventory2Round as InventoryIcon
+} from '@vicons/material'
 import inventoryModal from '@/components/other/inventoryModal.vue'
 import { useInventoryModalStore } from '@/stores/inventoryModal'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
@@ -32,7 +36,7 @@ const menus = ref({
     }
   },
   inventory: {
-    icon: markRaw(HomeIcon),
+    icon: markRaw(InventoryIcon),
     shape: 'circle',
     typeButton: 'default',
     onClick() {

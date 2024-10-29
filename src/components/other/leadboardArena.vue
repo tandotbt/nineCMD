@@ -262,7 +262,8 @@ const {
         ctx.data = -1
         return ctx
       }
-      ctx.data = ctx.data.winPercentage ? ctx.data.winPercentage / 100 : -1
+      ctx.data =
+        ctx.data.winPercentage || ctx.data.winPercentage === 0 ? ctx.data.winPercentage : -1
       return ctx
     },
     updateDataOnError: true,
@@ -1270,7 +1271,7 @@ const columns = reactive([
           .map(Number)
           .sort((a, b) => b - a)
         for (const key of keys) {
-          if (winRate * 100 >= key) {
+          if (winRate >= key) {
             return anhXaType[key]
           }
         }
@@ -1288,7 +1289,7 @@ const columns = reactive([
               strong: true,
               onClick: async () => await tryCheckWinRate(row)
             },
-            { default: () => `${n(row.winRate, 'percent')}` }
+            { default: () => `${n(row.winRate, 'decimal')}` }
           )
         : h(
             NText,
