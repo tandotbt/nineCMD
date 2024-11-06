@@ -236,7 +236,7 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
         },
         updateDataOnError: true,
         onFetchError(ctx) {
-          const mess = ctx.data.message ? ctx.data.message : "Lỗi ko tìm thấy csv"
+          const mess = ctx.data
           ctx.error = new Error(mess) // Modifies the error
           return ctx
         },

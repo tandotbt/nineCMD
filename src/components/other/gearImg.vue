@@ -71,15 +71,14 @@
         <template #icon>
           <n-icon><HomeIcon /></n-icon>
         </template>
-        Trang bị
+        Buttom temp
       </n-button>
 
       <n-button round type="info">
         <template #icon>
           <n-icon><HomeIcon /></n-icon>
         </template>
-
-        Nâng cấp
+        Buttom temp
       </n-button>
     </n-button-group>
     <n-scrollbar style="max-height: 200px">
@@ -191,15 +190,14 @@
         <template #icon>
           <n-icon><HomeIcon /></n-icon>
         </template>
-        Trang bị
+        Buttom temp
       </n-button>
 
       <!-- <n-button round type="info">
         <template #icon>
           <n-icon><HomeIcon /></n-icon>
         </template>
-
-        Nâng cấp
+        Buttom temp
       </n-button> -->
     </n-button-group>
     <n-scrollbar style="max-height: 200px">

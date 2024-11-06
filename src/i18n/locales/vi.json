@@ -159,6 +159,24 @@
       "empty": "-"
     }
   },
+  "@--components--other--inventoryModal-vue": {
+    "nameModal": "Rương đồ",
+    "collapse-item": {
+      "filter": "Bộ lọc"
+    },
+    "tab-pane": {
+      "equipment": "tb",
+      "consumables": "ta",
+      "materials": "nl",
+      "costumes": "tp"
+    }
+  },
+  "@--components--other--listItemTable-vue": {
+    "overflow": {
+      "continue": "Còn nữa",
+      "end": "Hết"
+    }
+  },
   "page": {
     "home": "Trang chủ",
     "arena": {

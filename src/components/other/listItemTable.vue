@@ -31,7 +31,11 @@
       #="{ overflow }"
       @click="useInventoryModal.gridCollapsed = !useInventoryModal.gridCollapsed"
     >
-      {{ overflow ? 'Còn tiếp' : 'Hết' }}
+      {{
+        overflow
+          ? t('@--components--other--listItemTable-vue.overflow.continue')
+          : t('@--components--other--listItemTable-vue.overflow.end')
+      }}
     </n-gi>
   </n-grid>
 </template>
@@ -44,6 +48,8 @@ import { ref, computed } from 'vue'
 import itemModal from '@/components/other/itemModal.vue'
 import gearImg from '@/components/other/gearImg.vue'
 import { useInventoryModalStore } from '@/stores/inventoryModal'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const useInventoryModal = useInventoryModalStore()
 

@@ -1,7 +1,7 @@
 <template>
   <n-modal v-model:show="useInventoryModal.isShowModalChar">
     <n-card style="width: 90vw" :bordered="false" size="huge" role="dialog" aria-modal="true">
-      <n-divider>Inventory Character</n-divider>
+      <n-divider>{{ t('@--components--other--inventoryModal-vue.nameModal') }}</n-divider>
 
       <n-grid :x-gap="10" cols="1 500:10">
         <n-grid-item span="1 500:3">
@@ -12,9 +12,16 @@
               :tabs-padding="20"
               @update:value="(value) => handlerListItem(value)"
             >
-              <n-tab-pane name="equipment" tab="E" display-directive="if">
+              <n-tab-pane
+                name="equipment"
+                :tab="t('@--components--other--inventoryModal-vue.tab-pane.equipment')"
+                display-directive="if"
+              >
                 <n-collapse>
-                  <n-collapse-item title="Filter" name="1">
+                  <n-collapse-item name="1">
+                    <template #header>
+                      {{ t('@--components--other--inventoryModal-vue.collapse-item.filter') }}
+                    </template>
                     <template #header-extra>
                       <n-icon><SeatchIcon /></n-icon>
                     </template>
@@ -28,9 +35,16 @@
                   </n-collapse-item>
                 </n-collapse>
               </n-tab-pane>
-              <n-tab-pane name="consumables" tab="F" display-directive="if">
+              <n-tab-pane
+                name="consumables"
+                :tab="t('@--components--other--inventoryModal-vue.tab-pane.consumables')"
+                display-directive="if"
+              >
                 <n-collapse>
-                  <n-collapse-item title="Filter" name="1">
+                  <n-collapse-item name="1">
+                    <template #header>
+                      {{ t('@--components--other--inventoryModal-vue.collapse-item.filter') }}
+                    </template>
                     <template #header-extra>
                       <n-icon><SeatchIcon /></n-icon>
                     </template>
@@ -44,9 +58,16 @@
                   </n-collapse-item>
                 </n-collapse>
               </n-tab-pane>
-              <n-tab-pane name="materials" tab="M" display-directive="if">
+              <n-tab-pane
+                name="materials"
+                :tab="t('@--components--other--inventoryModal-vue.tab-pane.materials')"
+                display-directive="if"
+              >
                 <n-collapse>
-                  <n-collapse-item title="Filter" name="1">
+                  <n-collapse-item name="1">
+                    <template #header>
+                      {{ t('@--components--other--inventoryModal-vue.collapse-item.filter') }}
+                    </template>
                     <template #header-extra>
                       <n-icon><SeatchIcon /></n-icon>
                     </template>
@@ -60,9 +81,16 @@
                   </n-collapse-item>
                 </n-collapse>
               </n-tab-pane>
-              <n-tab-pane name="costumes" tab="C" display-directive="if">
+              <n-tab-pane
+                name="costumes"
+                :tab="t('@--components--other--inventoryModal-vue.tab-pane.costumes')"
+                display-directive="if"
+              >
                 <n-collapse>
-                  <n-collapse-item title="Filter" name="1">
+                  <n-collapse-item name="1">
+                    <template #header>
+                      {{ t('@--components--other--inventoryModal-vue.collapse-item.filter') }}
+                    </template>
                     <template #header-extra>
                       <n-icon><SeatchIcon /></n-icon>
                     </template>
@@ -87,14 +115,14 @@
           <n-card title="Gear" hoverable> Card Content </n-card>
         </n-grid-item>
         <n-grid-item span="1 500:2">
-          <n-card title="Chỉ số" hoverable> Card Content </n-card>
+          <n-card title="Index" hoverable> Card Content </n-card>
         </n-grid-item>
       </n-grid>
 
       <template #action>
-        <!-- <n-switch v-model:value="useInventoryModal.gridCollapsed">
-          <template #checked> Xổ </template>
-          <template #unchecked> Ẩn </template>
+        <!-- <n-switch v-model:value="valueTest">
+          <template #checked> Check </template>
+          <template #unchecked> Uncheck </template>
         </n-switch> -->
       </template>
     </n-card>
@@ -102,9 +130,8 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-// import { useI18n } from 'vue-i18n'
-
-// const { t } = useI18n()
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { useInventoryModalStore } from '@/stores/inventoryModal'
 import listItemTable from '@/components/other/listItemTable.vue'
 import { SearchRound as SeatchIcon } from '@vicons/material'
@@ -113,5 +140,9 @@ const useInventoryModal = useInventoryModalStore()
 const typeDataFilter = ref('equipment')
 function handlerListItem(typeData) {
   typeDataFilter.value = typeData
+  // Đặt page về 1
+  useInventoryModal.page = 1
 }
+
+// const valueTest = ref(false)
 </script>
