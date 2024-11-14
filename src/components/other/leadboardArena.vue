@@ -1406,55 +1406,55 @@ const postDataJson_arena = computed(() => {
     query: `
       query {
         arena {
-          rank_100: leaderboard(ranking: 1, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_200: leaderboard(ranking: 101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_300: leaderboard(ranking: 201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_400: leaderboard(ranking: 301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_500: leaderboard(ranking: 401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_600: leaderboard(ranking: 501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_700: leaderboard(ranking: 601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_800: leaderboard(ranking: 701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_900: leaderboard(ranking: 801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1000: leaderboard(ranking: 901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1100: leaderboard(ranking: 1001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1200: leaderboard(ranking: 1101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1300: leaderboard(ranking: 1201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1400: leaderboard(ranking: 1301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1500: leaderboard(ranking: 1401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1600: leaderboard(ranking: 1501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1700: leaderboard(ranking: 1601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1800: leaderboard(ranking: 1701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_1900: leaderboard(ranking: 1801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_2000: leaderboard(ranking: 1901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_2100: leaderboard(ranking: 2001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_2200: leaderboard(ranking: 2101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_2300: leaderboard(ranking: 2201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_2400: leaderboard(ranking: 2301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          rank_2500: leaderboard(ranking: 2401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_2600: leaderboard(ranking: 2501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_2700: leaderboard(ranking: 2601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_2800: leaderboard(ranking: 2701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_2900: leaderboard(ranking: 2801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3000: leaderboard(ranking: 2901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3100: leaderboard(ranking: 3001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3200: leaderboard(ranking: 3101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3300: leaderboard(ranking: 3201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3400: leaderboard(ranking: 3301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3500: leaderboard(ranking: 3401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3600: leaderboard(ranking: 3501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3700: leaderboard(ranking: 3601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3800: leaderboard(ranking: 3701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_3900: leaderboard(ranking: 3801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4000: leaderboard(ranking: 3901, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4100: leaderboard(ranking: 4001, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4200: leaderboard(ranking: 4101, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4300: leaderboard(ranking: 4201, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4400: leaderboard(ranking: 4301, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4500: leaderboard(ranking: 4401, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4600: leaderboard(ranking: 4501, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4700: leaderboard(ranking: 4601, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4800: leaderboard(ranking: 4701, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
-          #rank_4900: leaderboard(ranking: 4801, length: 100){rank,address,simpleAvatar{agentAddress, name, level},arenaScore{score}}
+          rank_100: leaderboard(ranking: 1, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_200: leaderboard(ranking: 101, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_300: leaderboard(ranking: 201, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_400: leaderboard(ranking: 301, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_500: leaderboard(ranking: 401, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_600: leaderboard(ranking: 501, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_700: leaderboard(ranking: 601, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_800: leaderboard(ranking: 701, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_900: leaderboard(ranking: 801, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1000: leaderboard(ranking: 901, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1100: leaderboard(ranking: 1001, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1200: leaderboard(ranking: 1101, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1300: leaderboard(ranking: 1201, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1400: leaderboard(ranking: 1301, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1500: leaderboard(ranking: 1401, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1600: leaderboard(ranking: 1501, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1700: leaderboard(ranking: 1601, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1800: leaderboard(ranking: 1701, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_1900: leaderboard(ranking: 1801, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_2000: leaderboard(ranking: 1901, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_2100: leaderboard(ranking: 2001, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_2200: leaderboard(ranking: 2101, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_2300: leaderboard(ranking: 2201, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_2400: leaderboard(ranking: 2301, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          rank_2500: leaderboard(ranking: 2401, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_2600: leaderboard(ranking: 2501, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_2700: leaderboard(ranking: 2601, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_2800: leaderboard(ranking: 2701, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_2900: leaderboard(ranking: 2801, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3000: leaderboard(ranking: 2901, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3100: leaderboard(ranking: 3001, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3200: leaderboard(ranking: 3101, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3300: leaderboard(ranking: 3201, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3400: leaderboard(ranking: 3301, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3500: leaderboard(ranking: 3401, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3600: leaderboard(ranking: 3501, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3700: leaderboard(ranking: 3601, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3800: leaderboard(ranking: 3701, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_3900: leaderboard(ranking: 3801, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4000: leaderboard(ranking: 3901, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4100: leaderboard(ranking: 4001, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4200: leaderboard(ranking: 4101, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4300: leaderboard(ranking: 4201, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4400: leaderboard(ranking: 4301, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4500: leaderboard(ranking: 4401, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4600: leaderboard(ranking: 4501, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4700: leaderboard(ranking: 4601, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4800: leaderboard(ranking: 4701, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
+          #rank_4900: leaderboard(ranking: 4801, length: 100){rank,simpleAvatar{address, agentAddress, name, level},arenaScore{score}}
         }
       }`
   }

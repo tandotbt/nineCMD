@@ -1,7 +1,7 @@
 export function convertToArenaParticipants(leaderboardByAvatarAddress, my_score) {
   let CPNext = 1
   let arenaParticipants = leaderboardByAvatarAddress.map((item) => {
-    const avatarAddress = item.address
+    const avatarAddress = item.simpleAvatar.address
     const hashedPart = avatarAddress.slice(2, 6)
     const nameWithHash = `${item.simpleAvatar.name} <size=80%><color=#A68F7E>#${hashedPart}</color></size>`
     // Tính winScore
