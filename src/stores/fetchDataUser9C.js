@@ -14,7 +14,7 @@ import {
 } from '@/utilities/constants'
 import { useTimeoutPoll } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import { combatPotion, statAndSkillOption } from '@/utilities/gearCombatPotion'
+import { combatPotion, statAndSkillOption, statsMapConvert, statAndSkillOption_shop } from '@/utilities/gearCombatPotion'
 import { convertToArenaParticipants } from '@/utilities/convertToArenaParticipants'
 export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () => {
   const { locale } = useI18n()
@@ -377,6 +377,68 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
         return acc;
       }, []);
       return result.map((item, index) => ({ ...item, indexKey: index }));
+    },
+    shopMimirAll: (data) => {
+      if (!data) return []
+      const result = []
+      for (let i = 0; i < data.length; i++) {
+        const shopItem = data[i]
+        const item = shopItem.object.tradableItem;
+        item.indexKey = i;
+        const name = useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`] ? useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows'
+        const stat_temp = item.stat || item.stats[0] || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 }
+        const sameInventory = {
+          ...item,
+          stat_shop: item.stat || item.stats || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 },
+          stat: {
+            "statType": stat_temp.statType,
+            "baseValue": stat_temp.baseValue,
+            "totalValue": 0,
+            "additionalValue": item.statsMap["value"].find(stat => stat.key === stat_temp.statType) ? item.statsMap["value"].find(stat => stat.key === stat_temp.statType)["value"].baseValue - stat_temp.baseValue : 0
+          },
+          skills_shop: item.skills,
+          skills: item.skills.length > 0 ? [{
+            "id": item.skills[0].skillRow.id,
+            "elementalType": item.skills[0].skillRow.elementalType,
+            "power": item.skills[0].power,
+            "chance": item.skills[0].chance,
+            "statPowerRatio": item.skills[0].statPowerRatio,
+            "referencedStatType": item.skills[0].referencedStatType
+          }] : [],
+          statsMap_shop: item.statsMap,
+          statsMap: statsMapConvert(item.statsMap)
+        }
+        result.push({
+          ...sameInventory,
+          key: item.itemId,
+          itemCount: shopItem.object.itemCount,
+          price: shopItem.object.price,
+          productId: shopItem.object.productId,
+          productType: shopItem.object.productType,
+          registeredBlockIndex: shopItem.object.registeredBlockIndex,
+          sellerAgentAddress: shopItem.object.sellerAgentAddress,
+          sellerAvatarAddress: shopItem.object.sellerAvatarAddress,
+          title: name,
+          name,
+          cp: combatPotion({
+            hP: sameInventory.statsMap.hP,
+            aTK: sameInventory.statsMap.aTK,
+            dEF: sameInventory.statsMap.dEF,
+            cRI: sameInventory.statsMap.cRI,
+            hIT: sameInventory.statsMap.hIT,
+            sPD: sameInventory.statsMap.sPD,
+            hasSkill: sameInventory.skills.length !== 0 ? true : false
+          }),
+          skills: sameInventory.skills.map(skill => ({
+            ...skill,
+            name: useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`] ? useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows',
+            dataStat: useConfigURL.dataSkillSheet[skill.id] ? useConfigURL.dataSkillSheet[skill.id] : []
+          })),
+          statArray: statAndSkillOption_shop({ stat_shop: sameInventory.stat_shop, skills: sameInventory.skills, statsMap_shop: sameInventory.statsMap_shop, optionCountFromCombination: sameInventory.optionCountFromCombination }),
+          levelReq: useConfigURL.dataItemRequirementSheet[sameInventory.id] ? useConfigURL.dataItemRequirementSheet[sameInventory.id]['level'] : 888888
+        })
+      }
+      return result
     }
   }
 
@@ -600,6 +662,7 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
     dataCheckTX, TXprevious,
     userAgent, userAvatar, userPassword, serverUrl, serverUsername, serverPassword,
     // Xử lý arena khi isUseFetchArena = false, dùng để xác định cần tạo action join_arena
-    isUseFetchArena
+    isUseFetchArena,
+    funcFillMoreInfo
   }
 })
