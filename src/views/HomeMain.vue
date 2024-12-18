@@ -71,8 +71,8 @@ const menus = [
     component: lobblyWorkshop
   },
   {
-    title: 'page.notFound',
-    path: { name: 'not-found-route' },
+    title: 'page.shop',
+    path: { name: 'shop-route' },
     component: lobblyShop
   },
   {

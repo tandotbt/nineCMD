@@ -257,6 +257,7 @@ import {
 } from '@vicons/material'
 // import { useLoadingBar } from 'naive-ui'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
+import { useConfigURLStore } from '@/stores/configURL'
 import { useExtensionServiceStore } from '@/stores/extensionService'
 import { useHandlerCreatNewActionStore } from '@/stores/handlerCreatNewAction'
 import avatarGroup from '@/components/other/avatarGroup.vue'
@@ -268,6 +269,7 @@ import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCa
 const useFetchDataUser9C = useFetchDataUser9CStore()
 const useExtensionService = useExtensionServiceStore()
 const useHandlerCreatNewAction = useHandlerCreatNewActionStore()
+const useConfigURL = useConfigURLStore()
 // Hỗ trợ dịch
 const { t } = useI18n()
 
@@ -442,6 +444,7 @@ function handleSubmit() {
       // Truyền dữ liệu cho store
       useFetchDataUser9C.userAgent = formValue.value.user.agentAddress
       useFetchDataUser9C.userAvatar = formValue.value.user.avatarAddress
+      useConfigURL.userAvatar = formValue.value.user.avatarAddress
       useFetchDataUser9C.userPassword = formValue.value.user.password
       useFetchDataUser9C.serverUrl = formValue.value.server.url
       useFetchDataUser9C.serverUsername = formValue.value.server.username

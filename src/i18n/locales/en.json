@@ -159,6 +159,24 @@
       "empty": "-"
     }
   },
+  "@--components--other--inventoryModal-vue": {
+    "nameModal": "Inventory Character",
+    "collapse-item": {
+      "filter": "Filter"
+    },
+    "tab-pane": {
+      "equipment": "eqp",
+      "consumables": "cns",
+      "materials": "mts",
+      "costumes": "cst"
+    }
+  },
+  "@--components--other--listItemTable-vue": {
+    "overflow": {
+      "continue": "Continue",
+      "end": "End"
+    }
+  },
   "page": {
     "home": "Home",
     "arena": {
@@ -166,6 +184,7 @@
       "leaderboard": "Leaderboard",
       "attack": "Attack screen"
     },
+    "shop": "Shop",
     "login": "Login",
     "notFound": "Page 404"
   },

@@ -6,13 +6,15 @@ import {
   URL_API_MIMIR,
   LINK_BANNER,
   URL_GITHUB_NineChronicles,
-  CONFIG_URL_FALL_BACK_DATA_CSV
+  CONFIG_URL_FALL_BACK_DATA_CSV,
+  API_URL_MERGE_ARENA
 } from '@/utilities/constants'
 import { ref, computed, reactive } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
 import Papa from 'papaparse'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import { arrayToIndexedObject } from '@/utilities/arrayToIndexedObject'
+import { getPortraitId } from '@/utilities/getPortraitId'
 export const useConfigURLStore = defineStore('configURLStore', () => {
   const useWebSocketBlock = useWebSocketBlockStore()
   const selectedPlanet = computed(() => useWebSocketBlock.selectedPlanet.toLowerCase())
@@ -234,7 +236,7 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
         },
         updateDataOnError: true,
         onFetchError(ctx) {
-          const mess = ctx.data.message ? ctx.data.message : "Lỗi ko tìm thấy csv"
+          const mess = ctx.data
           ctx.error = new Error(mess) // Modifies the error
           return ctx
         },
@@ -334,12 +336,12 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
   } = getSheet(
     urlConsumableItemSheet, nameConsumableItemSheet, ['id'], CONFIG_URL_FALL_BACK_DATA_CSV[selectedPlanetDelay.value]['ConsumableItemSheet'], true
   )
-  const url_mimir_graphql = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/graphql`)
+  const urlMimirGraphql = computed(() => `${URL_API_MIMIR}/${selectedPlanetDelay.value}/graphql`)
   const {
     data: dataMimirSheet,
     error: errorMimirSheet,
     isFetching: isFetchingMimirSheet,
-  } = getSheet_mimir_graphql(url_mimir_graphql)
+  } = getSheet_mimir_graphql(urlMimirGraphql)
 
   function getAllSheet() {
     if (dataGetAllSheet[selectedPlanetDelay.value].GameConfigSheet) {
@@ -453,6 +455,18 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
   //   else executeArenaSheet()
   // })
 
+  const urlMergeArena = computed(() => API_URL_MERGE_ARENA[selectedPlanet.value])
+  const userAvatar = ref('')
+  const avatarAddress = computed(() => (userAvatar.value !== null ? userAvatar.value.trim() : null))
+  const urlRest9cscan = computed(() => `${apiRest9cscan.value}/account?avatar=${avatarAddress.value}`)
+  const { data: dataPortraitId } = useFetch(urlMergeArena, { refetch: true }).json().get()
+  const { data: dataFromRest9cscan } = useFetch(urlRest9cscan, { refetch: true }, {
+    afterFetch(ctx) {
+      if (ctx.data.error !== undefined) ctx.data = []
+      return ctx
+    }
+  }).json().get()
+  const my_portraitId = computed(() => getPortraitId(avatarAddress.value, dataPortraitId.value, dataFromRest9cscan.value))
   return {
     dataConfig,
     dataMainConfig, errorMainConfig, isFetchingMainConfig,
@@ -479,6 +493,7 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     urlCostumeStatSheet, nameCostumeStatSheet,
     urlRuneOptionSheet, nameRuneOptionSheet,
     urlConsumableItemSheet, nameConsumableItemSheet,
-    url_mimir_graphql, dataGetAllSheet
+    urlMimirGraphql, dataGetAllSheet,
+    userAvatar, dataPortraitId, dataFromRest9cscan, my_portraitId
   }
 })

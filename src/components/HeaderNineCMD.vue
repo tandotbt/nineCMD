@@ -409,6 +409,11 @@ const portraitId = computed(() => {
     if (useFetchDataUser9C.dataUser9C_arena.portraitId !== 0)
       return useFetchDataUser9C.dataUser9C_arena.portraitId
     else return useFetchDataUser9C.dataUser9C_normal.armorId
+  } else if (
+    useFetchDataUser9C.dataUser9C_normal !== null &&
+    useFetchDataUser9C.isFetchingDataUser9C === false
+  ) {
+    return useFetchDataUser9C.dataUser9C_normal.armorId
   } else return 10200000
 })
 const level = computed(() =>

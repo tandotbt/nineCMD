@@ -23,6 +23,12 @@ const routes = [
     component: () => import('@/views/ArenaBeforeAttack.vue')
   },
   {
+    path: '/shop',
+    name: 'shop-route',
+    meta: { transition: 'slide-right' },
+    component: () => import('@/views/ShopMain.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found-route',
     component: () => import('@/views/NotFound.vue')

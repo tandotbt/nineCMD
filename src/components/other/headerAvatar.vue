@@ -47,42 +47,42 @@ const imgList = ref({
   imgDCC: computed(() =>
     isDCC.value
       ? getImageBase64FromCacheOrFetch(
-          'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/PFP/' +
+          `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/PFP/` +
             idDCC.value +
-            '.png'
+            '.png`
         )
       : ''
   ),
   frameDCC: getImageBase64FromCacheOrFetch(
-    'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png'
+    `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png`
   ),
   imgAvatar: computed(() =>
     !isDCC.value
       ? getImageBase64FromCacheOrFetch(
-          'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/' +
+          `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/` +
             portraitId.value +
-            '.png'
+            '.png`
         )
       : ''
   ),
   frameAvatar: getImageBase64FromCacheOrFetch(
-    'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png'
+    `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png`
   ),
   bgLevel: getImageBase64FromCacheOrFetch(
-    'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png'
+    `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png`
   )
 })
 // const imgDCC = computed(() =>
 //   isDCC.value
 //     ? getImageBase64FromCacheOrFetch(
-//         'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/PFP/' +
+//         `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/PFP/` +
 //           idDCC.value +
-//           '.png'
+//           '.png`
 //       )
 //     : ''
 // )
 // const frameDCC = getImageBase64FromCacheOrFetch(
-//   'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png'
+//   `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png`
 // )
 
 const portraitId = computed(() => {
@@ -99,18 +99,18 @@ const portraitId = computed(() => {
 // const imgAvatar = computed(() =>
 //   !isDCC.value
 //     ? getImageBase64FromCacheOrFetch(
-//         'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/' +
+//         `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/` +
 //           portraitId.value +
-//           '.png'
+//           '.png`
 //       )
 //     : ''
 // )
 // const frameAvatar = getImageBase64FromCacheOrFetch(
-//   'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png'
+//   `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png`
 // )
 
 // const bgLevel = getImageBase64FromCacheOrFetch(
-//   'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png'
+//   `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png`
 // )
 
 const level = computed(() =>
@@ -123,7 +123,7 @@ import { ref, computed } from 'vue'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import getListDCCFromCacheOrFetch from '@/utilities/getListDCCFromCacheOrFetch'
 import { computedAsync } from '@vueuse/core'
-
+import { V_GITHUB_NINECHRONICLES } from '@/utilities/constants'
 export default {
   props: {
     avatarAddress: {
@@ -146,29 +146,29 @@ export default {
       imgDCC: computed(() =>
         isDCC.value
           ? getImageBase64FromCacheOrFetch(
-              'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/PFP/' +
+              `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/PFP/` +
                 idDCC.value +
                 '.png'
             )
           : ''
       ),
       frameDCC: getImageBase64FromCacheOrFetch(
-        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png'
+        `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/character_frame_dcc.png`
       ),
       imgAvatar: computed(() =>
         !isDCC.value
           ? getImageBase64FromCacheOrFetch(
-              'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/' +
+              `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/` +
                 props.portraitId +
                 '.png'
             )
           : ''
       ),
       frameAvatar: getImageBase64FromCacheOrFetch(
-        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png'
+        `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/character_frame.png`
       ),
       bgLevel: getImageBase64FromCacheOrFetch(
-        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png'
+        `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}/nekoyume/Assets/Resources/UI/Icons/Item/Character_Level_Bg.png`
       )
     })
     return { isDCC, imgList }

@@ -184,6 +184,7 @@ import {
   AutorenewRound as RenewIcon
 } from '@vicons/material'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
+import { convertToArenaParticipants } from '@/utilities/convertToArenaParticipants'
 import mergeListArena from '@/utilities/mergeListArena'
 import { useSorted, useArrayFilter, useStorage, watchDebounced, useFetch } from '@vueuse/core'
 
@@ -227,7 +228,7 @@ function tryAttack(row) {
   }
   useHandlerCreatNewAction.handleActionNew('battleArena', dataInput)
 }
-import { URL_API_9CAPI, API_URL_MERGE_ARENA } from '@/utilities/constants.js'
+import { URL_API_9CAPI, API_URL_MERGE_ARENA, URL_API_MIMIR } from '@/utilities/constants.js'
 const urlCheckWinRate = computed(
   () =>
     `${URL_API_9CAPI}/arenaSim${useConfigURL.selectedPlanet.charAt(0).toUpperCase() + useConfigURL.selectedPlanet.slice(1)}`
@@ -252,13 +253,17 @@ const {
       return options
     },
     afterFetch(ctx) {
-      if (ctx.data.winPercentage === undefined || ctx.data.winPercentage === null) {
+      if (
+        (ctx.data.winPercentage === undefined || ctx.data.winPercentage === null) &&
+        ctx.data.winPercentage !== 0
+      ) {
         console.log('Lỗi CheckWinRate')
         console.error(ctx.data)
         ctx.data = -1
         return ctx
       }
-      ctx.data = ctx.data.winPercentage ? ctx.data.winPercentage : -1
+      ctx.data =
+        ctx.data.winPercentage || ctx.data.winPercentage === 0 ? ctx.data.winPercentage : -1
       return ctx
     },
     updateDataOnError: true,
@@ -1266,7 +1271,7 @@ const columns = reactive([
           .map(Number)
           .sort((a, b) => b - a)
         for (const key of keys) {
-          if (winRate * 100 >= key) {
+          if (winRate >= key) {
             return anhXaType[key]
           }
         }
@@ -1284,7 +1289,7 @@ const columns = reactive([
               strong: true,
               onClick: async () => await tryCheckWinRate(row)
             },
-            { default: () => `${n(row.winRate, 'percent')}` }
+            { default: () => `${n(row.winRate, 'decimal')}` }
           )
         : h(
             NText,
@@ -1378,30 +1383,34 @@ const postDataJson_normal = computed(() => {
 })
 const postDataJson_arena = computed(() => {
   return {
-    query: `
-            query {
-              stateQuery {
-                arenaParticipants(
-                  avatarAddress: "0x0000000000000000000000000000000000000000"
-                  filterBounds: false
-                ) {
-                  avatarAddr
-                  score
-                  rank
-                  winScore
-                  loseScore
-                  cp
-                  portraitId
-                  level
-                  nameWithHash
-                }
-              }
-            }
-          `
+    // query: `
+    //   query {
+    //     stateQuery {
+    //       arenaParticipants(
+    //         avatarAddress: "0x0000000000000000000000000000000000000000"
+    //         filterBounds: false
+    //       ) {
+    //         avatarAddr
+    //         score
+    //         rank
+    //         winScore
+    //         loseScore
+    //         cp
+    //         portraitId
+    //         level
+    //         nameWithHash
+    //       }
+    //     }
+    //   }
+    // `
+    query: `query{arena{rank_1:leaderboard(ranking:1,length:100){...infoArena}rank_101:leaderboard(ranking:101,length:100){...infoArena}rank_201:leaderboard(ranking:201,length:100){...infoArena}rank_301:leaderboard(ranking:301,length:100){...infoArena}rank_401:leaderboard(ranking:401,length:100){...infoArena}rank_501:leaderboard(ranking:501,length:100){...infoArena}rank_601:leaderboard(ranking:601,length:100){...infoArena}rank_701:leaderboard(ranking:701,length:100){...infoArena}rank_801:leaderboard(ranking:801,length:100){...infoArena}rank_901:leaderboard(ranking:901,length:100){...infoArena}rank_1001:leaderboard(ranking:1001,length:100){...infoArena}rank_1101:leaderboard(ranking:1101,length:100){...infoArena}rank_1201:leaderboard(ranking:1201,length:100){...infoArena}rank_1301:leaderboard(ranking:1301,length:100){...infoArena}rank_1401:leaderboard(ranking:1401,length:100){...infoArena}rank_1501:leaderboard(ranking:1501,length:100){...infoArena}rank_1601:leaderboard(ranking:1601,length:100){...infoArena}rank_1701:leaderboard(ranking:1701,length:100){...infoArena}rank_1801:leaderboard(ranking:1801,length:100){...infoArena}rank_1901:leaderboard(ranking:1901,length:100){...infoArena}rank_end:leaderboardByAvatarAddress(avatarAddress:"0x0000000000000000000000000000000000000000"){...infoArena}}}fragment infoArena on ArenaParticipantDocument{score avatarAddress rank lastBattleBlockIndex}`
   }
 })
 const urlMerge_normal = computed(() => useConfigURL.selectedNode)
-const urlMerge_arena = computed(() => useConfigURL.selectedNode_arena)
+// const urlMerge_arena = computed(() => useConfigURL.selectedNode_arena)
+const urlMerge_arena = computed(
+  () => `${URL_API_MIMIR}/${useConfigURL.selectedPlanet.toLowerCase()}/graphql`
+)
 const urlMerge2 = computed(() => API_URL_MERGE_ARENA[useConfigURL.selectedPlanet])
 const {
   data: dataArenaWinLose_normal,
@@ -1444,7 +1453,7 @@ const {
   abort: abortUrlMerge_arena
 } = useFetch(
   urlMerge_arena,
-  { immediate: false },
+  { timeout: 15000, immediate: false },
   {
     beforeFetch({ options }) {
       options.headers = {
@@ -1459,7 +1468,13 @@ const {
         ctx.data = []
         return ctx
       }
-      ctx.data = ctx.data.data.stateQuery.arenaParticipants || []
+      // let leaderboardByAvatarAddress = ctx.data.data.arena.leaderboardByAvatarAddress || []
+      let leaderboardByAvatarAddress = []
+      for (let key in ctx.data.data.arena) {
+        leaderboardByAvatarAddress = leaderboardByAvatarAddress.concat(ctx.data.data.arena[key])
+      }
+      let arenaParticipants = convertToArenaParticipants(leaderboardByAvatarAddress, 0)
+      ctx.data = arenaParticipants || []
       return ctx
     },
     updateDataOnError: true,

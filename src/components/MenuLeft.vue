@@ -8,6 +8,9 @@ import { NIcon } from 'naive-ui'
 import {
   HomeRound as HomeIcon,
   LogInRound as LoginIcon,
+  StadiumRound as ArenaIcon,
+  LeaderboardRound as LeaderboardIcon,
+  ShoppingCartFilled as ShopIcon,
   HomeRound as FishIcon,
   HomeRound as PawIcon
 } from '@vicons/material'
@@ -93,7 +96,7 @@ const menuOptions = [
             { default: () => t('page.arena.main') }
           ),
         key: 'go-arena-route',
-        icon: renderIcon(HomeIcon),
+        icon: renderIcon(ArenaIcon),
         children: [
           {
             label: () =>
@@ -111,7 +114,7 @@ const menuOptions = [
                 { default: () => t('page.arena.leaderboard') }
               ),
             key: 'go-arena-leaderboard-route',
-            icon: renderIcon(HomeIcon),
+            icon: renderIcon(LeaderboardIcon),
             children: [
               {
                 label: () =>
@@ -135,6 +138,20 @@ const menuOptions = [
             ]
           }
         ]
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
+                name: 'shop-route'
+              }
+            },
+            { default: () => t('page.shop') }
+          ),
+        key: 'go-shop-route',
+        icon: renderIcon(ShopIcon)
       },
       {
         label: () =>
