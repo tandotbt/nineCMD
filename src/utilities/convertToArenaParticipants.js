@@ -3,11 +3,11 @@ export function convertToArenaParticipants(leaderboardByAvatarAddress, my_score)
   const uniqueParticipants = {};
 
   leaderboardByAvatarAddress.forEach((item) => {
-    const avatarAddress = item.simpleAvatar.address;
-    const hashedPart = avatarAddress.slice(2, 6);
-    const nameWithHash = `${item.simpleAvatar.name} <size=80%><color=#A68F7E>#${hashedPart}</color></size>`;
+    const avatarAddress = item.address;
+    // const hashedPart = avatarAddress.slice(2, 6);
+    // const nameWithHash = `${item.simpleAvatar.name} <size=80%><color=#A68F7E>#${hashedPart}</color></size>`;
     let winScore = 0;
-    const score = item.arenaScore.score;
+    const score = item.score;
 
     if (score >= my_score) {
       winScore = 20;
@@ -19,14 +19,15 @@ export function convertToArenaParticipants(leaderboardByAvatarAddress, my_score)
 
     const participant = {
       avatarAddr: avatarAddress,
-      score: item.arenaScore.score,
+      score: score,
       rank: item.rank,
       winScore: winScore,
       loseScore: -1,
       cp: CPNext,
       portraitId: 10200000,
-      level: item.simpleAvatar.level,
-      nameWithHash,
+      // level: item.level,
+      // nameWithHash,
+      lastBattleBlockIndex: item.lastBattleBlockIndex
     };
     // Dữ liệu mimir trả về bị lặp avatarAddress, ngăn trùng avatar
     if (

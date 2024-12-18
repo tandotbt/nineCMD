@@ -222,26 +222,11 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
         query {
           arena {
             leaderboardByAvatarAddress(avatarAddress: "${avatarAddress.value}") {
-              rank
-              simpleAvatar {
-                agentAddress
-                level
-                name
-              }
-              arenaScore {
-                score
-              }
-              arenaInformation {
-                lose
-                purchasedTicketCount
-                ticket
-                ticketResetCount
-                win
-              }
-              address
+            ... infoArena
             }
           }
-        }`
+        }
+        fragment infoArena on ArenaParticipantDocument{score avatarAddress rank lastBattleBlockIndex}`
     }
   })
   /* eslint-disable no-unused-vars */
