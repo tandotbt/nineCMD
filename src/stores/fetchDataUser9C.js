@@ -249,6 +249,257 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
     executeUser9C()
     resume()
   })
+  // Hàm xử lý phụ cho hàm điền thông tin
+  const funcFillInfoType = {
+    shopMimir: {
+      FavProduct: (data, i) => {
+        const item = {
+          ...data.object.asset,
+          "elementalType": "NORMAL",
+          "grade": 0,
+          "id": 10200000,
+          "itemSubType": "RUNE",
+          "itemType": "",
+          "equipped": true,
+          "exp": 0,
+          "itemId": "",
+          "level": 0,
+          "madeWithMimisbrunnrRecipe": false,
+          "optionCountFromCombination": 0,
+          "setId": -1,
+          "spineResourcePath": "",
+          "buffSkills": [],
+          "skills": []
+        }
+        item.indexKey = i;
+        const name = data.object.asset.ticker
+        const stat_temp = { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 }
+        const statsMap_temp = {
+          "value": [
+            {
+              "key": "HP",
+              "value": {
+                "additionalValue": 0,
+                "baseValue": 0,
+                "statType": "HP"
+              }
+            }
+          ]
+        }
+        const sameInventory = {
+          ...item,
+          stat_shop: stat_temp,
+          stat: {
+            "statType": stat_temp.statType,
+            "baseValue": stat_temp.baseValue,
+            "totalValue": 0,
+            "additionalValue": 0
+          },
+          skills_shop: [],
+          skills: [],
+          statsMap_shop: statsMap_temp,
+          statsMap: statsMapConvert(statsMap_temp)
+        }
+        return {
+          ...sameInventory,
+          key: data.object.productId,
+          itemCount: data.object.asset.ticker.rawValue,
+          price: data.object.price,
+          productId: data.object.productId,
+          productType: data.object.productType,
+          registeredBlockIndex: data.object.registeredBlockIndex,
+          sellerAgentAddress: data.object.sellerAgentAddress,
+          sellerAvatarAddress: data.object.sellerAvatarAddress,
+          title: name,
+          name,
+          cp: 0,
+          skills: {},
+          statArray: [],
+          levelReq: 1
+        }
+      },
+      ItemProduct: (data, i) => {
+        const item = data.object.tradableItem;
+        item.indexKey = i;
+        const name = useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`] ? useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows'
+        const stat_temp = item.stat || item.stats[0] || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 }
+        const sameInventory = {
+          ...item,
+          stat_shop: item.stat || item.stats || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 },
+          stat: {
+            "statType": stat_temp.statType,
+            "baseValue": stat_temp.baseValue,
+            "totalValue": 0,
+            "additionalValue": item.statsMap["value"].find(stat => stat.key === stat_temp.statType) ? item.statsMap["value"].find(stat => stat.key === stat_temp.statType)["value"].baseValue - stat_temp.baseValue : 0
+          },
+          skills_shop: item.skills,
+          skills: item.skills.length > 0 ? [{
+            "id": item.skills[0].skillRow.id,
+            "elementalType": item.skills[0].skillRow.elementalType,
+            "power": item.skills[0].power,
+            "chance": item.skills[0].chance,
+            "statPowerRatio": item.skills[0].statPowerRatio,
+            "referencedStatType": item.skills[0].referencedStatType
+          }] : [],
+          statsMap_shop: item.statsMap,
+          statsMap: statsMapConvert(item.statsMap)
+        }
+        return {
+          ...sameInventory,
+          key: item.itemId,
+          itemCount: data.object.itemCount,
+          price: data.object.price,
+          productId: data.object.productId,
+          productType: data.object.productType,
+          registeredBlockIndex: data.object.registeredBlockIndex,
+          sellerAgentAddress: data.object.sellerAgentAddress,
+          sellerAvatarAddress: data.object.sellerAvatarAddress,
+          title: name,
+          name,
+          cp: combatPotion({
+            hP: sameInventory.statsMap.hP,
+            aTK: sameInventory.statsMap.aTK,
+            dEF: sameInventory.statsMap.dEF,
+            cRI: sameInventory.statsMap.cRI,
+            hIT: sameInventory.statsMap.hIT,
+            sPD: sameInventory.statsMap.sPD,
+            hasSkill: sameInventory.skills.length !== 0 ? true : false
+          }),
+          skills: sameInventory.skills.map(skill => ({
+            ...skill,
+            name: useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`] ? useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows',
+            dataStat: useConfigURL.dataSkillSheet[skill.id] ? useConfigURL.dataSkillSheet[skill.id] : []
+          })),
+          statArray: statAndSkillOption_shop({ stat_shop: sameInventory.stat_shop, skills: sameInventory.skills, statsMap_shop: sameInventory.statsMap_shop, optionCountFromCombination: sameInventory.optionCountFromCombination }),
+          levelReq: useConfigURL.dataItemRequirementSheet[sameInventory.id] ? useConfigURL.dataItemRequirementSheet[sameInventory.id]['level'] : 888888
+        }
+      }
+    },
+    shopMimirAvatar: {
+      FavProduct: (data, i) => {
+        const item = {
+          ...data.asset,
+          "elementalType": "NORMAL",
+          "grade": 0,
+          "id": 10200000,
+          "itemSubType": "RUNE",
+          "itemType": "",
+          "equipped": true,
+          "exp": 0,
+          "itemId": "",
+          "level": 0,
+          "madeWithMimisbrunnrRecipe": false,
+          "optionCountFromCombination": 0,
+          "setId": -1,
+          "spineResourcePath": "",
+          "buffSkills": [],
+          "skills": []
+        }
+        item.indexKey = i;
+        const name = data.asset.ticker
+        const stat_temp = { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 }
+        const statsMap_temp = {
+          "value": [
+            {
+              "key": "HP",
+              "value": {
+                "additionalValue": 0,
+                "baseValue": 0,
+                "statType": "HP"
+              }
+            }
+          ]
+        }
+        const sameInventory = {
+          ...item,
+          stat_shop: stat_temp,
+          stat: {
+            "statType": stat_temp.statType,
+            "baseValue": stat_temp.baseValue,
+            "totalValue": 0,
+            "additionalValue": 0
+          },
+          skills_shop: [],
+          skills: [],
+          statsMap_shop: statsMap_temp,
+          statsMap: statsMapConvert(statsMap_temp)
+        }
+        return {
+          ...sameInventory,
+          key: data.productId,
+          itemCount: data.asset.ticker.rawValue,
+          price: data.price,
+          productId: data.productId,
+          productType: data.productType,
+          registeredBlockIndex: data.registeredBlockIndex,
+          sellerAgentAddress: data.sellerAgentAddress,
+          sellerAvatarAddress: data.sellerAvatarAddress,
+          title: name,
+          name,
+          cp: 0,
+          skills: {},
+          statArray: [],
+          levelReq: 1
+        }
+      },
+      ItemProduct: (data, i) => {
+        const item = data.tradableItem;
+        item.indexKey = i;
+        const name = useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`] ? useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows'
+        const stat_temp = item.stat || item.stats[0] || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 }
+        const sameInventory = {
+          ...item,
+          stat_shop: item.stat || item.stats || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 },
+          stat: {
+            "statType": stat_temp.statType,
+            "baseValue": stat_temp.baseValue,
+            "totalValue": 0,
+            "additionalValue": item.statsMap["value"].find(stat => stat.key === stat_temp.statType) ? item.statsMap["value"].find(stat => stat.key === stat_temp.statType)["value"].baseValue - stat_temp.baseValue : 0
+          },
+          skills_shop: item.skills,
+          skills: item.skills.length > 0 ? [{
+            "id": item.skills[0].skillRow.id,
+            "elementalType": item.skills[0].skillRow.elementalType,
+            "power": item.skills[0].power,
+            "chance": item.skills[0].chance,
+            "statPowerRatio": item.skills[0].statPowerRatio,
+            "referencedStatType": item.skills[0].referencedStatType
+          }] : [],
+          statsMap_shop: item.statsMap,
+          statsMap: statsMapConvert(item.statsMap)
+        }
+        return {
+          ...sameInventory,
+          key: item.itemId,
+          itemCount: data.itemCount,
+          price: data.price,
+          productId: data.productId,
+          productType: data.productType,
+          registeredBlockIndex: data.registeredBlockIndex,
+          sellerAgentAddress: data.sellerAgentAddress,
+          sellerAvatarAddress: data.sellerAvatarAddress,
+          title: name,
+          name,
+          cp: combatPotion({
+            hP: sameInventory.statsMap.hP,
+            aTK: sameInventory.statsMap.aTK,
+            dEF: sameInventory.statsMap.dEF,
+            cRI: sameInventory.statsMap.cRI,
+            hIT: sameInventory.statsMap.hIT,
+            sPD: sameInventory.statsMap.sPD,
+            hasSkill: sameInventory.skills.length !== 0 ? true : false
+          }),
+          skills: sameInventory.skills.map(skill => ({
+            ...skill,
+            name: useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`] ? useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows',
+            dataStat: useConfigURL.dataSkillSheet[skill.id] ? useConfigURL.dataSkillSheet[skill.id] : []
+          })),
+          statArray: statAndSkillOption_shop({ stat_shop: sameInventory.stat_shop, skills: sameInventory.skills, statsMap_shop: sameInventory.statsMap_shop, optionCountFromCombination: sameInventory.optionCountFromCombination }),
+          levelReq: useConfigURL.dataItemRequirementSheet[sameInventory.id] ? useConfigURL.dataItemRequirementSheet[sameInventory.id]['level'] : 888888
+        }
+      }
+    }
+  }
   // Hàm điền thêm thông tin
   const funcFillMoreInfo = {
     equipment: (data) => {
@@ -382,61 +633,23 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
       if (!data) return []
       const result = []
       for (let i = 0; i < data.length; i++) {
-        const shopItem = data[i]
-        const item = shopItem.object.tradableItem;
-        item.indexKey = i;
-        const name = useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`] ? useConfigURL.dataItemNameSheet[`ITEM_NAME_${item.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows'
-        const stat_temp = item.stat || item.stats[0] || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 }
-        const sameInventory = {
-          ...item,
-          stat_shop: item.stat || item.stats || { statType: 'HP', baseValue: 0, totalValue: 0, additionalValue: 0 },
-          stat: {
-            "statType": stat_temp.statType,
-            "baseValue": stat_temp.baseValue,
-            "totalValue": 0,
-            "additionalValue": item.statsMap["value"].find(stat => stat.key === stat_temp.statType) ? item.statsMap["value"].find(stat => stat.key === stat_temp.statType)["value"].baseValue - stat_temp.baseValue : 0
-          },
-          skills_shop: item.skills,
-          skills: item.skills.length > 0 ? [{
-            "id": item.skills[0].skillRow.id,
-            "elementalType": item.skills[0].skillRow.elementalType,
-            "power": item.skills[0].power,
-            "chance": item.skills[0].chance,
-            "statPowerRatio": item.skills[0].statPowerRatio,
-            "referencedStatType": item.skills[0].referencedStatType
-          }] : [],
-          statsMap_shop: item.statsMap,
-          statsMap: statsMapConvert(item.statsMap)
-        }
-        result.push({
-          ...sameInventory,
-          key: item.itemId,
-          itemCount: shopItem.object.itemCount,
-          price: shopItem.object.price,
-          productId: shopItem.object.productId,
-          productType: shopItem.object.productType,
-          registeredBlockIndex: shopItem.object.registeredBlockIndex,
-          sellerAgentAddress: shopItem.object.sellerAgentAddress,
-          sellerAvatarAddress: shopItem.object.sellerAvatarAddress,
-          title: name,
-          name,
-          cp: combatPotion({
-            hP: sameInventory.statsMap.hP,
-            aTK: sameInventory.statsMap.aTK,
-            dEF: sameInventory.statsMap.dEF,
-            cRI: sameInventory.statsMap.cRI,
-            hIT: sameInventory.statsMap.hIT,
-            sPD: sameInventory.statsMap.sPD,
-            hasSkill: sameInventory.skills.length !== 0 ? true : false
-          }),
-          skills: sameInventory.skills.map(skill => ({
-            ...skill,
-            name: useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`] ? useConfigURL.dataSkillNameSheet[`SKILL_NAME_${skill.id}`][LOCALE_ITEM_NAME_SHEET[locale.value]] : 'unknows',
-            dataStat: useConfigURL.dataSkillSheet[skill.id] ? useConfigURL.dataSkillSheet[skill.id] : []
-          })),
-          statArray: statAndSkillOption_shop({ stat_shop: sameInventory.stat_shop, skills: sameInventory.skills, statsMap_shop: sameInventory.statsMap_shop, optionCountFromCombination: sameInventory.optionCountFromCombination }),
-          levelReq: useConfigURL.dataItemRequirementSheet[sameInventory.id] ? useConfigURL.dataItemRequirementSheet[sameInventory.id]['level'] : 888888
-        })
+        const itemData = data[i]
+        const itemType = itemData.object.__typename
+        const funcProcess = funcFillInfoType["shopMimir"][itemType]
+        const dataPush = funcProcess(itemData, i)
+        result.push(dataPush)
+      }
+      return result
+    },
+    shopMimirAvatar: (data) => {
+      if (!data) return []
+      const result = []
+      for (let i = 0; i < data.length; i++) {
+        const itemData = data[i]
+        const itemType = itemData.__typename
+        const funcProcess = funcFillInfoType["shopMimirAvatar"][itemType]
+        const dataPush = funcProcess(itemData, i)
+        result.push(dataPush)
       }
       return result
     }

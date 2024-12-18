@@ -2,6 +2,7 @@
   <breadcrumbPage :pages="pages" />
   <n-gradient-text :size="24" type="info"> {{ t('page.shop') }} </n-gradient-text>
   <shopAllMimir />
+  <shopAvatarMimir />
 </template>
 
 <script setup>
@@ -10,6 +11,7 @@ import { ref, markRaw } from 'vue'
 import { HomeRound as HomeIcon, ShoppingCartFilled as ShopIcon } from '@vicons/material'
 import breadcrumbPage from '@/components/other/breadcrumbPage.vue'
 import shopAllMimir from '@/components/other/shopAllMimir.vue'
+import shopAvatarMimir from '@/components/other/shopAvatarMimir.vue'
 
 const { t } = useI18n()
 const pages = ref([
