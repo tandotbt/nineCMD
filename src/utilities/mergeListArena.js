@@ -49,6 +49,18 @@ const exempleData =
 export default async function mergeListArena(rawArena, champIdSelect, roundIdSelect, roundActive, selectedNode, selectedPlanet, avatarAddress, maxPurchaseCountDuringIntervalActive, dataArenaWinLose, dataArenaTicketBought) {
 
   try {
+    // console.log('Input data:', {
+    //   rawArena,
+    //   champIdSelect,
+    //   roundIdSelect,
+    //   roundActive,
+    //   selectedNode,
+    //   selectedPlanet,
+    //   avatarAddress,
+    //   maxPurchaseCountDuringIntervalActive,
+    //   dataArenaWinLose,
+    //   dataArenaTicketBought
+    // })
     const dataTemp = dataArenaWinLose.arenaParticipants.length > 0 ? dataArenaWinLose.arenaParticipants : dataArenaTicketBought.map(item => {
       return {
         rank: item.rankid,
@@ -59,11 +71,12 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
       }
     })
     const rawArenaUsing = rawArena.length > 0 ? rawArena : dataTemp
+    // console.log('dataTemp', dataTemp);
     const mergedArray = rawArenaUsing.map(obj1 => {
       const obj2 = dataArenaWinLose.arenaInformation.find(obj2 => obj2.avatarAddress.toLowerCase() === obj1.avatarAddr.toLowerCase()) || {};
       return { ...obj1, ...obj2 };
     })
-
+    // console.log('mergedArray', mergedArray);
     const mergedArray2 = mergedArray.map(obj1 => {
       const obj2 = dataArenaTicketBought.find(obj2 => obj2.avataraddress.toLowerCase() === obj1.avatarAddr.toLowerCase()) || {};
       return {
@@ -80,6 +93,7 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
         portraitId: obj2.portraitId
       };
     });
+    // console.log('mergedArray2', mergedArray2);
     let result = mergedArray2.map(item => {
       if (item.ticket !== undefined && item.ticketResetCount !== undefined) {
         item.ticket = roundActive - 1 >= item.ticketResetCount ? maxPurchaseCountDuringIntervalActive : item.ticket;
@@ -92,7 +106,7 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
       item.nameWithHash = extractNameAndTag(item.nameWithHash, item.avatarAddr);
       return item;
     });
-
+    // console.log('Intermediate result:', result);
     // Thêm dữ liệu guild
     const listScoreGuild = caculatorScoreGuild(dataTemp)
     dataTempNineCMD.value['listGuildScore'] = listScoreGuild
@@ -114,6 +128,7 @@ export default async function mergeListArena(rawArena, champIdSelect, roundIdSel
       });
     // Sử dụng map để áp dụng hàm fillMissingKeys cho mỗi đối tượng trong mảng data
     let newResult = result.map(obj => fillMissingKeys(obj, exempleData));
+    // console.log('Output data:', newResult);
     return newResult
 
   } catch (error) {
