@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useFetch } from '@vueuse/core'
-import { API_NINE_CHRONICLES, CONFIG_URL_ALL_PLANET, API_URL_PROXY } from '@/utilities/constants'
+import { API_NINE_CHRONICLES, CONFIG_URL_ALL_PLANET, API_URL_PROXY, FIRST_SEASON_GET_FROM_NINE_CHRONICLES_API } from '@/utilities/constants'
 import { computed, ref } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
 import { useConfigURLStore } from './configURL'
@@ -161,12 +161,7 @@ export const useDataArenaParticipateStore = defineStore('dataArenaParticipateSto
         updateDataOnError: true,
         onFetchError(ctx) {
           // ctx.data can be null when 5xx response
-          if (ctx.data === null)
-            ctx.data =
-              selectedPlanet.value === 'odin'
-                ? encodeURIComponent('Season 19')
-                : encodeURIComponent('Season 1')
-
+          if (ctx.data === null) ctx.data = FIRST_SEASON_GET_FROM_NINE_CHRONICLES_API["selectedPlanet.value"]
           ctx.error = new Error('Tự chọn season có sẵn')
           return ctx
         }

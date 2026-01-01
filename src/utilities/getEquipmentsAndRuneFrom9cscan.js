@@ -1,11 +1,11 @@
 import { useFetch } from '@vueuse/core'
 import { API_NINECMD } from '@/utilities/constants'
-
+import { useI18n } from 'vue-i18n'
 
 export async function getEquipmentsAndRuneFrom9cscan(selectedPlanet, type, agentAddress, avatarAddress) {
-
+  const { locale } = useI18n()
   const { data: dataEandC, execute: executeEandC } = useFetch(
-    `${API_NINECMD}/lookupItemSetMuti?network=${selectedPlanet}&avatarAddress=${avatarAddress}&type=${type}&agentAddress=${agentAddress}&use9cscan=true`,
+    `${API_NINECMD}/lookupItemSetMuti?network=${selectedPlanet}&avatarAddress=${avatarAddress}&type=${type}&agentAddress=${agentAddress}&use9cscan=true&locale=${locale.value}`,
     { immediate: false },
     {
       afterFetch(ctx) {

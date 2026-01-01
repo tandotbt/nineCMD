@@ -31,8 +31,21 @@ import { computed } from 'vue'
 
 export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_arena_interval, selectedPlanet) {
   try {
-    const seasonAdd = computed(() => selectedPlanet === "odin" ? 4 : 1)
-    const champAdd = computed(() => selectedPlanet === "odin" ? 0 : -1)
+    const dataSheetSort = Object.keys(dataSheet).sort((a, b) => parseInt(a) - parseInt(b)).reduce((obj, key) => {
+      obj[key] = dataSheet[key];
+      return obj;
+    }, {});
+    const dataSheetSortFix = { ...dataSheetSort }
+    const seasonAdd = computed(() => selectedPlanet === "odin"
+      ? 4
+      : selectedPlanet === "heimdall"
+        ? 1
+        : 1)
+    const champAdd = computed(() => selectedPlanet === "odin"
+      ? 0
+      : selectedPlanet === "heimdall"
+        ? -1
+        : -1)
     let arenaSeasonCount = 0
     arenaSeasonCount += seasonAdd.value
     let championshipCount = 1;
@@ -41,7 +54,7 @@ export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_ar
     // Duyệt qua từng phần tử của indexedObject
     let keyArenaActive = 0
     let sameChamp = {}
-    for (const [blockStart, row] of Object.entries(dataSheet)) {
+    for (const [blockStart, row] of Object.entries(dataSheetSortFix)) {
       if (row['arena_type'] === "Season") {
         row.title = `Season ${arenaSeasonCount}!`;
         row.img = `https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/70${String(championshipCount).padStart(2, '0')}${String(row['round']).padStart(2, '0')}.png`;
@@ -66,14 +79,14 @@ export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_ar
     // Tìm ra arena đang diễn ra
     if (keyArenaActive !== 0) {
 
-      const row = dataSheet[keyArenaActive]
+      const row = dataSheetSortFix[keyArenaActive]
 
       const championshipId = row['id']
       // Những arena có cùng champ
       const listSameChamp = Object.values(sameChamp[championshipId])
       for (const key of listSameChamp) {
-        if (Object.prototype.hasOwnProperty.call(dataSheet, key)) {
-          const season = dataSheet[key]
+        if (Object.prototype.hasOwnProperty.call(dataSheetSortFix, key)) {
+          const season = dataSheetSortFix[key]
           const maxPurchaseCount = season['max_purchase_count']
           const maxPurchaseCountDuringInterval = season['max_purchase_count_during_interval']
           const startBlockIndex = season['start_block_index']
@@ -92,7 +105,7 @@ export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_ar
             titleArena,
             img,
             blockToEndSeason: `${blockNow - startBlockIndex + 1}/${endBlockIndex - startBlockIndex + 1}`,
-            statusSeason: getType(keyArenaActive, key),
+            statusSeason: getType(parseInt(keyArenaActive), parseInt(key)),
             percentageSeason: ((blockNow - startBlockIndex + 1) / (endBlockIndex - startBlockIndex + 1)) * 100,
             startBlockIndex,
             endBlockIndex,
@@ -111,7 +124,13 @@ export default function checkHaveArena(blockNow, dataSheet, GAME_CONFIG_daily_ar
       result['all'] = resultAll
       return result
     }
-    result['all'] = resultAll
+    // Sort the keys of resultAll based on the number after the underscore
+    const sortedResultAll = Object.keys(resultAll).sort((a, b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1])).reduce((obj, key) => {
+      obj[key] = resultAll[key];
+      return obj;
+    }, {});
+    const sortedResultAllFix = { ...sortedResultAll }
+    result['all'] = sortedResultAllFix
     return result
   } catch (error) {
     console.error("Error occurred:", error);

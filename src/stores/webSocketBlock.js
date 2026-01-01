@@ -8,11 +8,16 @@ import { useDataArenaParticipateStore } from './dataArenaParticipate'
 export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
   const dataWSS_Odin = ref(null)
   const dataWSS_Heimdall = ref(null)
+  const dataWSS_Thor = ref(null)
+
   const dataWSSList_Odin = ref([])
   const dataWSSList_Heimdall = ref([])
+  const dataWSSList_Thor = ref([])
 
-  const selectedPlanet = ref('Odin')
-  const selectedWss = ref('wss://j3u7e1snee.execute-api.ap-northeast-2.amazonaws.com/production')
+  const defaultPlanet = URL_NINE_CHRONICLES_SERVE[0].planet
+  const defaultWss = URL_NINE_CHRONICLES_SERVE[0].wss
+  const selectedPlanet = ref(defaultPlanet)
+  const selectedWss = ref(defaultWss)
 
   function createWebSocket(planet, dataWSS, dataWSSList) {
     function addData(newData) {
@@ -25,6 +30,7 @@ export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
 
   const webSocket_Odin = createWebSocket('Odin', dataWSS_Odin, dataWSSList_Odin)
   const webSocket_Heimdall = createWebSocket('Heimdall', dataWSS_Heimdall, dataWSSList_Heimdall)
+  const webSocket_Thor = createWebSocket('Thor', dataWSS_Thor, dataWSSList_Thor)
 
   function changePlanet(newPlanet) {
     selectedPlanet.value = newPlanet
@@ -35,12 +41,18 @@ export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
 
   const calculateAVG = computed(() => {
     const item =
-      selectedPlanet.value === 'Odin' ? dataWSSList_Odin.value : dataWSSList_Heimdall.value
+      selectedPlanet.value === 'Odin'
+        ? dataWSSList_Odin.value
+        : selectedPlanet.value === 'Heimdall'
+          ? dataWSSList_Heimdall.value
+          : dataWSSList_Thor.value
     let dataBlocks
     if (selectedPlanet.value === 'Odin' && dataWSS_Odin.value !== null) {
       dataBlocks = JSON.parse(dataWSS_Odin.value)
     } else if (selectedPlanet.value === 'Heimdall' && dataWSS_Heimdall.value !== null) {
       dataBlocks = JSON.parse(dataWSS_Heimdall.value)
+    } else if (selectedPlanet.value === 'Thor' && dataWSS_Thor.value !== null) {
+      dataBlocks = JSON.parse(dataWSS_Thor.value)
     } else {
       dataBlocks = null
     }
@@ -77,8 +89,13 @@ export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
   return {
     webSocket_Odin,
     dataWSSList_Odin,
+
     webSocket_Heimdall,
     dataWSSList_Heimdall,
+
+    webSocket_Thor,
+    dataWSSList_Thor,
+
     selectedPlanet,
     selectedWss,
     calculateAVG,

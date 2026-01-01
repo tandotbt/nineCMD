@@ -36,9 +36,11 @@ export const useArenaSeasonStore = defineStore('arenaSeasonStore', () => {
   const roundActive = computed(
     () => seasonActiveNow.value.nowRound
   )
-  const seasonIndex = computed(
-    () => seasonActiveNow.value.roundId - 1
-  )
+  const seasonIndex = computed(() => {
+    const keys = Object.keys(seasonArenaInfoAll.value).filter(key => key.startsWith(`${champIdActive.value}_`))
+    const minRound = Math.min(...keys.map(key => parseInt(key.split('_')[1])))
+    return roundIdActive.value - minRound
+  })
   const maxPurchaseCountActive = computed(
     () => seasonActiveNow.value.maxPurchaseCount
   )
@@ -59,7 +61,7 @@ export const useArenaSeasonStore = defineStore('arenaSeasonStore', () => {
 
 
   const seasonNowData = computed(() => {
-    if (seasonPick.value['championshipId']) return seasonPick.value
+    if (Object.keys(seasonPick.value).length > 0) return seasonPick.value
     else
       return {
         championshipId: 0,

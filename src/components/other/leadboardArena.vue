@@ -394,11 +394,12 @@ function clearAllSorterAndFilter() {
 function refreshArena() {
   if (
     !isFetchingDataUser9C.value &&
-    props.isActive == true &&
-    props.champIdSelect != 0 &&
-    props.roundIdSelect != 0
+    props.isActive == true
+    // props.champIdSelect != 0 &&
+    // props.roundIdSelect != 0
   )
     useFetchDataUser9C.executeUser9C()
+  clearAllSorterAndFilter()
 }
 // Tìm vị trí của addressFind trong mảng data
 const addressTemp = ref(null)
@@ -1455,7 +1456,8 @@ const {
   urlMerge_arena,
   { timeout: 15000, immediate: false },
   {
-    beforeFetch({ options }) {
+    beforeFetch({ options, cancel }) {
+      if (useConfigURL.selectedPlanet.toLowerCase() === 'thor') cancel()
       options.headers = {
         ...options.headers,
         'Content-Type': 'application/json'
@@ -1490,8 +1492,8 @@ const {
 
 const dataArenaWinLose = computed(() => {
   return {
-    arenaInformation: dataArenaWinLose_normal.value,
-    arenaParticipants: dataArenaWinLose_arena.value
+    arenaInformation: dataArenaWinLose_normal.value || [],
+    arenaParticipants: dataArenaWinLose_arena.value || []
   }
 })
 

@@ -7,7 +7,8 @@ import {
   LINK_BANNER,
   URL_GITHUB_NineChronicles,
   CONFIG_URL_FALL_BACK_DATA_CSV,
-  API_URL_MERGE_ARENA
+  API_URL_MERGE_ARENA,
+  API_NINECMD
 } from '@/utilities/constants'
 import { ref, computed, reactive } from 'vue'
 import { useWebSocketBlockStore } from './webSocketBlock'
@@ -15,7 +16,10 @@ import Papa from 'papaparse'
 import { getImageBase64FromCacheOrFetch } from '@/utilities/getImageBase64FromCacheOrFetch'
 import { arrayToIndexedObject } from '@/utilities/arrayToIndexedObject'
 import { getPortraitId } from '@/utilities/getPortraitId'
+import { useI18n } from 'vue-i18n'
+
 export const useConfigURLStore = defineStore('configURLStore', () => {
+  const { locale } = useI18n()
   const useWebSocketBlock = useWebSocketBlockStore()
   const selectedPlanet = computed(() => useWebSocketBlock.selectedPlanet.toLowerCase())
   // Tạo độ trễ, giúp ngăn lỗi khi web sử dụng lại server Heimdall, việc đổi ngay lập tức Odin - > Heimdall khiến csv ko fecth kịp
@@ -185,7 +189,16 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
       RuneOptionSheet: "",
       ConsumableItemSheet: "",
     },
-
+    thor: {
+      isGetFull: false,
+      GameConfigSheet: "",
+      ArenaSheet: "",
+      SkillSheet: "",
+      ItemRequirementSheet: "",
+      CostumeStatSheet: "",
+      RuneOptionSheet: "",
+      ConsumableItemSheet: "",
+    },
   })
   const parseCsvToIndexedObject = (input, keyPropertyNames) => {
     let output = {}
@@ -209,6 +222,7 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
       { refetch: true },
       {
         beforeFetch({ cancel, options }) {
+          cancel() // dùng getSheet_9cmd_api_graphql thay thế
           if (dataGetAllSheet[selectedPlanetDelay.value].isGetFull) {
             getAllSheet()
             cancel()
@@ -245,6 +259,42 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
       .post(postDataGetAllSheet)
   }
 
+  const getSheet_9cmd_api_graphql = (url) => {
+    return useFetch(
+      url,
+      { refetch: true },
+      {
+        beforeFetch({ cancel, options }) {
+          if (dataGetAllSheet[selectedPlanetDelay.value].isGetFull) {
+            getAllSheet()
+            cancel()
+          }
+          return {
+            options,
+          }
+        },
+        afterFetch(ctx) {
+          if (ctx.data === null) return ctx
+          // eslint-disable-next-line no-unused-vars
+          Object.entries(dataGetAllSheet[selectedPlanetDelay.value]).forEach(([key, value]) => {
+            if (ctx.data && ctx.data[key]) {
+              dataGetAllSheet[selectedPlanetDelay.value][key] = ctx.data[key]
+              dataGetAllSheet[selectedPlanetDelay.value].isGetFull = true
+            }
+          })
+          getAllSheet()
+          return ctx
+        },
+        updateDataOnError: true,
+        onFetchError(ctx) {
+          const mess = ctx.data
+          ctx.error = new Error(mess) // Modifies the error
+          return ctx
+        },
+      }
+    ).json()
+      .get()
+  }
 
   // GameConfigSheet
   const {
@@ -342,6 +392,14 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     error: errorMimirSheet,
     isFetching: isFetchingMimirSheet,
   } = getSheet_mimir_graphql(urlMimirGraphql)
+
+  const keys_sheet = computed(() => Object.keys(dataGetAllSheet[selectedPlanetDelay.value]).filter(key => key != 'isGetFull'))
+  const url9cmdApiGetSheet = computed(() => `${API_NINECMD}/getGraphqlCSV?network=${selectedPlanetDelay.value}&csv=${keys_sheet.value.join('&csv=')}&locale=${locale.value}`)
+  const {
+    data: data9cmdApiSheet,
+    error: error9cmdApiSheet,
+    isFetching: isFetching9cmdApiSheet,
+  } = getSheet_9cmd_api_graphql(url9cmdApiGetSheet)
 
   function getAllSheet() {
     if (dataGetAllSheet[selectedPlanetDelay.value].GameConfigSheet) {
@@ -480,6 +538,7 @@ export const useConfigURLStore = defineStore('configURLStore', () => {
     dataRuneOptionSheet, errorRuneOptionSheet, isFetchingRuneOptionSheet,
     dataConsumableItemSheet, errorConsumableItemSheet, isFetchingConsumableItemSheet,
     dataMimirSheet, errorMimirSheet, isFetchingMimirSheet,
+    data9cmdApiSheet, error9cmdApiSheet, isFetching9cmdApiSheet,
     dataBanner, errorBanner, isFetchingBanner,
     isFetching, hasError,
     selectedPlanet, selectedNode, selectedNode_arena, changeNode,
