@@ -31,3 +31,5 @@ coverage
 yarn.lock
 .vscode/extensions.json
 public/assets/iconsArena/img.pdn
+pnpm-lock.yaml
+.eslintcache

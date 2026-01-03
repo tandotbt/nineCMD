@@ -1,197 +1,44 @@
 {
-  "info": {
-    "author": ["tanbt"],
-    "date": "07/03/2024",
-    "message": ""
-  },
-  "@--App-vue": {
-    "toggleTheme": {
-      "light": "sáng",
-      "dark": "tối"
-    }
-  },
-  "@--views--LoginMain-vue": {
-    "label": {
-      "agent": "Địa chỉ ví",
-      "agentPassword": "Mật khẩu",
-      "avatar": "Địa chỉ nhân vật",
-      "url": "Url",
-      "urlUsername": "Tên đăng nhập",
-      "urlPassword": "Mật khẩu"
-    },
-    "placeholder": {
-      "agentPassword": "Nhập mật khẩu địa chỉ ví",
-      "url": "ninecmd",
-      "urlUsername": "admin",
-      "urlPassword": "admin"
-    },
-    "switch": {
-      "checked": "Nhập theo nhân vật",
-      "unchecked": "Nhập theo ví"
-    },
-    "divider": "Dịch vụ ký giao dịch",
-    "submit": "Đăng nhập",
-    "message": {
-      "loginSuccess": {
-        "span": "Đăng nhập ok",
-        "agent": "Vi: {0}",
-        "avatar": "Nhân vật: {0}"
-      },
-      "loginInvalid": "Đăng nhập thất bại"
-    },
-    "rules": {
-      "agent": {
-        "required": "Hãy nhập địa chỉ ví của bạn",
-        "start0x": "Ví cần bắt đầu bằng 0x",
-        "length42": "Độ dài yêu cầu 42 kí tự"
-      },
-      "avatar": {
-        "required": "Hãy nhập/chọn địa chỉ nhân vật của bạn",
-        "start0x": "Ví cần bắt đầu bằng 0x",
-        "length42": "Độ dài yêu cầu 42 kí tự"
-      }
-    },
-    "typeService": {
-      "selfHosting": "Dịch vụ tự lưu trữ",
-      "extensions": "Tiện ích trình duyệt",
-      "recommended": "Khuyên dùng"
-    },
-    "thing": {
-      "NineCMDSign": {
-        "header": "Nine CMD Sign",
-        "description": "Máy chủ hỗ trợ cho Nine Chronicles thông qua Python và Flask",
-        "content": "Máy chủ giúp ký các giao dịch bạn gửi tới, sử dụng dịch vụ lưu trữ Pythonanywhere miễn phí."
-      },
-      "Chrono": {
-        "header": "Chrono",
-        "connectButton": "Ví Chrono",
-        "description": "Công cụ quản lý ví cho Nine Chronicles",
-        "content": "Đây là một dịch vụ ví tiền điện tử của tiện ích Chrome cho chuỗi khối Nine Chronicles, được thiết kế để cung cấp cho người dùng trải nghiệm liền mạch trong việc quản lý tài sản trên chuỗi khối Nine Chronicles."
-      }
-    }
-  },
-  "@--views--ArenaMain-vue": {
-    "messageJoinArenaFirst": "Tham gia arena và sử dụng 1 vé trước, sẽ hỗ trợ sau ...",
-    "messageLoading": "Đợi thông tin block ..."
-  },
-  "@--views--ArenaLeaderboard-vue": {
-    "button": {
-      "backArenaMain": "Quay lại"
-    }
-  },
-  "@--components--HeaderNineCMD-vue": {
-    "popconfirm": {
-      "refillAP-info": "Blocks tới lần hồi AP tiếp theo: {block}/{DAILY_REWARD_INTERVAL}",
-      "refillAP-info-2": "Thời gian làm mới thanh AP, tính theo blocks.",
-      "refillAP-bar": "Hồi AP",
-      "refillAP-potion": "Dùng bình AP",
-      "AP-info": "AP hiện có: {APNow}/{ACTION_POINT_MAX}",
-      "AP-info-2": "Action Potion (AP) sẽ giảm khi bạn thực hiện một số hành động cụ thể.",
-      "costAP-info": "Mức tiêu tốn AP: {costAP} (chưa staked) | Mức tiêu tốn AP: {costAP} ({stakeNCG} NCG staked) | Mức tiêu tốn AP: {costAP} ({stakeNCG} NCGs staked)",
-      "NCG-info": "NCG là đồng tiền chính, kiếm được qua các hoạt động trong game hoặc mua p2p từ người chơi khác.",
-      "NCG-have": "Rỗng túi :D | Hiện có {NCG} NCG | Hiện có {NCG} NCGs",
-      "Crystal-info": "Crystal sử dụng để làm phí tham gia arena season, boss thế giới, mở khóa thế giới và công thức chế tạo, bù vào phần vật liệu chưa đủ.",
-      "Crystal-have": "Rỗng túi :D | Hiện có {Crystal} crystal | Hiện có {Crystal} crystals",
-      "blocks-total": "Tổng blocks cả mùa: ",
-      "round-total": "Tổng vòng đấu cả mùa: ",
-      "blocks-round": "Blocks mỗi vòng đấu: ",
-      "stake-NCG-have": "Chưa stake | Đang stake {NCG} NCG | Đang stake {NCG} NCGs",
-      "stake-NCG-info": "Stake NCG sẽ nhận quà hàng tuần, tăng phần thưởng mùa Arena và nhiều lợi ích khác.",
-      "ticket-arena-info": "Vé đấu trường miễn phí sẽ được làm mới sau mỗi vòng (mặc định 8), không có dự trữ cho vòng tiếp theo.",
-      "ticket-arena-have": "Hết vé miễn phí | Có sẵn {ticket} vé miễn phí | Có sẵn {ticket} vé miễn phí ",
-      "ticket-arena-buy-info": "Có thể mua thêm vé đấu trường, có giới hạn ở mỗi vòng (mặc định 8), mọi người thường mua vé cho 5 vòng cuối cùng trước khi kết thúc season 😉.",
-      "ticket-arena-buy-have": "Chưa mua vé | Đã mua {ticket} vé | Đã mua {ticket} vé ",
-      "ticket-arena-bought-info": "Có giới hạn tổng số vé có thể được mua trong mùa (mặc định 40), ở những thứ hạng cao thường mua tối đa vé.",
-      "ticket-arena-bought-have": "Chưa mua vé | Đã mua {ticket} vé | Đã mua {ticket} vé "
-    }
-  },
-  "@--components--tabSettingNinecmd-vue": {
-    "placeholder": {
-      "timeoutUseNode": "Không có độ trễ | Độ trễ tối thiếu {TIMEOUT_USE_NODE} giây | Độ trễ tối thiếu {TIMEOUT_USE_NODE} giây"
-    },
-    "button": {
-      "again": "Quay lại",
-      "open9cscan": "Mở 9cscan"
-    },
-    "steps": {
-      "step1": "Dữ liệu ban đầu",
-      "step2": "Nhận danh sách id",
-      "step3": "Kiểm tra status",
-      "step4": "Nhận public key",
-      "step5": "Nhận plainValue",
-      "step6": "Nhận nextTxNonce",
-      "step7": "Nhận unsignedTransaction",
-      "step8": "Nhận signature",
-      "step9": "Nhận signTransaction",
-      "step10": "Nhận payload"
-    },
-    "message": {
-      "createMessage": "Chờ {timeoutComputed} giây",
-      "createMessageError": "Lỗi tại bước {stepHasError}, đã thử {now}/{max}",
-      "createMessageErrorNoSuccess": "Bạn cần tạo hành động {action} thủ công trong game",
-      "createMessageStop": "Dừng ở bước {currentStep}"
-    },
-    "other": {
-      "messageSkipStep": "Bỏ qua",
-      "messageNeedInstallChronoFirst": "Cài đặt Chrono trước tiên"
-    }
-  },
-  "@--components--leadboardArena-vue": {
-    "placeholder": {
-      "addressTemp": "Nhân vật tạm thời ...",
-      "nameSearch": "Tìm kiếm theo tên nhân vật ...",
-      "guildSearch": "Tìm kiếm theo tên Guild ..."
-    },
-    "title": {
-      "rank": "#",
-      "level": "Nhân vật",
-      "nameGuild": "Bang hội",
-      "nameWithHash": "Tên & tag",
-      "cp": "CP",
-      "totalCPGuild": "CP Guild",
-      "rankGuild": "BXH Guild",
-      "rankMember": "BXH thành viên",
-      "win": "Thắng",
-      "lose": "Thua",
-      "winScore": "Điểm thưởng",
-      "actionAttack": "Tấn công",
-      "winRate": "Tỉ lệ thắng",
-      "empty": "-"
-    }
-  },
-  "@--components--other--inventoryModal-vue": {
-    "nameModal": "Rương đồ",
-    "collapse-item": {
-      "filter": "Bộ lọc"
-    },
-    "tab-pane": {
-      "equipment": "tb",
-      "consumables": "ta",
-      "materials": "nl",
-      "costumes": "tp"
-    }
-  },
-  "@--components--other--listItemTable-vue": {
-    "overflow": {
-      "continue": "Còn nữa",
-      "end": "Hết"
-    }
+  "common": {
+    "light": "Sáng",
+    "dark": "Tối"
   },
   "page": {
     "home": "Trang chủ",
-    "arena": {
-      "main": "Đấu trường",
-      "leaderboard": "Bảng xếp hạng",
-      "attack": "Màn hình tấn công"
-    },
-    "shop": "Cửa hàng",
-    "login": "Đăng nhập",
     "notFound": "Trang 404"
   },
-  "page-notFound": {
-    "detail": "Có gì đó sai sai, quay lại @.lower:page.home"
-  },
-  "fetchDataUser9c": {
-    "guest": "Khách #0000"
-  }
+  "app_header_title": "Bảng điều khiển Nine CMD",
+  "app_status_online": "Trực tuyến",
+  "app_status_offline": "Ngoại tuyến",
+  "app_stat_latest_block": "Block mới nhất",
+  "app_stat_avg_block_time": "Thời gian block TB",
+  "app_btn_fetch_latest": "Cập nhật mới nhất",
+  "app_btn_tracking": "Đang theo dõi...",
+  "app_stat_blocks_tracked": "Số block đã lưu",
+  "app_btn_notify_after": "Thông báo sau {n} blocks",
+  "app_card_block_history": "Lịch sử Block",
+  "app_block_index": "Chỉ số",
+  "app_block_virtual": "Ảo",
+  "app_block_hash": "Mã Hash",
+  "home_form_label_threshold": "Số block để thông báo:",
+  "home_form_placeholder_threshold": "Nhập số block",
+  "home_form_suffix_blocks": "Blocks",
+  "home_btn_save_config": "Lưu cấu hình",
+  "home_btn_set_marker_now": "Đặt mốc thông báo ngay bây giờ",
+  "home_info_current_block": "Block hiện tại:",
+  "home_info_marker": "Mốc thông báo:",
+  "home_info_remaining": "(Còn khoảng {n} blocks)",
+  "home_msg_save_success": "Đã lưu cấu hình thông báo: {n} blocks",
+  "notfound_title": "404",
+  "notfound_text": "Trang bạn tìm kiếm không tồn tại.",
+  "notfound_btn_back": "Quay lại trang chủ",
+  "home_welcome_title": "Chào mừng đến với Block Explorer",
+  "home_welcome_desc": "Quản lý và theo dõi các khối dữ liệu hiệu quả. Sử dụng các công cụ bên dưới để bắt đầu.",
+  "home_btn_view_blocks": "Xem danh sách Blocks",
+  "home_btn_hide_config": "Ẩn cấu hình",
+  "home_btn_show_config": "Cấu hình thông báo",
+  "store_notif_title": "Thông báo Nine CMD",
+  "store_notif_body": "Đã trôi qua {n} blocks! Hãy quay lại kiểm tra nhân vật của bạn.",
+  "store_fetch_error": "Không thể tải dữ liệu block",
+  "history_clear_btn": "Xóa tất cả"
 }

@@ -1,9 +1,4 @@
 {
-  "info": {
-    "author": ["tanbt"],
-    "date": "07/03/2024",
-    "message": ""
-  },
   "short": {
     "year": "numeric",
     "month": "short",
@@ -16,11 +11,5 @@
     "weekday": "short",
     "hour": "numeric",
     "minute": "numeric"
-  },
-  "useTimeNode": {
-    "hour": "2-digit",
-    "minute": "2-digit",
-    "second": "2-digit",
-    "hour12": false
   }
 }

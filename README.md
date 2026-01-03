@@ -8,6 +8,10 @@
 
 With the desire to continue the process of exploring the world Nine Chronicles on my iPhone 6 device, and other devices as long as the Chrome browser installed :v
 
+## TODO
+
+Convent to typescript!
+
 ## How to use?
 
 You will need to deploy a self-hosting server [Nine_CMD_sign](https://github.com/tandotbt/Nine_CMD_sign) or use the server I deployed to test at [ninecmd.pythonanywhere.com](https://ninecmd.pythonanywhere.com/)
@@ -16,8 +20,8 @@ A better option is to use [Chrono](https://nine-chronicles.dev/general/chrono/ho
 
 ## Feature
 
-- [x] Refill AP
-- [x] Arena PvP
+- [ ] Refill AP
+- [ ] Arena PvP
 - [ ] Buy / sell gear, rune, food, ...
 - [ ] Repeat / Sweep stage
 - [ ] Craft / upgrade gear, food

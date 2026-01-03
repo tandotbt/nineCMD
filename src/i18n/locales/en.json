@@ -1,197 +1,44 @@
 {
-  "info": {
-    "author": ["tanbt"],
-    "date": "07/03/2024",
-    "message": ""
-  },
-  "@--App-vue": {
-    "toggleTheme": {
-      "light": "light",
-      "dark": "dark"
-    }
-  },
-  "@--views--LoginMain-vue": {
-    "label": {
-      "agent": "Wallet address",
-      "agentPassword": "Password",
-      "avatar": "Avatar address",
-      "url": "Url",
-      "urlUsername": "Username",
-      "urlPassword": "Password"
-    },
-    "placeholder": {
-      "agentPassword": "Input address's password",
-      "url": "ninecmd",
-      "urlUsername": "admin",
-      "urlPassword": "admin"
-    },
-    "switch": {
-      "checked": "Use avatar",
-      "unchecked": "Use agent"
-    },
-    "divider": "Service sign",
-    "submit": "Login",
-    "message": {
-      "loginSuccess": {
-        "span": "Login ok",
-        "agent": "Agent: {0}",
-        "avatar": "Avatar: {0}"
-      },
-      "loginInvalid": "Login failude"
-    },
-    "rules": {
-      "agent": {
-        "required": "Please input your wallet address",
-        "start0x": "Address need start with 0x",
-        "length42": "Length address needs 42 characters"
-      },
-      "avatar": {
-        "required": "Please input/choose your avatar address",
-        "start0x": "Address need start with 0x",
-        "length42": "Length address needs 42 characters"
-      }
-    },
-    "typeService": {
-      "selfHosting": "Self-hosting server",
-      "extensions": "Extensions",
-      "recommended": "Recommended"
-    },
-    "thing": {
-      "NineCMDSign": {
-        "header": "Nine CMD Sign",
-        "description": "Server support for Nine Chronicles via Python and Flask",
-        "content": "The server helps to sign the transactions you send to, use free Pythonanywhere cloud storage service."
-      },
-      "Chrono": {
-        "header": "Chrono",
-        "connectButton": "Chrono Wallet",
-        "description": "Wallet for Nine Chronicles",
-        "content": "This is a crypto wallet service of chrome extension for Nine Chronicles blockchain, designed to provide users with a seamless experience in managing their assets on the Nine Chronicles blockchain."
-      }
-    }
-  },
-  "@--views--ArenaMain-vue": {
-    "messageJoinArenaFirst": "Join Arena and use 1 ticket first, will support later ...",
-    "messageLoading": "Wait info block ..."
-  },
-  "@--views--ArenaLeaderboard-vue": {
-    "button": {
-      "backArenaMain": "Back"
-    }
-  },
-  "@--components--HeaderNineCMD-vue": {
-    "popconfirm": {
-      "refillAP-info": "Blocks to next refill AP: {block}/{DAILY_REWARD_INTERVAL}",
-      "refillAP-info-2": "The time calculated by blocks to re-fill the action bar",
-      "refillAP-bar": "Change AP",
-      "refillAP-potion": "Use AP potion",
-      "AP-info": "AP have now: {APNow}/{ACTION_POINT_MAX}",
-      "AP-info-2": "Action Potion (AP) will decrease when you take a specific action.",
-      "costAP-info": "Cost AP: {costAP} (haven't staked yet) | Cost AP: {costAP} ({stakeNCG} NCG staked) | Cost AP: {costAP} ({stakeNCG} NCGs staked)",
-      "NCG-info": "NCG is the main currency, earning activities in the game or buying P2P from other players.",
-      "NCG-have": "No money :D | Have {NCG} NCG | Have {NCG} NCGs",
-      "Crystal-info": "Crystal is used to cost joining Arena Season, World Boss, unlock new world and formula craft, compensate for the material is not enough.",
-      "Crystal-have": "No money :D | Have {Crystal} crystal | Have {Crystal} crystals",
-      "blocks-total": "Blocks total of season: ",
-      "round-total": "Round total of season: ",
-      "blocks-round": "Blocks of round: ",
-      "stake-NCG-have": "Haven't staked yet | Staked {NCG} NCG | Stake {NCG} NCGs",
-      "stake-NCG-info": "Stake NCG will receive weekly rewards, increase Arena season rewards and many other benefits.",
-      "ticket-arena-info": "Free Arena tickets will be refresh after each round (default 8), no reserve for next round.",
-      "ticket-arena-have": "Out of free tickets | Have free {ticket} ticket | Have free {ticket} tickets",
-      "ticket-arena-buy-info": "You can buy more arena tickets, limited in each round (default 8), people often buy tickets for the last 5 rounds before the end of the season 😉.",
-      "ticket-arena-buy-have": "Not bought ticket yet | Bought {ticket} ticket | Bought {ticket} tickets",
-      "ticket-arena-bought-info": "There is a limit to the total number of tickets that can be purchased in the season (default 40), in high rankings often buy maximum tickets.",
-      "ticket-arena-bought-have": "Not bought ticket yet | Bought {ticket} ticket | Bought {ticket} tickets"
-    }
-  },
-  "@--components--tabSettingNinecmd-vue": {
-    "placeholder": {
-      "timeoutUseNode": "No timeout | Timeout min {TIMEOUT_USE_NODE} second | Timeout min {TIMEOUT_USE_NODE} seconds"
-    },
-    "button": {
-      "again": "Again",
-      "open9cscan": "Open 9cscan"
-    },
-    "steps": {
-      "step1": "Data begin",
-      "step2": "Get list id",
-      "step3": "Check status",
-      "step4": "Get public key",
-      "step5": "Get plainValue",
-      "step6": "Get nextTxNonce",
-      "step7": "Get unsignedTransaction",
-      "step8": "Get signature",
-      "step9": "Get signTransaction",
-      "step10": "Get payload"
-    },
-    "message": {
-      "createMessage": "Wait {timeoutComputed}s",
-      "createMessageError": "Error at step {stepHasError}, tried {now}/{max}",
-      "createMessageErrorNoSuccess": "You need to creat {action} manual in game",
-      "createMessageStop": "Stop at step {currentStep}"
-    },
-    "other": {
-      "messageSkipStep": "Skip",
-      "messageNeedInstallChronoFirst": "Install Chrono first"
-    }
-  },
-  "@--components--leadboardArena-vue": {
-    "placeholder": {
-      "addressTemp": "Temporary avatar ...",
-      "nameSearch": "Search by avatar name ...",
-      "guildSearch": "Search by name Guild ..."
-    },
-    "title": {
-      "rank": "#",
-      "level": "Avatar",
-      "nameGuild": "Guild",
-      "nameWithHash": "Name & tag",
-      "cp": "CP",
-      "totalCPGuild": "CP Guild",
-      "rankGuild": "Rank Guild",
-      "rankMember": "Rank member",
-      "win": "Win",
-      "lose": "Lose",
-      "winScore": "Reward score",
-      "actionAttack": "Attack",
-      "winRate": "Win rate",
-      "empty": "-"
-    }
-  },
-  "@--components--other--inventoryModal-vue": {
-    "nameModal": "Inventory Character",
-    "collapse-item": {
-      "filter": "Filter"
-    },
-    "tab-pane": {
-      "equipment": "eqp",
-      "consumables": "cns",
-      "materials": "mts",
-      "costumes": "cst"
-    }
-  },
-  "@--components--other--listItemTable-vue": {
-    "overflow": {
-      "continue": "Continue",
-      "end": "End"
-    }
+  "common": {
+    "light": "Light",
+    "dark": "Dark"
   },
   "page": {
     "home": "Home",
-    "arena": {
-      "main": "Arena main",
-      "leaderboard": "Leaderboard",
-      "attack": "Attack screen"
-    },
-    "shop": "Shop",
-    "login": "Login",
     "notFound": "Page 404"
   },
-  "page-notFound": {
-    "detail": "Something went wrong, return @.lower:page.home"
-  },
-  "fetchDataUser9c": {
-    "guest": "Guest #0000"
-  }
+  "app_header_title": "Nine CMD Dashboard",
+  "app_status_online": "Online",
+  "app_status_offline": "Offline",
+  "app_stat_latest_block": "Latest Block",
+  "app_stat_avg_block_time": "Avg Block Time",
+  "app_btn_fetch_latest": "Fetch Latest",
+  "app_btn_tracking": "Tracking...",
+  "app_stat_blocks_tracked": "Blocks Tracked",
+  "app_btn_notify_after": "Notify after {n} blocks",
+  "app_card_block_history": "Block History",
+  "app_block_index": "Index",
+  "app_block_virtual": "Virtual",
+  "app_block_hash": "Hash",
+  "home_form_label_threshold": "Notification Threshold (blocks):",
+  "home_form_placeholder_threshold": "Enter number of blocks",
+  "home_form_suffix_blocks": "Blocks",
+  "home_btn_save_config": "Save Configuration",
+  "home_btn_set_marker_now": "Set Notification Marker Now",
+  "home_info_current_block": "Current Block:",
+  "home_info_marker": "Notification Marker:",
+  "home_info_remaining": "(About {n} blocks left)",
+  "home_msg_save_success": "Notification configuration saved: {n} blocks",
+  "notfound_title": "404",
+  "notfound_text": "The page you are looking for does not exist.",
+  "notfound_btn_back": "Back to Home",
+  "home_welcome_title": "Welcome to Block Explorer",
+  "home_welcome_desc": "Manage and track data blocks efficiently. Use the tools below to get started.",
+  "home_btn_view_blocks": "View Blocks List",
+  "home_btn_hide_config": "Hide Configuration",
+  "home_btn_show_config": "Notification Config",
+  "store_notif_title": "Nine CMD Notification",
+  "store_notif_body": "{n} blocks have passed! Please go back and check your character.",
+  "store_fetch_error": "Failed to fetch block",
+  "history_clear_btn": "Clear All"
 }
