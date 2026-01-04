@@ -15,6 +15,11 @@ const router = createRouter({
       component: () => import('../views/BlocksView.vue'),
     },
     {
+      path: '/settings/planets',
+      name: 'planet-settings',
+      component: () => import('../views/PlanetSettingsView.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFoundView.vue'),

@@ -1,26 +1,24 @@
+import { ref } from 'vue'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useBlockStore } from '../stores/useBlockStore'
 import { db } from '../db'
 import { STORAGE_KEYS } from '../constants'
 
-// Mock Web Notification
-const showMock = vi.fn()
-;(global as unknown as { Notification: unknown }).Notification = {
-  permission: 'granted',
-  requestPermission: vi.fn().mockResolvedValue('granted'),
-}
+// Variables used in vi.mock must start with 'mock' prefix
+const mockShow = vi.fn()
 
-vi.mock('@vueuse/core', async () => {
-  const actual = await vi.importActual('@vueuse/core')
+vi.mock('@vueuse/core', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
   return {
     ...actual,
     useWebNotification: () => ({
-      isSupported: { value: true },
-      show: showMock,
+      isSupported: ref(true),
+      show: mockShow,
       ensurePermissions: vi.fn(),
     }),
-    useOnline: () => ({ value: true }),
+    useOnline: () => ref(true),
+    useStorage: <T>(_key: string, defaultValue: T) => ref(defaultValue),
   }
 })
 
@@ -29,7 +27,13 @@ describe('useBlockStore', () => {
     setActivePinia(createPinia())
     await db.blocks.clear()
     await db.settings.clear()
-    showMock.mockClear()
+    mockShow.mockClear()
+
+    // Setup global Notification mock
+    vi.stubGlobal('Notification', {
+      permission: 'granted',
+      requestPermission: vi.fn().mockResolvedValue('granted'),
+    })
   })
 
   it('should initialize with default values', () => {
@@ -40,7 +44,6 @@ describe('useBlockStore', () => {
   })
 
   it('should set notification marker correctly', async () => {
-    useBlockStore()
     const mockBlock = {
       id: 'b1',
       object: {
@@ -54,10 +57,6 @@ describe('useBlockStore', () => {
     }
 
     await db.blocks.put(mockBlock)
-    // Wait for liveQuery to sync (in real app it's reactive, in test we might need a small delay or manual trigger)
-    // For simplicity in unit test, we test the action logic
-
-    // Manually trigger marker setting logic as if blocks were loaded
     await db.settings.put({ key: STORAGE_KEYS.NOTIF_START_BLOCK, value: 100 })
 
     const setting = await db.settings.get(STORAGE_KEYS.NOTIF_START_BLOCK)
@@ -66,8 +65,6 @@ describe('useBlockStore', () => {
 
   it('should calculate tracked blocks count', async () => {
     const store = useBlockStore()
-    // In actual store, blocks is an observable from liveQuery
-    // Testing the computed property's logic
     expect(store.blocksTracked).toBe(0)
   })
 })

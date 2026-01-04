@@ -27,8 +27,10 @@ _Lưu ý: Luôn kèm theo mô tả ngắn gọn sau dấu hai chấm._
 1. **Automation-First:** Mọi logic xử lý tự động phải tuân thủ luồng: **Fetch -> Store -> Diff -> Decision -> Action** quy định tại [`RULE.md`](../RULE.md).
 2. **Non-Blocking UI:** Tuyệt đối không thực hiện các phép so sánh (diff) object character lớn trực tiếp trên Main Thread. Sử dụng Web Worker.
 3. **Phân tích trước khi viết:** Luôn kiểm tra các định nghĩa trong `src/core/` hoặc `src/logic/` trước khi thêm logic mới vào UI.
-4. **Type-Safety:** Không sử dụng `any`. Ưu tiên `interface` và `type` rõ ràng.
-5. **Test-First:** Đối với các logic nghiệp vụ (như tính toán vật phẩm mới, logic chọn lệnh), phải có file test tương ứng trong thư mục `tests/`.
+4. **Asynchronous Consistency:** Ưu tiên sử dụng `async/await` cho các tác vụ IO, Database hoặc API. Khi một hàm gọi một callback/hàm bất đồng bộ, bản thân hàm đó cũng phải là `async` và phải `await` kết quả để tránh race condition.
+5. **Dependency Check:** Khi chỉnh sửa chữ ký hàm (signature) hoặc logic cốt lõi, bắt buộc phải kiểm tra và cập nhật tất cả các nơi đang sử dụng (dependencies) hàm đó.
+6. **Type-Safety:** Không sử dụng `any`. Ưu tiên `interface` và `type` rõ ràng.
+7. **Test-Driven Development (TDD):** Mọi logic nghiệp vụ mới hoặc hàm quan trọng phải có unit test đầy đủ bao phủ các trường hợp thành công và thất bại trước khi merge.
 
 ## 4. Cấu trúc Commit Message
 

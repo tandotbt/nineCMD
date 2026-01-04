@@ -33,3 +33,4 @@ yarn.lock
 public/assets/iconsArena/img.pdn
 pnpm-lock.yaml
 .eslintcache
+# !package-lock.json

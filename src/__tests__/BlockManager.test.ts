@@ -41,36 +41,36 @@ describe('BlockManager', () => {
     vi.useRealTimers()
   })
 
-  it('should add real blocks and update state', () => {
+  it('should add real blocks and update state', async () => {
     const block = createMockBlock(100, new Date().toISOString())
-    blockManager.addRealBlock(block)
+    await blockManager.addRealBlock(block)
 
     expect(blockManager.getLatestBlock()?.object.index).toBe(100)
     expect(mockOnUpdate).toHaveBeenCalledWith(block)
   })
 
-  it('should calculate average block time correctly', () => {
+  it('should calculate average block time correctly', async () => {
     const now = Date.now()
     const b1 = createMockBlock(102, new Date(now).toISOString())
     const b2 = createMockBlock(101, new Date(now - 10000).toISOString()) // 10s difference
     const b3 = createMockBlock(100, new Date(now - 22000).toISOString()) // 12s difference
 
-    blockManager.addRealBlock(b3)
-    blockManager.addRealBlock(b2)
-    blockManager.addRealBlock(b1)
+    await blockManager.addRealBlock(b3)
+    await blockManager.addRealBlock(b2)
+    await blockManager.addRealBlock(b1)
 
     // Avg = (10 + 12) / 2 = 11s = 11000ms
     expect(blockManager.getAverageBlockTime()).toBe(11000)
   })
 
-  it('should increment virtual blocks when offline using actual average time', () => {
+  it('should increment virtual blocks when offline using actual average time', async () => {
     const now = Date.now()
     // Create 8s interval blocks
     const b1 = createMockBlock(101, new Date(now).toISOString())
     const b2 = createMockBlock(100, new Date(now - 8000).toISOString())
 
-    blockManager.addRealBlock(b2)
-    blockManager.addRealBlock(b1)
+    await blockManager.addRealBlock(b2)
+    await blockManager.addRealBlock(b1)
 
     expect(blockManager.getAverageBlockTime()).toBe(8000)
 
@@ -78,53 +78,53 @@ describe('BlockManager', () => {
     blockManager.setOnlineStatus(false)
 
     // Should NOT increment at 5s
-    vi.advanceTimersByTime(5000)
+    await vi.advanceTimersByTimeAsync(5000)
     expect(blockManager.getLatestBlock()?.object.index).toBe(101)
 
     // Should increment at 8s
-    vi.advanceTimersByTime(3000)
+    await vi.advanceTimersByTimeAsync(3000)
     expect(blockManager.getLatestBlock()?.object.index).toBe(102)
     expect(blockManager.getLatestBlock()?.id).toContain('virtual')
   })
 
-  it('should not use virtual blocks to calculate average time', () => {
+  it('should not use virtual blocks to calculate average time', async () => {
     const now = Date.now()
     const b1 = createMockBlock(101, new Date(now).toISOString())
     const b2 = createMockBlock(100, new Date(now - 8000).toISOString())
 
-    blockManager.addRealBlock(b2)
-    blockManager.addRealBlock(b1)
+    await blockManager.addRealBlock(b2)
+    await blockManager.addRealBlock(b1)
 
     blockManager.setOnlineStatus(false)
-    vi.advanceTimersByTime(8000) // Adds virtual block index 102
+    await vi.advanceTimersByTimeAsync(8000) // Adds virtual block index 102
 
     // Average should still be 8000, not affected by virtual block
     expect(blockManager.getAverageBlockTime()).toBe(8000)
   })
 
-  it('should stop virtual counter when back online', () => {
+  it('should stop virtual counter when back online', async () => {
     const block = createMockBlock(100, new Date().toISOString())
-    blockManager.addRealBlock(block)
+    await blockManager.addRealBlock(block)
 
     blockManager.setOnlineStatus(false)
-    vi.advanceTimersByTime(10000) // Index 101
+    await vi.advanceTimersByTimeAsync(10000) // Index 101
 
     blockManager.setOnlineStatus(true)
-    vi.advanceTimersByTime(10000)
+    await vi.advanceTimersByTimeAsync(10000)
 
     // Should still be 101 because timer stopped
     expect(blockManager.getLatestBlock()?.object.index).toBe(101)
   })
 
-  it('should ignore intervals > 10 minutes in average calculation', () => {
+  it('should ignore intervals > 10 minutes in average calculation', async () => {
     const now = Date.now()
     const b1 = createMockBlock(102, new Date(now).toISOString())
     const b2 = createMockBlock(101, new Date(now - 601000).toISOString()) // 10m 1s difference
     const b3 = createMockBlock(100, new Date(now - 611000).toISOString()) // 10s difference between b2 and b3
 
-    blockManager.addRealBlock(b3)
-    blockManager.addRealBlock(b2)
-    blockManager.addRealBlock(b1)
+    await blockManager.addRealBlock(b3)
+    await blockManager.addRealBlock(b2)
+    await blockManager.addRealBlock(b1)
 
     // Should only count interval between b2 and b3 (10s)
     // Interval between b1 and b2 is > 10m, so it should be ignored
@@ -139,10 +139,12 @@ describe('BlockManager', () => {
     expect(blockManager.getLatestBlock()?.object.index).toBe(100)
   })
 
-  it('should limit blocks to MAX_BLOCKS_CACHE', () => {
+  it('should limit blocks to MAX_BLOCKS_CACHE', async () => {
     // Fill manager with blocks
     for (let i = 1; i <= 150; i++) {
-      blockManager.addRealBlock(createMockBlock(i, new Date(Date.now() + i * 10000).toISOString()))
+      await blockManager.addRealBlock(
+        createMockBlock(i, new Date(Date.now() + i * 10000).toISOString()),
+      )
     }
 
     expect(blockManager.getBlocks().length).toBe(100) // MAX_BLOCKS_CACHE from constants

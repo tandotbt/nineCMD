@@ -1,9 +1,19 @@
 <script setup lang="ts">
 import AppHeader from '@/components/layout/AppHeader.vue'
+import AppBreadcrumb from '@/components/layout/AppBreadcrumb.vue'
 import { darkTheme } from 'naive-ui'
 import { useBlockStore } from '@/stores/useBlockStore'
+import { usePlanetStore } from '@/stores/usePlanetStore'
 import type { NLocale, NDateLocale } from 'naive-ui'
-import { CONFIG_i18n_LANGUAGES, DEFAULT_LOCALE, STORAGE_KEYS, PWA_CONFIG } from '@/constants'
+import {
+  CONFIG_i18n_LANGUAGES,
+  DEFAULT_LOCALE,
+  STORAGE_KEYS,
+  PWA_CONFIG,
+  PLANET_IDS,
+} from '@/constants'
+import type { PlanetName } from '@/types/planet'
+import { ArrowSync24Regular as LoadingIcon } from '@vicons/fluent'
 
 const isDark = useDark()
 const isOnline = useOnline()
@@ -32,6 +42,24 @@ const changeLang = (selectedLang: string) => {
 }
 
 const blockStore = useBlockStore()
+const planetStore = usePlanetStore()
+
+const planetOptions = computed(() => {
+  if (planetStore.rawPlanets.length > 0) {
+    return planetStore.rawPlanets.map((p) => ({
+      label: p.name.charAt(0).toUpperCase() + p.name.slice(1),
+      value: p.name,
+    }))
+  }
+  return Object.keys(PLANET_IDS).map((key) => ({
+    label: key.charAt(0).toUpperCase() + key.slice(1),
+    value: key,
+  }))
+})
+
+const changePlanet = (name: string) => {
+  planetStore.setPlanet(name as PlanetName)
+}
 
 interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
   periodicSync: {
@@ -41,6 +69,9 @@ interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
 
 onMounted(async () => {
   changeLang(settings.value.lang)
+
+  // Fetch planets first
+  await planetStore.fetchPlanets()
 
   // Start global block fetching
   blockStore.startAutoFetch()
@@ -73,18 +104,36 @@ onUnmounted(() => {
   >
     <n-message-provider>
       <n-global-style />
-      <n-layout style="height: 100vh">
+      <div
+        v-if="planetStore.isLoading"
+        style="
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+        "
+      >
+        <n-icon size="48" :component="LoadingIcon" class="is-loading" />
+        <n-text depth="3">Loading Planet Data...</n-text>
+      </div>
+      <n-layout v-else style="height: 100vh">
         <AppHeader
           :title="t('app_header_title')"
           :locale="locale"
           :lang-options="langOptions"
+          :planet="planetStore.currentPlanetName"
+          :planet-options="planetOptions"
           :is-online="isOnline"
           :online-text="t('app_status_online')"
           :offline-text="t('app_status_offline')"
           @update:locale="changeLang"
+          @update:planet="changePlanet"
         />
 
         <n-layout-content style="padding: 24px">
+          <AppBreadcrumb />
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />

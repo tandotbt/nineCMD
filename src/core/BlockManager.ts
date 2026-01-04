@@ -11,9 +11,9 @@ export class BlockManager {
   private blocks: Block[] = []
   private isOnline: boolean = true
   private virtualTimer: ReturnType<typeof setInterval> | null = null
-  private onBlockUpdate: (block: Block) => void
+  private onBlockUpdate: (block: Block) => void | Promise<void>
 
-  constructor(onBlockUpdate: (block: Block) => void, initialBlocks: Block[] = []) {
+  constructor(onBlockUpdate: (block: Block) => void | Promise<void>, initialBlocks: Block[] = []) {
     this.onBlockUpdate = onBlockUpdate
     this.blocks = [...initialBlocks].slice(0, BLOCK_CONFIG.MAX_BLOCKS_CACHE)
   }
@@ -43,7 +43,7 @@ export class BlockManager {
    * Adds a new real block from the API.
    * @param newBlock The block data from API
    */
-  public addRealBlock(newBlock: Block): void {
+  public async addRealBlock(newBlock: Block): Promise<void> {
     const latestBlock = this.blocks[0]
     if (!latestBlock || latestBlock.object.index < newBlock.object.index) {
       // If we were in offline mode, real data should override any virtual blocks
@@ -53,7 +53,7 @@ export class BlockManager {
         this.blocks.pop()
       }
 
-      this.onBlockUpdate(newBlock)
+      await this.onBlockUpdate(newBlock)
     }
   }
 
@@ -115,7 +115,7 @@ export class BlockManager {
   /**
    * Creates a virtual block based on the last known block.
    */
-  private incrementVirtualBlock(): void {
+  private async incrementVirtualBlock(): Promise<void> {
     const lastBlock = this.blocks[0]
     if (!lastBlock) return
 
@@ -131,11 +131,11 @@ export class BlockManager {
     }
 
     this.blocks.unshift(virtualBlock)
-    if (this.blocks.length > 5) {
+    if (this.blocks.length > BLOCK_CONFIG.MAX_BLOCKS_CACHE) {
       this.blocks.pop()
     }
 
-    this.onBlockUpdate(virtualBlock)
+    await this.onBlockUpdate(virtualBlock)
   }
 
   public getLatestBlock(): Block | null {

@@ -11,6 +11,7 @@ Tài liệu này vạch ra lộ trình chuyển đổi từ bộ khung cũ sang 
 ## Giai đoạn 2: Cấu trúc Dữ liệu & Lưu trữ (Đang thực hiện)
 
 - [x] Thiết lập **Dexie.js** schema cơ bản cho `blocks` và `settings`.
+- [x] Mở rộng hệ thống để hỗ trợ đa hành tinh (**Planets**) và chuyển đổi RPC động.
 - [ ] Mở rộng bảng `characters` và `actions` cho hệ thống Automation.
 - [ ] Tạo module `src/logic/diff.ts` tích hợp `microdiff`.
 - [x] Triển khai **Service Worker** hỗ trợ chạy ngầm và Periodic Sync.

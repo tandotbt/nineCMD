@@ -1,8 +1,9 @@
 /// <reference lib="webworker" />
 import { precacheAndRoute } from 'workbox-precaching'
 import { db } from './db'
-import { API_URLS, BLOCK_CONFIG, PWA_CONFIG, STORAGE_KEYS } from './constants'
+import { BLOCK_CONFIG, PWA_CONFIG, STORAGE_KEYS, PLANET_CONFIGS, DEFAULT_PLANET } from './constants'
 import type { GetBlocksResponse } from './types/block'
+import type { PlanetName } from './types/planet'
 
 declare let self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null }>
@@ -21,6 +22,17 @@ interface PeriodicSyncEvent extends Event {
 async function fetchAndSaveBlock() {
   // TODO: Implement retry logic for API fetch in Service Worker
   try {
+    // Service worker doesn't have access to Pinia or localStorage, uses IndexedDB settings
+    const storedSetting = await db.settings.get('nine-cmd-planet')
+    const storedPlanet = storedSetting?.value
+    const planetName = (
+      typeof storedPlanet === 'string' ? storedPlanet.replace(/\"/g, '') : DEFAULT_PLANET
+    ) as PlanetName
+    const mimirUrl =
+      PLANET_CONFIGS[planetName]?.rpcEndpoints['mimir.gql']?.[0] ||
+      PLANET_CONFIGS[DEFAULT_PLANET]?.rpcEndpoints['mimir.gql']?.[0] ||
+      ''
+
     const query = `
       query GetLatestBlock {
         blocks(skip: 0, take: 1) {
@@ -39,7 +51,7 @@ async function fetchAndSaveBlock() {
       }
     `
 
-    const response = await fetch(API_URLS.ODIN_MIMIR, {
+    const response = await fetch(mimirUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),

@@ -6,18 +6,21 @@
  */
 
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useFetch, useOnline, useWebNotification } from '@vueuse/core'
+import { ref, computed, watch } from 'vue'
+import { useOnline, useWebNotification } from '@vueuse/core'
 import { liveQuery } from 'dexie'
 import { useObservable } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
 import { i18n } from '../i18n'
 import { BlockManager } from '../core/BlockManager'
-import { API_URLS, BLOCK_CONFIG, STORAGE_KEYS } from '../constants'
+import { BLOCK_CONFIG, STORAGE_KEYS } from '../constants'
+import { usePlanetStore } from './usePlanetStore'
 import { db } from '../db'
+import { queryGraphql } from '../api/graphql'
 import type { Block, GetBlocksResponse } from '../types/block'
 
 export const useBlockStore = defineStore('block', () => {
+  const planetStore = usePlanetStore()
   const isOnline = useOnline()
   const isFetching = ref(false)
   const error = ref<string | null>(null)
@@ -56,10 +59,10 @@ export const useBlockStore = defineStore('block', () => {
   // Initialize BlockManager with a callback to update DB
   const blockManager = new BlockManager(async (block) => {
     await db.blocks.put(block)
-    checkNotificationThreshold(block.object.index)
+    await checkNotificationThreshold(block.object.index)
   }, blocks.value || [])
 
-  const checkNotificationThreshold = (currentIndex: number) => {
+  const checkNotificationThreshold = async (currentIndex: number) => {
     const startIndex = startBlockIndex.value
     const threshold = notificationThreshold.value ?? BLOCK_CONFIG.DEFAULT_NOTIFICATION_THRESHOLD
 
@@ -74,7 +77,7 @@ export const useBlockStore = defineStore('block', () => {
           })
         }
         // Reset after notification
-        db.settings.put({ key: STORAGE_KEYS.NOTIF_START_BLOCK, value: null })
+        await db.settings.put({ key: STORAGE_KEYS.NOTIF_START_BLOCK, value: null })
       }
     }
   }
@@ -104,32 +107,13 @@ export const useBlockStore = defineStore('block', () => {
 
     try {
       const query = `
-        query GetLatestBlock {
-          blocks(skip: 0, take: 1) {
-            items {
-              id
-              object {
-                hash
-                index
-                miner
-                stateRootHash
-                timestamp
-                txCount
-              }
-            }
-          }
-        }
+        query GetLatestBlock {\n          blocks(skip: 0, take: 1) {\n            items {\n              id\n              object {\n                hash\n                index\n                miner\n                stateRootHash\n                timestamp\n                txCount\n              }\n            }\n          }\n        }
       `
 
-      const { data, error: fetchError } = await useFetch(API_URLS.ODIN_MIMIR)
-        .post({ query })
-        .json<GetBlocksResponse>()
+      const url = planetStore.mimirUrl || ''
+      const data = await queryGraphql<GetBlocksResponse['data']>(url, query)
 
-      if (fetchError.value) {
-        throw new Error(fetchError.value)
-      }
-
-      const newBlock = data.value?.data.blocks.items[0]
+      const newBlock = data.blocks.items[0]
       if (newBlock) {
         await blockManager.addRealBlock(newBlock)
       }
@@ -163,20 +147,28 @@ export const useBlockStore = defineStore('block', () => {
   }
 
   // Sync online status and blocks with BlockManager
-  import('vue').then(({ watch }) => {
-    watch(isOnline, (online) => {
-      blockManager.setOnlineStatus(online)
-    })
-    watch(
-      () => blocks.value,
-      (newBlocks) => {
-        if (newBlocks) {
-          blockManager.setBlocks(newBlocks)
-        }
-      },
-      { deep: true },
-    )
+  watch(isOnline, (online: boolean) => {
+    blockManager.setOnlineStatus(online)
   })
+  watch(
+    () => planetStore.currentPlanetName,
+    async () => {
+      console.log('[BlockStore] Planet changed, clearing blocks...')
+      await clearAllBlocks()
+      if (isOnline.value) {
+        await fetchLatestBlock()
+      }
+    },
+  )
+  watch(
+    () => blocks.value,
+    (newBlocks: Block[]) => {
+      if (newBlocks) {
+        blockManager.setBlocks(newBlocks)
+      }
+    },
+    { deep: true },
+  )
 
   return {
     latestBlock: computed(() => blocks.value?.[0] || null),
@@ -195,7 +187,9 @@ export const useBlockStore = defineStore('block', () => {
     notificationThreshold: computed({
       get: () => notificationThreshold.value ?? BLOCK_CONFIG.DEFAULT_NOTIFICATION_THRESHOLD,
       set: (val: number) => {
-        db.settings.put({ key: STORAGE_KEYS.NOTIF_THRESHOLD, value: val })
+        db.settings.put({ key: STORAGE_KEYS.NOTIF_THRESHOLD, value: val }).catch((err) => {
+          console.error('Failed to save notification threshold:', err)
+        })
       },
     }),
     blocksTracked,
