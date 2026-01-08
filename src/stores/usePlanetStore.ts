@@ -12,7 +12,6 @@ import {
   PLANET_STORAGE_KEY,
   PLANET_RAW_DATA_KEY,
   PLANET_CONFIGS,
-  PLANET_RAW_URL,
   PLANET_IDS,
   NODE_INDEX_STORAGE_KEY,
   MIMIR_INDEX_STORAGE_KEY,
@@ -21,8 +20,10 @@ import {
   STORAGE_KEYS,
 } from '../constants'
 import type { PlanetName, RpcConfig, PlanetConfig } from '../types/planet'
+import { useApiStore } from './useApiStore'
 
 export const usePlanetStore = defineStore('planet', () => {
+  const apiStore = useApiStore()
   // State
   const isLoading = ref(false)
 
@@ -93,7 +94,9 @@ export const usePlanetStore = defineStore('planet', () => {
     error.value = null
 
     try {
-      const { data, error: fetchError } = await useFetch(PLANET_RAW_URL).json<PlanetConfig[]>()
+      const { data, error: fetchError } = await useFetch(apiStore.planetRawUrl).json<
+        PlanetConfig[]
+      >()
 
       if (fetchError.value) {
         throw new Error(fetchError.value)

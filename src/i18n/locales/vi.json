@@ -60,5 +60,13 @@
   "csv_refresh_button": "Làm mới dữ liệu",
   "csv_select_sheet": "Chọn Sheet:",
   "csv_select_placeholder": "Chọn một sheet để xem",
-  "csv_no_data": "Không có dữ liệu. Vui lòng tải dữ liệu trước."
+  "csv_no_data": "Không có dữ liệu. Vui lòng tải dữ liệu trước.",
+  "api_no_endpoints": "Không có điểm cuối khả dụng",
+  "api_settings_title": "Cài đặt URL API",
+  "api_label_9cmd": "9CMD API",
+  "api_label_season_pass": "Season Pass API",
+  "api_label_scan_item_name": "CSV Tên Vật Phẩm (Scan)",
+  "api_label_planet_raw": "URL Dữ Liệu Hành Tinh",
+  "breadcrumb_apis": "Cài đặt API",
+  "home_btn_api_settings": "Cài đặt API"
 }

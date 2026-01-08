@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useFetch } from '@vueuse/core'
 import fs from 'fs'
 import path from 'path'
-import { API_URLS } from '../constants'
+import { useApiStore } from '../stores/useApiStore'
 import { buildCsvUrl } from '../stores/useCsvDataStore'
 import { usePlanetStore } from '../stores/usePlanetStore'
 
@@ -66,7 +66,8 @@ describe('CSV Data Consistency - Real API Test', () => {
         continue
       }
 
-      const url = buildCsvUrl(planet, sheetsToFetch)
+      const apiStore = useApiStore()
+      const url = buildCsvUrl(planet, apiStore.api9CmdUrl as string, sheetsToFetch)
 
       try {
         // Sử dụng useFetch giống như trong useCsvDataStore
@@ -115,7 +116,8 @@ describe('CSV Data Consistency - Real API Test', () => {
     // 2. Fetch item_name.csv dùng useFetch
     console.log(`--- Testing item_name.csv ---`)
     try {
-      const { data, error } = await useFetch(API_URLS.SCAN_ITEM_NAME).text()
+      const apiStore = useApiStore()
+      const { data, error } = await useFetch(apiStore.scanItemNameUrl as string).text()
       if (error.value) throw new Error(error.value)
 
       const currentItemName = (data.value || '').trim()

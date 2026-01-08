@@ -20,6 +20,11 @@ const router = createRouter({
       component: () => import('../views/PlanetSettingsView.vue'),
     },
     {
+      path: '/settings/apis',
+      name: 'api-settings',
+      component: () => import('../views/ApiSettingsView.vue'),
+    },
+    {
       path: '/data-explorer',
       name: 'csv-explorer',
       component: () => import('../views/CsvDataView.vue'),

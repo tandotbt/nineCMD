@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { useFetch } from '@vueuse/core'
-import { PLANET_RAW_URL, PLANET_IDS, PLANET_CONFIGS, API_URLS } from '../constants'
+import { API_URLS, PLANET_IDS, PLANET_CONFIGS } from '../constants'
 import type { PlanetConfig } from '../types/planet'
 
 /**
@@ -10,10 +10,10 @@ import type { PlanetConfig } from '../types/planet'
  */
 describe('Planet Data Consistency', () => {
   it('should fetch real planet data and match the expected structure', async () => {
-    console.log('Fetching planet data from:', PLANET_RAW_URL)
+    console.log('Fetching planet data from:', API_URLS.PLANET_RAW[0])
 
     // Sử dụng useFetch giống như trong usePlanetStore.ts
-    const { data, error } = await useFetch(PLANET_RAW_URL).json<PlanetConfig[]>()
+    const { data, error } = await useFetch(API_URLS.PLANET_RAW[0]).json<PlanetConfig[]>()
 
     if (error.value) {
       throw new Error(`Failed to fetch planet data: ${error.value}`)
@@ -82,8 +82,8 @@ describe('Planet Data Consistency', () => {
   })
 
   it.todo('should verify SEASON_PASS API is reachable', async () => {
-    console.log('Checking SEASON_PASS API:', API_URLS.SEASON_PASS)
-    const { data, error } = await useFetch(API_URLS.SEASON_PASS).get().text()
+    console.log('Checking SEASON_PASS API:', API_URLS.SEASON_PASS[0])
+    const { data, error } = await useFetch(API_URLS.SEASON_PASS[0]).get().text()
 
     if (error.value) {
       console.warn('SEASON_PASS API Error:', error.value)

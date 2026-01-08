@@ -54,6 +54,10 @@ const toggleDark = useToggle(isDark)
             </template>
             {{ t('home_btn_data_explorer', 'Data Explorer') }}
           </n-button>
+
+          <n-button secondary size="large" @click="router.push('/settings/apis')">
+            {{ t('home_btn_api_settings') }}
+          </n-button>
         </n-space>
       </div>
     </n-card>

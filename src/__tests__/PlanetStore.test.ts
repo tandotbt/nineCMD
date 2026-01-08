@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePlanetStore } from '../stores/usePlanetStore'
-import { PLANET_RAW_URL, PLANET_IDS, DEFAULT_PLANET } from '../constants'
+import { API_URLS, PLANET_IDS, DEFAULT_PLANET } from '../constants'
 describe('Planet Store (Real Integration)', () => {
   const originalFetch = global.fetch
 
@@ -18,7 +18,7 @@ describe('Planet Store (Real Integration)', () => {
       const urlStr = String(url)
 
       // Nếu là URL lấy danh sách hành tinh, gọi fetch thật
-      if (urlStr === PLANET_RAW_URL) {
+      if (urlStr === API_URLS.PLANET_RAW[0]) {
         return originalFetch(url)
       }
 

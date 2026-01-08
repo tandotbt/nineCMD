@@ -52,5 +52,6 @@ declare module 'vue' {
     PlanetRpcSettingsCard: typeof import('./components/planet/RpcSettingsCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingsApiUrlSelector: typeof import('./components/settings/ApiUrlSelector.vue')['default']
   }
 }

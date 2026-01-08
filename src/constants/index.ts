@@ -8,9 +8,14 @@ import type { PlanetName, PlanetConfig } from '../types/planet'
 
 // API URLs
 export const API_URLS = {
-  API_9CMD: 'http://127.0.0.1:8000',
-  SEASON_PASS: 'https://seasonpass.9c.gg',
-  SCAN_ITEM_NAME: 'https://9cscan.com/item_name.csv',
+  API_9CMD: [
+    // 'http://127.0.0.1:8000',
+    'https://api.9cmd.top',
+    'https://steep-carolee-9cmd-701971d5.koyeb.app',
+  ],
+  SEASON_PASS: ['https://seasonpass.9c.gg'],
+  SCAN_ITEM_NAME: ['https://9cscan.com/item_name.csv'],
+  PLANET_RAW: ['https://planets.nine-chronicles.com/planets/'],
 } as const
 
 /**
@@ -38,9 +43,6 @@ export const CSV_SHEET_CONFIG: Record<string, SheetConfig> = {
   EventScheduleSheet: { keyMain: 'id' },
   WorldBossListSheet: { keyMain: 'id' },
 } as const
-
-// Planet info
-export const PLANET_RAW_URL = 'https://planets.nine-chronicles.com/planets/' as const
 
 // Planet RPC Nodes Mapping
 export const PLANET_CONFIGS: Record<PlanetName, PlanetConfig> = {
@@ -122,6 +124,10 @@ export const NODE_INDEX_STORAGE_KEY = 'nine-cmd-node-index'
 export const MIMIR_INDEX_STORAGE_KEY = 'nine-cmd-mimir-index'
 export const MARKET_INDEX_STORAGE_KEY = 'nine-cmd-market-index'
 export const ARENA_INDEX_STORAGE_KEY = 'nine-cmd-arena-index'
+export const API_9CMD_INDEX_STORAGE_KEY = 'nine-cmd-api-9cmd-index'
+export const SEASON_PASS_INDEX_STORAGE_KEY = 'nine-cmd-season-pass-index'
+export const SCAN_ITEM_NAME_INDEX_STORAGE_KEY = 'nine-cmd-scan-item-name-index'
+export const PLANET_RAW_INDEX_STORAGE_KEY = 'nine-cmd-planet-raw-index'
 
 // GraphQL Queries
 export const GQL_QUERIES = {

@@ -9,6 +9,7 @@ import {
   Earth24Regular as PlanetIcon,
   ChevronRight24Regular as SeparatorIcon,
   Database24Regular as DataIcon,
+  Link24Regular as ApiIcon,
 } from '@vicons/fluent'
 
 const route = useRoute()
@@ -56,6 +57,15 @@ const breadcrumbItems = computed(() => {
         key: 'planets',
         path: '/settings/planets',
         icon: PlanetIcon,
+      })
+    }
+
+    if (pathSegments.includes('apis')) {
+      items.push({
+        label: t('breadcrumb_apis'),
+        key: 'apis',
+        path: '/settings/apis',
+        icon: ApiIcon,
       })
     }
   }

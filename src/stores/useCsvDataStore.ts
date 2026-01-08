@@ -6,8 +6,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useFetch } from '@vueuse/core'
-import { API_URLS, CSV_SHEET_CONFIG } from '../constants'
+import { CSV_SHEET_CONFIG } from '../constants'
 import { usePlanetStore } from './usePlanetStore'
+import { useApiStore } from './useApiStore'
 import type { CsvState, CsvParserMessage, CsvParserResult } from '../types/csv'
 
 /**
@@ -15,6 +16,7 @@ import type { CsvState, CsvParserMessage, CsvParserResult } from '../types/csv'
  */
 export const buildCsvUrl = (
   planetName: string,
+  api9CmdUrl: string,
   sheets: string[] = Object.keys(CSV_SHEET_CONFIG),
 ) => {
   const params = new URLSearchParams()
@@ -23,11 +25,12 @@ export const buildCsvUrl = (
   })
   params.append('encodeAsBase64', 'true')
   params.append('network', planetName)
-  return `${API_URLS.API_9CMD}/getGraphqlCSV?${params.toString()}`
+  return `${api9CmdUrl}/getGraphqlCSV?${params.toString()}`
 }
 
 export const useCsvDataStore = defineStore('csvData', () => {
   const planetStore = usePlanetStore()
+  const apiStore = useApiStore()
 
   const state = ref<CsvState>({
     sheetsByPlanet: {},
@@ -104,7 +107,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
     initWorker()
 
     try {
-      const url = buildCsvUrl(planetName)
+      const url = buildCsvUrl(planetName, apiStore.api9CmdUrl)
       console.log(`[CsvDataStore] Fetching CSV data from: ${url}`)
 
       // Fetch 9capi data and item_name.csv concurrently
@@ -114,7 +117,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
           message?: string
           data: Record<string, string>
         }>(),
-        useFetch(API_URLS.SCAN_ITEM_NAME).text(),
+        useFetch(apiStore.scanItemNameUrl).text(),
       ])
       console.log('[CsvDataStore] Fetch responses received')
 

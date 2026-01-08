@@ -60,5 +60,13 @@
   "csv_refresh_button": "Refresh Data",
   "csv_select_sheet": "Select Sheet:",
   "csv_select_placeholder": "Select a sheet to view",
-  "csv_no_data": "No data available. Please fetch data first."
+  "csv_no_data": "No data available. Please fetch data first.",
+  "api_no_endpoints": "No endpoints available",
+  "api_settings_title": "API URL Settings",
+  "api_label_9cmd": "9CMD API",
+  "api_label_season_pass": "Season Pass API",
+  "api_label_scan_item_name": "Scan Item Name CSV",
+  "api_label_planet_raw": "Planet Raw URL",
+  "breadcrumb_apis": "API Settings",
+  "home_btn_api_settings": "API Settings"
 }
