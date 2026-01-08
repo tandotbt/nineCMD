@@ -42,6 +42,7 @@ src/
 - **Consistency:** Khi chỉnh sửa logic automation, phải đảm bảo không ảnh hưởng đến khả năng chạy ngầm (PWA/Service Worker).
 - **Mobile Optimization:** Luôn tích hợp `useWakeLock` khi vòng lặp automation đang bật (`isRunning = true`).
 - **Test-Driven Refinement:** Mọi logic xử lý dữ liệu (`diff.ts`, `decision.ts`) và logic nghiệp vụ cốt lõi phải có file test tương ứng trong thư mục `src/__tests__/`. Bộ test phải bao phủ đầy đủ các trường hợp khả dĩ (success, failure, edge cases). Phải chạy test thành công trước khi coi là hoàn thành task.
+- **Testing:** Ưu tiên dùng mã nguồn gốc và API thật (Integration Test). Test phải bao phủ edge cases.
 - **Centralized Constants:** Tuyệt đối không hardcode các giá trị cấu hình (URL, ID, Threshold, Interval...) trong component hoặc store. Tất cả phải được định nghĩa tập trung tại `src/constants/index.ts`.
 - **Internationalization (i18n):** Tuyệt đối không sử dụng chuỗi văn bản cứng (hardcoded strings) trong UI. Tất cả văn bản hiển thị phải được định nghĩa trong `src/i18n/locales/`. Khi thêm văn bản mới, bắt buộc phải cập nhật đồng thời cả `en.json` và `vi.json` với tiền tố component tương ứng (ví dụ: `app_header_title`, `home_form_label`).
 - **Documentation Persistence:** Mọi thư mục chức năng chính phải có file `README.md` chứa `sequenceDiagram` (Mermaid) mô tả luồng hoạt động. Điều này giúp kiểm soát logic, dễ hiểu và tránh xung đột khi phát triển các tính năng mới.

@@ -8,8 +8,35 @@ import type { PlanetName, PlanetConfig } from '../types/planet'
 
 // API URLs
 export const API_URLS = {
-  LOCAL_9CMD: 'http://127.0.0.1:8000',
+  API_9CMD: 'http://127.0.0.1:8000',
   SEASON_PASS: 'https://seasonpass.9c.gg',
+  SCAN_ITEM_NAME: 'https://9cscan.com/item_name.csv',
+} as const
+
+/**
+ * Configuration for CSV Sheets to be fetched from 9capi
+ */
+export interface SheetConfig {
+  keyMain: string
+  unique?: boolean
+}
+
+export const CSV_SHEET_CONFIG: Record<string, SheetConfig> = {
+  ArenaSheet: { keyMain: 'start_block_index' },
+  GameConfigSheet: { keyMain: 'key' },
+  ItemRequirementSheet: { keyMain: 'item_id' },
+  CostumeStatSheet: { keyMain: 'costume_id', unique: true },
+  RuneListSheet: { keyMain: 'id' },
+  RuneSheet: { keyMain: 'c' },
+  CostumeItemSheet: { keyMain: 'id' },
+  WorldUnlockSheet: { keyMain: 'world_id_to_unlock' },
+  WorldSheet: { keyMain: 'id' },
+  PatrolRewardSheet: { keyMain: 'id' },
+  EquipmentItemRecipeSheet: { keyMain: 'id' },
+  SummonSheet: { keyMain: 'groupID' },
+  ClaimableGiftsSheet: { keyMain: 'id' },
+  EventScheduleSheet: { keyMain: 'id' },
+  WorldBossListSheet: { keyMain: 'id' },
 } as const
 
 // Planet info
@@ -95,6 +122,27 @@ export const NODE_INDEX_STORAGE_KEY = 'nine-cmd-node-index'
 export const MIMIR_INDEX_STORAGE_KEY = 'nine-cmd-mimir-index'
 export const MARKET_INDEX_STORAGE_KEY = 'nine-cmd-market-index'
 export const ARENA_INDEX_STORAGE_KEY = 'nine-cmd-arena-index'
+
+// GraphQL Queries
+export const GQL_QUERIES = {
+  GET_LATEST_BLOCK: `
+    query GetLatestBlock {
+      blocks(skip: 0, take: 1) {
+        items {
+          id
+          object {
+            hash
+            index
+            miner
+            stateRootHash
+            timestamp
+            txCount
+          }
+        }
+      }
+    }
+  `,
+} as const
 
 // Block Configuration
 export const BLOCK_CONFIG = {

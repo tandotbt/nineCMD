@@ -20,6 +20,11 @@ const router = createRouter({
       component: () => import('../views/PlanetSettingsView.vue'),
     },
     {
+      path: '/data-explorer',
+      name: 'csv-explorer',
+      component: () => import('../views/CsvDataView.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFoundView.vue'),

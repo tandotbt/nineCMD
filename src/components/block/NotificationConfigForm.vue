@@ -25,7 +25,7 @@ const emit = defineEmits<{
     <n-form-item :label="labelThreshold">
       <n-input-number
         :value="threshold"
-        @update:value="(val) => emit('update:threshold', val || 1)"
+        @update:value="(val: number | null) => emit('update:threshold', val || 1)"
         :min="1"
         :placeholder="placeholderThreshold"
         class="full-width"

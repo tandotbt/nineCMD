@@ -31,6 +31,7 @@ _Lưu ý: Luôn kèm theo mô tả ngắn gọn sau dấu hai chấm._
 5. **Dependency Check:** Khi chỉnh sửa chữ ký hàm (signature) hoặc logic cốt lõi, bắt buộc phải kiểm tra và cập nhật tất cả các nơi đang sử dụng (dependencies) hàm đó.
 6. **Type-Safety:** Không sử dụng `any`. Ưu tiên `interface` và `type` rõ ràng.
 7. **Test-Driven Development (TDD):** Mọi logic nghiệp vụ mới hoặc hàm quan trọng phải có unit test đầy đủ bao phủ các trường hợp thành công và thất bại trước khi merge.
+8. **TDD:** Viết test trước hoặc song song với logic nghiệp vụ.
 
 ## 4. Cấu trúc Commit Message
 

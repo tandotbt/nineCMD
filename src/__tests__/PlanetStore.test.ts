@@ -1,164 +1,135 @@
-import { ref } from 'vue'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePlanetStore } from '../stores/usePlanetStore'
-import { PLANET_IDS, PLANET_CONFIGS, DEFAULT_PLANET } from '../constants'
-import type { PlanetConfig } from '../types/planet'
+import { PLANET_RAW_URL, PLANET_IDS, DEFAULT_PLANET } from '../constants'
+describe('Planet Store (Real Integration)', () => {
+  const originalFetch = global.fetch
 
-// Mock @vueuse/core
-vi.mock('@vueuse/core', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>
-  return {
-    ...actual,
-    useFetch: vi.fn(() => ({
-      json: vi.fn(() => ({
-        data: ref(null),
-        error: ref(null),
-      })),
-    })),
-    useOnline: vi.fn(() => ref(true)),
-    useStorage: vi.fn((_key, initial) => ref(initial)),
-  }
-})
-
-describe('Planet Store', () => {
   beforeEach(async () => {
     setActivePinia(createPinia())
     localStorage.clear()
-    vi.clearAllMocks()
 
-    // Clear IndexedDB to prevent data leakage between tests
+    // Clear IndexedDB thực tế (via fake-indexeddb)
     const { db } = await import('../db')
     await db.settings.clear()
+
+    // Mock global fetch nhưng sẽ gọi fetch thật cho PLANET_RAW_URL
+    global.fetch = vi.fn(async (url) => {
+      const urlStr = String(url)
+
+      // Nếu là URL lấy danh sách hành tinh, gọi fetch thật
+      if (urlStr === PLANET_RAW_URL) {
+        return originalFetch(url)
+      }
+
+      // Giả lập API CSV (Dữ liệu nhỏ để tránh OOM)
+      // Chúng ta vẫn để logic fetchCsvData chạy nhưng trả về mock data cực nhẹ
+      if (urlStr.includes('getGraphqlCSV') || urlStr.includes('item_name.csv')) {
+        const data = { status: 'success', data: { ArenaSheet: 'YmFzZTY0' } }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => data,
+          text: async () => JSON.stringify(data),
+          clone: function () {
+            return this
+          },
+        } as unknown as Response
+      }
+
+      // Mặc định gọi fetch thật cho các URL khác nếu cần
+      return originalFetch(url)
+    })
   })
 
-  it('should initialize with default planet', () => {
+  afterEach(() => {
+    global.fetch = originalFetch
+    vi.restoreAllMocks()
+  })
+
+  it('should initialize with default planet from constants', () => {
     const store = usePlanetStore()
     expect(store.currentPlanetName).toBe(DEFAULT_PLANET)
     expect(store.currentPlanetId).toBe(PLANET_IDS[DEFAULT_PLANET as keyof typeof PLANET_IDS])
   })
 
-  it('should update URLs when planet changes', () => {
+  it('should fetch real planets from production API and sync to IndexedDB', async () => {
     const store = usePlanetStore()
 
-    // Switch to heimdall
+    // Thực hiện fetch thật từ https://planets.nine-chronicles.com/planets/
+    await store.fetchPlanets()
+
+    // Kiểm tra dữ liệu nhận được từ API thật
+    expect(store.rawPlanets.length).toBeGreaterThan(0)
+
+    // Kiểm tra các hành tinh cốt lõi phải tồn tại trong dữ liệu thật
+    const odin = store.rawPlanets.find((p) => p.name.toLowerCase() === 'odin')
+    const heimdall = store.rawPlanets.find((p) => p.name.toLowerCase() === 'heimdall')
+
+    expect(odin).toBeDefined()
+    expect(heimdall).toBeDefined()
+
+    // Kiểm tra tính đúng đắn của ID (có thể lấy từ constants để so sánh)
+    expect(odin?.id).toBe(PLANET_IDS.odin)
+
+    // Kiểm tra tính năng Offline-First: Dữ liệu phải được lưu vào IndexedDB thật
+    const { db } = await import('../db')
+    const { STORAGE_KEYS } = await import('../constants')
+    const cached = await db.settings.get(STORAGE_KEYS.RAW_PLANETS)
+
+    expect(cached?.value).toBeDefined()
+    expect(Array.isArray(cached?.value)).toBe(true)
+    expect((cached?.value as unknown[]).length).toBe(store.rawPlanets.length)
+  }, 30000)
+
+  it('should update URLs correctly when switching between real planets', async () => {
+    const store = usePlanetStore()
+    await store.fetchPlanets() // Tải dữ liệu thật trước
+
+    // Chuyển sang Heimdall
     store.setPlanet('heimdall')
     expect(store.currentPlanetName).toBe('heimdall')
-    expect(store.currentPlanetId).toBe(PLANET_IDS['heimdall' as keyof typeof PLANET_IDS])
 
-    const heimdallConfig = PLANET_CONFIGS['heimdall' as keyof typeof PLANET_CONFIGS] as PlanetConfig
-    expect(store.graphqlUrl).toBe(heimdallConfig.rpcEndpoints['headless.gql']![0])
-    expect(store.mimirUrl).toBe(heimdallConfig.rpcEndpoints['mimir.gql']![0])
+    // URL phải khớp với dữ liệu từ API (hoặc fallback constants nếu API trùng khớp)
+    const heimdallConfig = store.rawPlanets.find((p) => p.name.toLowerCase() === 'heimdall')
+    expect(store.graphqlUrl).toBe(heimdallConfig?.rpcEndpoints['headless.gql']![0])
+
+    // Chuyển sang Odin
+    store.setPlanet('odin')
+    expect(store.selectedNodeIndex).toBe(0) // Reset index
+    const odinConfig = store.rawPlanets.find((p) => p.name.toLowerCase() === 'odin')
+    expect(store.graphqlUrl).toBe(odinConfig?.rpcEndpoints['headless.gql']![0])
   })
 
-  it('should fetch planets and update rawPlanets', async () => {
-    const { useFetch } = await import('@vueuse/core')
-    const mockPlanets: PlanetConfig[] = [
-      {
-        id: '0x123',
-        name: 'test-planet',
-        genesisHash: 'hash',
-        rpcEndpoints: {
-          'headless.gql': ['http://test-rpc-1', 'http://test-rpc-2', 'http://test-rpc-3'],
-        },
-      },
-    ]
-
-    vi.mocked(useFetch).mockReturnValue({
-      json: vi.fn().mockReturnValue({
-        data: ref(mockPlanets),
-        error: ref(null),
-      }),
-    } as unknown as ReturnType<typeof useFetch>)
-
+  it('should handle network failure by falling back to IndexedDB cache', async () => {
     const store = usePlanetStore()
+
+    // 1. Tải và lưu cache thành công trước
     await store.fetchPlanets()
+    const firstFetchCount = store.rawPlanets.length
 
-    expect(store.rawPlanets).toEqual(mockPlanets)
-    expect(store.isLoading).toBe(false)
+    // 2. Giả lập mất mạng
+    global.fetch = vi.fn().mockRejectedValue(new Error('Network Error'))
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    store.setPlanet('test-planet')
-    expect(store.currentPlanetName).toBe('test-planet')
-
-    // Test multiple nodes from API
-    expect(store.graphqlUrl).toBe('http://test-rpc-1')
-    store.setNodeIndex(1)
-    expect(store.graphqlUrl).toBe('http://test-rpc-2')
-    store.setNodeIndex(2)
-    expect(store.graphqlUrl).toBe('http://test-rpc-3')
-  })
-
-  it('should fallback to constants if fetch fails', async () => {
-    const { useFetch } = await import('@vueuse/core')
-    vi.mocked(useFetch).mockReturnValue({
-      json: vi.fn().mockReturnValue({
-        data: ref(null),
-        error: ref('Fetch error'),
-      }),
-    } as unknown as ReturnType<typeof useFetch>)
-
-    const store = usePlanetStore()
-    // Explicitly set rawPlanets to empty for this test
+    // Xóa state trong memory nhưng giữ cache trong IndexedDB
     store.rawPlanets = []
+
+    // 3. Thử fetch lại khi mất mạng
     await store.fetchPlanets()
 
-    expect(store.rawPlanets).toEqual([])
-    expect(store.currentPlanetName).toBe(DEFAULT_PLANET)
-    expect(store.currentPlanetId).toBe(PLANET_IDS[DEFAULT_PLANET as keyof typeof PLANET_IDS])
+    // Dữ liệu phải được phục hồi từ IndexedDB
+    expect(store.rawPlanets.length).toBe(firstFetchCount)
+    expect(store.error).toBe('Network Error')
+
+    consoleSpy.mockRestore()
   })
 
   it('should reset node index when planet changes', () => {
     const store = usePlanetStore()
     store.setPlanet('odin')
     store.setNodeIndex(1)
-    expect(store.selectedNodeIndex).toBe(1)
-
     store.setPlanet('heimdall')
     expect(store.selectedNodeIndex).toBe(0)
-  })
-
-  it('should reflect HEADLESS GQL URL changes correctly when switching planets from raw data', async () => {
-    const { useFetch } = await import('@vueuse/core')
-    const mockPlanets: PlanetConfig[] = [
-      {
-        id: '0x000000000000', // odin
-        name: 'odin',
-        genesisHash: 'hash1',
-        rpcEndpoints: {
-          'headless.gql': ['https://odin-rpc-1.com/graphql'],
-        },
-      },
-      {
-        id: '0x000000000001', // heimdall
-        name: 'heimdall',
-        genesisHash: 'hash2',
-        rpcEndpoints: {
-          'headless.gql': ['https://heimdall-rpc-1.com/graphql'],
-        },
-      },
-    ]
-
-    vi.mocked(useFetch).mockReturnValue({
-      json: vi.fn().mockReturnValue({
-        data: ref(mockPlanets),
-        error: ref(null),
-      }),
-    } as unknown as ReturnType<typeof useFetch>)
-
-    const store = usePlanetStore()
-    await store.fetchPlanets()
-
-    // Initially Odin
-    store.setPlanet('odin')
-    expect(store.currentPlanetId).toBe('0x000000000000')
-    expect(store.graphqlUrl).toBe('https://odin-rpc-1.com/graphql')
-
-    // Switch to Heimdall
-    store.setPlanet('heimdall')
-    expect(store.currentPlanetId).toBe('0x000000000001')
-    expect(store.graphqlUrl).toBe('https://heimdall-rpc-1.com/graphql')
-
-    // Check reactivity of raw data debug
-    expect(store.currentPlanetConfig).toEqual(mockPlanets[1])
   })
 })

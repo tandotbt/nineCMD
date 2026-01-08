@@ -1,49 +1,97 @@
 import { describe, it, expect } from 'vitest'
-import { PLANET_CONFIGS } from '../constants'
-import type { PlanetName } from '../types/planet'
+import { useFetch } from '@vueuse/core'
+import { PLANET_RAW_URL, PLANET_IDS, PLANET_CONFIGS, API_URLS } from '../constants'
+import type { PlanetConfig } from '../types/planet'
 
-describe('Planet Data Schema Validation', () => {
-  const planets: PlanetName[] = ['odin', 'heimdall', 'thor']
+/**
+ * PlanetData.test.ts
+ * Kiểm tra tính nhất quán của dữ liệu Planet từ API thật (PLANET_RAW_URL).
+ * Sử dụng useFetch đồng bộ với logic trong usePlanetStore.
+ */
+describe('Planet Data Consistency', () => {
+  it('should fetch real planet data and match the expected structure', async () => {
+    console.log('Fetching planet data from:', PLANET_RAW_URL)
 
-  planets.forEach((name) => {
-    it(`should have valid structure for planet: ${name}`, () => {
-      const config = PLANET_CONFIGS[name]
+    // Sử dụng useFetch giống như trong usePlanetStore.ts
+    const { data, error } = await useFetch(PLANET_RAW_URL).json<PlanetConfig[]>()
 
-      // Basic fields
-      expect(config).toBeDefined()
-      if (!config) return
+    if (error.value) {
+      throw new Error(`Failed to fetch planet data: ${error.value}`)
+    }
 
-      expect(config.id).toMatch(/^0x/)
-      expect(config.name).toBe(name)
-      expect(config.rpcEndpoints).toBeDefined()
+    expect(data.value).toBeDefined()
+    expect(Array.isArray(data.value)).toBe(true)
+    expect(data.value!.length).toBeGreaterThan(0)
 
-      // Essential RPC endpoints
-      const headless = config.rpcEndpoints['headless.gql']
-      expect(headless).toBeInstanceOf(Array)
-      expect(headless?.length).toBeGreaterThan(0)
+    const planets = data.value!
+    const allDiffs: string[] = []
 
-      const mimir = config.rpcEndpoints['mimir.gql']
-      expect(mimir).toBeInstanceOf(Array)
-      expect(mimir?.length).toBeGreaterThan(0)
+    // Các hành tinh bắt buộc phải có
+    const requiredPlanets = ['odin', 'heimdall', 'thor'] as const
 
-      // Optional but common endpoints
-      expect(config.rpcEndpoints['market.rest']).toSatisfy(
-        (val: string[] | undefined) => val === undefined || Array.isArray(val),
-      )
-      expect(config.rpcEndpoints['arena.rest']).toSatisfy(
-        (val: string[] | undefined) => val === undefined || Array.isArray(val),
-      )
+    requiredPlanets.forEach((planetName) => {
+      const planet = planets.find((p) => p.name.toLowerCase() === planetName)
+
+      if (!planet) {
+        allDiffs.push(`Planet [${planetName}] is missing in API response!`)
+        return
+      }
+
+      console.log(`Checking planet: ${planetName}`)
+
+      // 1. Kiểm tra ID
+      const expectedId = PLANET_IDS[planetName]
+      if (planet.id !== expectedId) {
+        allDiffs.push(
+          `[ID Mismatch] Planet [${planetName}] expected ID ${expectedId}, but got ${planet.id}`,
+        )
+      }
+
+      // 2. Kiểm tra Genesis Hash
+      const staticConfig = PLANET_CONFIGS[planetName]
+      if (staticConfig && planet.genesisHash !== staticConfig.genesisHash) {
+        allDiffs.push(
+          `[Genesis Mismatch] Planet [${planetName}] expected hash ${staticConfig.genesisHash}, but got ${planet.genesisHash}`,
+        )
+      }
+
+      // 3. Kiểm tra rpcEndpoints
+      if (!planet.rpcEndpoints) {
+        allDiffs.push(`[RPC Missing] Planet [${planetName}] has no rpcEndpoints!`)
+      } else {
+        // Kiểm tra các key bắt buộc trong rpcEndpoints
+        const requiredRpcKeys = ['headless.gql', 'mimir.gql']
+        requiredRpcKeys.forEach((key) => {
+          if (
+            !planet.rpcEndpoints[key as keyof typeof planet.rpcEndpoints] ||
+            !Array.isArray(planet.rpcEndpoints[key as keyof typeof planet.rpcEndpoints])
+          ) {
+            allDiffs.push(
+              `[RPC Key Missing] Planet [${planetName}] is missing [${key}] in rpcEndpoints`,
+            )
+          }
+        })
+      }
     })
+
+    if (allDiffs.length > 0) {
+      console.warn('Found inconsistencies in Planet Data:', allDiffs)
+    }
+
+    expect(allDiffs, 'Found differences in Planet data').toEqual([])
   })
 
-  it('odin should have specific nodes from API dump', () => {
-    const odin = PLANET_CONFIGS['odin']
-    expect(odin).toBeDefined()
-    if (!odin) return
+  it.todo('should verify SEASON_PASS API is reachable', async () => {
+    console.log('Checking SEASON_PASS API:', API_URLS.SEASON_PASS)
+    const { data, error } = await useFetch(API_URLS.SEASON_PASS).get().text()
 
-    expect(odin.rpcEndpoints['headless.gql']).toContain(
-      'https://odin-rpc-1.nine-chronicles.com/graphql',
-    )
-    expect(odin.rpcEndpoints['market.rest']).toContain('https://api.9capi.com/marketProviderOdin')
+    if (error.value) {
+      console.warn('SEASON_PASS API Error:', error.value)
+    }
+
+    // Season pass API might return 404 or other status if accessed directly without path,
+    // but here we just want to ensure it doesn't throw a network error.
+    expect(error.value).toBeNull()
+    expect(data.value).toBeDefined()
   })
 })

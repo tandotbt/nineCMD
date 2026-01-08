@@ -8,6 +8,7 @@ import {
   Settings24Regular as SettingsIcon,
   Earth24Regular as PlanetIcon,
   ChevronRight24Regular as SeparatorIcon,
+  Database24Regular as DataIcon,
 } from '@vicons/fluent'
 
 const route = useRoute()
@@ -57,6 +58,15 @@ const breadcrumbItems = computed(() => {
         icon: PlanetIcon,
       })
     }
+  }
+
+  if (pathSegments.includes('data-explorer')) {
+    items.push({
+      label: t('csv_explorer_title'),
+      key: 'csv-explorer',
+      path: '/data-explorer',
+      icon: DataIcon,
+    })
   }
 
   return items

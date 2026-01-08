@@ -120,6 +120,9 @@ export const usePlanetStore = defineStore('planet', () => {
       }
     } finally {
       isLoading.value = false
+      // Fetch CSV data after planet info is loaded
+      const csvStore = (await import('./useCsvDataStore')).useCsvDataStore()
+      csvStore.fetchCsvData()
     }
   }
 
@@ -150,7 +153,6 @@ export const usePlanetStore = defineStore('planet', () => {
 
   // Watch for planet change to perform side effects
   watch(currentPlanetName, async (newName) => {
-    console.log(`[PlanetStore] Planet changed to: ${newName}`)
     const { db } = await import('../db')
     await db.settings.put({ key: STORAGE_KEYS.PLANET, value: newName })
   })

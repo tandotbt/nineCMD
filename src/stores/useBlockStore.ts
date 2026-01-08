@@ -13,7 +13,7 @@ import { useObservable } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
 import { i18n } from '../i18n'
 import { BlockManager } from '../core/BlockManager'
-import { BLOCK_CONFIG, STORAGE_KEYS } from '../constants'
+import { BLOCK_CONFIG, STORAGE_KEYS, GQL_QUERIES } from '../constants'
 import { usePlanetStore } from './usePlanetStore'
 import { db } from '../db'
 import { queryGraphql } from '../api/graphql'
@@ -106,12 +106,8 @@ export const useBlockStore = defineStore('block', () => {
     error.value = null
 
     try {
-      const query = `
-        query GetLatestBlock {\n          blocks(skip: 0, take: 1) {\n            items {\n              id\n              object {\n                hash\n                index\n                miner\n                stateRootHash\n                timestamp\n                txCount\n              }\n            }\n          }\n        }
-      `
-
       const url = planetStore.mimirUrl || ''
-      const data = await queryGraphql<GetBlocksResponse['data']>(url, query)
+      const data = await queryGraphql<GetBlocksResponse['data']>(url, GQL_QUERIES.GET_LATEST_BLOCK)
 
       const newBlock = data.blocks.items[0]
       if (newBlock) {

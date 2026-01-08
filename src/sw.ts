@@ -1,7 +1,14 @@
 /// <reference lib="webworker" />
 import { precacheAndRoute } from 'workbox-precaching'
 import { db } from './db'
-import { BLOCK_CONFIG, PWA_CONFIG, STORAGE_KEYS, PLANET_CONFIGS, DEFAULT_PLANET } from './constants'
+import {
+  BLOCK_CONFIG,
+  PWA_CONFIG,
+  STORAGE_KEYS,
+  PLANET_CONFIGS,
+  DEFAULT_PLANET,
+  GQL_QUERIES,
+} from './constants'
 import type { GetBlocksResponse } from './types/block'
 import type { PlanetName } from './types/planet'
 
@@ -33,28 +40,10 @@ async function fetchAndSaveBlock() {
       PLANET_CONFIGS[DEFAULT_PLANET]?.rpcEndpoints['mimir.gql']?.[0] ||
       ''
 
-    const query = `
-      query GetLatestBlock {
-        blocks(skip: 0, take: 1) {
-          items {
-            id
-            object {
-              hash
-              index
-              miner
-              stateRootHash
-              timestamp
-              txCount
-            }
-          }
-        }
-      }
-    `
-
     const response = await fetch(mimirUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query: GQL_QUERIES.GET_LATEST_BLOCK }),
     })
 
     const result: GetBlocksResponse = await response.json()

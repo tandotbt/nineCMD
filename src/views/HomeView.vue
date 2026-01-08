@@ -7,6 +7,7 @@ import {
   WeatherSunny24Regular as SunIcon,
   Cube24Regular as CubeIcon,
   Earth24Regular as EarthIcon,
+  Database24Regular as DataIcon,
 } from '@vicons/fluent'
 import { useI18n } from 'vue-i18n'
 
@@ -45,6 +46,13 @@ const toggleDark = useToggle(isDark)
               <n-icon><earth-icon /></n-icon>
             </template>
             {{ t('home_btn_view_planets') }}
+          </n-button>
+
+          <n-button type="warning" size="large" @click="router.push('/data-explorer')">
+            <template #icon>
+              <n-icon><data-icon /></n-icon>
+            </template>
+            {{ t('home_btn_data_explorer', 'Data Explorer') }}
           </n-button>
         </n-space>
       </div>

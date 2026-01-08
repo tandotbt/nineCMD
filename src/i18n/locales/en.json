@@ -54,5 +54,11 @@
   "planet_raw_data": "Raw Data (JSON)",
   "planet_no_endpoints": "No endpoints available for this category.",
   "planet_id_mismatch": "Warning: Planet ID mismatch with raw data.",
-  "planet_fetch_failed": "Failed to fetch remote planet data."
+  "planet_fetch_failed": "Failed to fetch remote planet data.",
+  "home_btn_data_explorer": "Data Explorer",
+  "csv_explorer_title": "CSV Data Explorer",
+  "csv_refresh_button": "Refresh Data",
+  "csv_select_sheet": "Select Sheet:",
+  "csv_select_placeholder": "Select a sheet to view",
+  "csv_no_data": "No data available. Please fetch data first."
 }

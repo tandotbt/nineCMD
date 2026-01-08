@@ -54,5 +54,11 @@
   "planet_raw_data": "Dữ liệu thô (JSON)",
   "planet_no_endpoints": "Không có điểm cuối (endpoint) nào cho mục này.",
   "planet_id_mismatch": "Cảnh báo: Planet ID không khớp với dữ liệu thô.",
-  "planet_fetch_failed": "Không thể tải dữ liệu hành tinh từ máy chủ."
+  "planet_fetch_failed": "Không thể tải dữ liệu hành tinh từ máy chủ.",
+  "home_btn_data_explorer": "Khám phá dữ liệu",
+  "csv_explorer_title": "Khám phá dữ liệu CSV",
+  "csv_refresh_button": "Làm mới dữ liệu",
+  "csv_select_sheet": "Chọn Sheet:",
+  "csv_select_placeholder": "Chọn một sheet để xem",
+  "csv_no_data": "Không có dữ liệu. Vui lòng tải dữ liệu trước."
 }
