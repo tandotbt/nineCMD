@@ -17,6 +17,7 @@ import type { CsvState, CsvParserMessage, CsvParserResult } from '../types/csv'
 export const buildCsvUrl = (
   planetName: string,
   api9CmdUrl: string,
+  planetId: string,
   sheets: string[] = Object.keys(CSV_SHEET_CONFIG),
 ) => {
   const params = new URLSearchParams()
@@ -107,7 +108,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
     initWorker()
 
     try {
-      const url = buildCsvUrl(planetName, apiStore.api9CmdUrl)
+      const url = buildCsvUrl(planetName, apiStore.api9CmdUrl, planetStore.currentPlanetId)
       console.log(`[CsvDataStore] Fetching CSV data from: ${url}`)
 
       // Fetch 9capi data and item_name.csv concurrently

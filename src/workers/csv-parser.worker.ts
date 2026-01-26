@@ -10,7 +10,7 @@ self.onmessage = (event: MessageEvent<CsvParserMessage>) => {
   const { sheetName, base64Content, keyMain, unique, isRawCsv } = event.data
 
   try {
-    // Get CSV string and filter out lines starting with '_' (Harry's logic)
+    // Get CSV string and filter out lines starting with '_'
     const rawContent = isRawCsv ? base64Content : atob(base64Content)
     const csvString = rawContent
       .split('\n')

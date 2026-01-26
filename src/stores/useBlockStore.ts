@@ -13,7 +13,7 @@ import { useObservable } from '@vueuse/rxjs'
 import type { Observable } from 'rxjs'
 import { i18n } from '../i18n'
 import { BlockManager } from '../core/BlockManager'
-import { BLOCK_CONFIG, STORAGE_KEYS, GQL_QUERIES } from '../constants'
+import { BLOCK_CONFIG, STORAGE_KEYS, GQL_QUERIES, CHARACTER_LOGIC_CONSTANTS } from '../constants'
 import { usePlanetStore } from './usePlanetStore'
 import { db } from '../db'
 import { queryGraphql } from '../api/graphql'
@@ -59,7 +59,19 @@ export const useBlockStore = defineStore('block', () => {
   // Initialize BlockManager with a callback to update DB
   const blockManager = new BlockManager(async (block) => {
     await db.blocks.put(block)
+    await db.settings.put({
+      key: STORAGE_KEYS.LAST_BLOCK_TIMESTAMP,
+      value: block.object.timestamp,
+    })
     await checkNotificationThreshold(block.object.index)
+
+    // Notify SW to check character-specific conditions (AP Refill, etc.)
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CHECK_NOTIFICATIONS',
+        index: block.object.index,
+      })
+    }
   }, blocks.value || [])
 
   const checkNotificationThreshold = async (currentIndex: number) => {
@@ -73,7 +85,7 @@ export const useBlockStore = defineStore('block', () => {
           showWebNotification({
             title: i18n.global.t('store_notif_title'),
             body: i18n.global.t('store_notif_body', { n: diff }),
-            icon: '/icon/favicon.ico',
+            icon: CHARACTER_LOGIC_CONSTANTS.NOTIFICATION.DEFAULT_ICON,
           })
         }
         // Reset after notification
@@ -95,7 +107,10 @@ export const useBlockStore = defineStore('block', () => {
 
   const averageBlockTimeMs = computed(() => {
     if (!blocks.value || blocks.value.length < 2) return BLOCK_CONFIG.DEFAULT_AVERAGE_BLOCK_TIME_MS
-    return blockManager.getAverageBlockTime()
+    const avg = blockManager.getAverageBlockTime()
+    // Persist to DB for Service Worker
+    db.settings.put({ key: STORAGE_KEYS.AVG_BLOCK_TIME, value: avg }).catch(() => {})
+    return avg
   })
 
   // TODO: Implement rate limiting for manual fetch actions
@@ -107,7 +122,7 @@ export const useBlockStore = defineStore('block', () => {
 
     try {
       const url = planetStore.mimirUrl || ''
-      const data = await queryGraphql<GetBlocksResponse['data']>(url, GQL_QUERIES.GET_LATEST_BLOCK)
+      const data = await queryGraphql<GetBlocksResponse['data']>(url, GQL_QUERIES.BLOCKS.GET_LATEST)
 
       const newBlock = data.blocks.items[0]
       if (newBlock) {

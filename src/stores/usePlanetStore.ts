@@ -15,8 +15,9 @@ import {
   PLANET_IDS,
   NODE_INDEX_STORAGE_KEY,
   MIMIR_INDEX_STORAGE_KEY,
-  MARKET_INDEX_STORAGE_KEY,
   ARENA_INDEX_STORAGE_KEY,
+  MARKET_INDEX_STORAGE_KEY,
+  WORLD_BOSS_INDEX_STORAGE_KEY,
   STORAGE_KEYS,
 } from '../constants'
 import type { PlanetName, RpcConfig, PlanetConfig } from '../types/planet'
@@ -34,8 +35,9 @@ export const usePlanetStore = defineStore('planet', () => {
   const rawPlanets = useStorage<PlanetConfig[]>(PLANET_RAW_DATA_KEY, [])
   const selectedNodeIndex = useStorage<number>(NODE_INDEX_STORAGE_KEY, 0)
   const selectedMimirIndex = useStorage<number>(MIMIR_INDEX_STORAGE_KEY, 0)
-  const selectedMarketIndex = useStorage<number>(MARKET_INDEX_STORAGE_KEY, 0)
   const selectedArenaIndex = useStorage<number>(ARENA_INDEX_STORAGE_KEY, 0)
+  const selectedMarketIndex = useStorage<number>(MARKET_INDEX_STORAGE_KEY, 0)
+  const selectedWorldBossIndex = useStorage<number>(WORLD_BOSS_INDEX_STORAGE_KEY, 0)
 
   // Getters
   const currentPlanetConfig = computed<PlanetConfig>(() => {
@@ -85,8 +87,9 @@ export const usePlanetStore = defineStore('planet', () => {
 
   const graphqlUrl = computed(() => getUrl('headless.gql', selectedNodeIndex.value))
   const mimirUrl = computed(() => getUrl('mimir.gql', selectedMimirIndex.value))
-  const marketUrl = computed(() => getUrl('market.rest', selectedMarketIndex.value))
   const arenaUrl = computed(() => getUrl('arena.rest', selectedArenaIndex.value))
+  const marketUrl = computed(() => getUrl('market.rest', selectedMarketIndex.value))
+  const worldBossUrl = computed(() => getUrl('world-boss.rest', selectedWorldBossIndex.value))
 
   // Actions
   const fetchPlanets = async () => {
@@ -134,8 +137,9 @@ export const usePlanetStore = defineStore('planet', () => {
     // Reset node indexes when planet changes
     selectedNodeIndex.value = 0
     selectedMimirIndex.value = 0
-    selectedMarketIndex.value = 0
     selectedArenaIndex.value = 0
+    selectedMarketIndex.value = 0
+    selectedWorldBossIndex.value = 0
   }
 
   const setNodeIndex = (index: number) => {
@@ -146,12 +150,16 @@ export const usePlanetStore = defineStore('planet', () => {
     selectedMimirIndex.value = index
   }
 
+  const setArenaIndex = (index: number) => {
+    selectedArenaIndex.value = index
+  }
+
   const setMarketIndex = (index: number) => {
     selectedMarketIndex.value = index
   }
 
-  const setArenaIndex = (index: number) => {
-    selectedArenaIndex.value = index
+  const setWorldBossIndex = (index: number) => {
+    selectedWorldBossIndex.value = index
   }
 
   // Watch for planet change to perform side effects
@@ -162,14 +170,21 @@ export const usePlanetStore = defineStore('planet', () => {
 
   // Sync node indexes to IndexedDB for Service Worker
   watch(
-    [selectedNodeIndex, selectedMimirIndex, selectedMarketIndex, selectedArenaIndex],
-    async ([nodeIdx, mimirIdx, marketIdx, arenaIdx]) => {
+    [
+      selectedNodeIndex,
+      selectedMimirIndex,
+      selectedArenaIndex,
+      selectedMarketIndex,
+      selectedWorldBossIndex,
+    ],
+    async ([nodeIdx, mimirIdx, arenaIdx, marketIdx, wbIdx]) => {
       const { db } = await import('../db')
       await db.settings.bulkPut([
         { key: NODE_INDEX_STORAGE_KEY, value: nodeIdx },
         { key: MIMIR_INDEX_STORAGE_KEY, value: mimirIdx },
-        { key: MARKET_INDEX_STORAGE_KEY, value: marketIdx },
         { key: ARENA_INDEX_STORAGE_KEY, value: arenaIdx },
+        { key: MARKET_INDEX_STORAGE_KEY, value: marketIdx },
+        { key: WORLD_BOSS_INDEX_STORAGE_KEY, value: wbIdx },
       ])
     },
   )
@@ -184,18 +199,21 @@ export const usePlanetStore = defineStore('planet', () => {
     rpcEndpoints,
     graphqlUrl,
     mimirUrl,
-    marketUrl,
     arenaUrl,
+    marketUrl,
+    worldBossUrl,
     isIdMismatch,
     selectedNodeIndex,
     selectedMimirIndex,
-    selectedMarketIndex,
     selectedArenaIndex,
+    selectedMarketIndex,
+    selectedWorldBossIndex,
     fetchPlanets,
     setPlanet,
     setNodeIndex,
     setMimirIndex,
-    setMarketIndex,
     setArenaIndex,
+    setMarketIndex,
+    setWorldBossIndex,
   }
 })

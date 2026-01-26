@@ -1,9 +1,9 @@
 import { ref } from 'vue'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useBlockStore } from '../stores/useBlockStore'
-import { db } from '../db'
-import { STORAGE_KEYS } from '../constants'
+import { useBlockStore } from '@/stores/useBlockStore'
+import { db } from '@/db'
+import { STORAGE_KEYS } from '@/constants'
 
 // Variables used in vi.mock must start with 'mock' prefix
 const mockShow = vi.fn()

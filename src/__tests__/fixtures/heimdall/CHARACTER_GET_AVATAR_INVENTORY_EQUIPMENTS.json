@@ -1,0 +1,162 @@
+{
+  "stateQuery": {
+    "avatar": {
+      "inventory": {
+        "equipments": [
+          {
+            "id": 10670004,
+            "itemId": "8cc0dde3-49f2-40bd-a4d0-b4e973150406",
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 103959,
+              "dEF": 116214,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 110008
+              }
+            ]
+          },
+          {
+            "id": 10770010,
+            "itemId": "921cb9e6-c4a3-46f4-a95f-5555f8983104",
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 60622,
+              "dEF": 72507,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 210013
+              }
+            ]
+          },
+          {
+            "id": 10141000,
+            "itemId": "5db5a656-dea2-4414-9dea-526282bdfe20",
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 2617,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 3321
+            },
+            "skills": []
+          },
+          {
+            "id": 10241000,
+            "itemId": "55b413bd-a605-4854-bdec-85403ca3fb5c",
+            "equipped": true,
+            "statsMap": {
+              "hP": 31818,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10451000,
+            "itemId": "8486fec0-6c4d-46c6-8b7d-956b054c05c7",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 6822,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10451000,
+            "itemId": "9c6754b0-0377-4766-b004-1f9e604edbd5",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 6753,
+              "sPD": 1730
+            },
+            "skills": []
+          },
+          {
+            "id": 10451000,
+            "itemId": "c9647a68-38bf-4882-8bb8-189b24f09339",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 6848,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10451000,
+            "itemId": "7444b0a1-1c65-4c76-8c03-b303c830585b",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 6816,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 240000
+              }
+            ]
+          },
+          {
+            "id": 10451000,
+            "itemId": "d7d90e85-5793-41c6-8beb-dc65372bc738",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 6853,
+              "sPD": 1617
+            },
+            "skills": []
+          },
+          {
+            "id": 10451000,
+            "itemId": "b940e885-c22c-4ebc-a770-91a074797d6a",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 0,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 6833,
+              "sPD": 0
+            },
+            "skills": []
+          }
+        ]
+      }
+    }
+  }
+}

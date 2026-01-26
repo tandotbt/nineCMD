@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { PLANET_CONFIGS, GQL_QUERIES } from '../constants'
-import { queryGraphql } from '../api/graphql'
-import type { GetBlocksResponse } from '../types/block'
+import { PLANET_CONFIGS, GQL_QUERIES } from '../../constants'
+import { queryGraphql } from '../../api/graphql'
+import type { GetBlocksResponse } from '../../types/block'
 
 /**
  * OdinIntegration.test.ts
- * Test integration sử dụng hàm logic queryGraphql của dự án để fetch dữ liệu thật.
+ * Test integration sử dụng MSW để mock dữ liệu thật từ Odin Mimir.
+ * Đảm bảo logic queryGraphql hoạt động chính xác với layer mạng bị chặn.
  */
-describe('Odin Server Integration', () => {
-  it('should fetch real block data from Odin Mimir and match the expected structure', async () => {
+describe('Odin Server Integration (Mocked via MSW)', () => {
+  it('should fetch block data from Odin Mimir (Mocked) and match the expected structure', async () => {
     const odinConfig = PLANET_CONFIGS['odin']
     const url = odinConfig?.rpcEndpoints['mimir.gql']?.[0]
 
@@ -18,10 +19,9 @@ describe('Odin Server Integration', () => {
       )
     }
 
-    console.log('Testing with API URL:', url)
-
     // Sử dụng logic thật của dự án: queryGraphql
-    const data = await queryGraphql<GetBlocksResponse['data']>(url, GQL_QUERIES.GET_LATEST_BLOCK)
+    // MSW sẽ chặn request này và trả về dữ liệu từ fixture
+    const data = await queryGraphql<GetBlocksResponse['data']>(url, GQL_QUERIES.BLOCKS.GET_LATEST)
 
     expect(data).toBeDefined()
     expect(data.blocks).toBeDefined()
@@ -32,8 +32,6 @@ describe('Odin Server Integration', () => {
 
     const block = items[0]
     if (!block || !block.object) throw new Error('No block found in response')
-
-    console.log('Real Odin Block Sample:', JSON.stringify(block, null, 2))
 
     // Validate structure
     expect(block.id).toBeDefined()

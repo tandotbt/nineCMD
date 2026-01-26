@@ -44,6 +44,8 @@ const getSelectedIdx = (key: keyof RpcConfig) => {
       return planetStore.selectedMarketIndex
     case 'arena.rest':
       return planetStore.selectedArenaIndex
+    case 'world-boss.rest':
+      return planetStore.selectedWorldBossIndex
     default:
       return 0
   }
@@ -62,6 +64,9 @@ const setSelectedIdx = (key: keyof RpcConfig, idx: number) => {
       break
     case 'arena.rest':
       planetStore.setArenaIndex(idx)
+      break
+    case 'world-boss.rest':
+      planetStore.setWorldBossIndex(idx)
       break
   }
 }

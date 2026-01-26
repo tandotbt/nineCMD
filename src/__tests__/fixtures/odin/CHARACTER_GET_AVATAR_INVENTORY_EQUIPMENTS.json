@@ -1,0 +1,158 @@
+{
+  "stateQuery": {
+    "avatar": {
+      "inventory": {
+        "equipments": [
+          {
+            "id": 10670004,
+            "itemId": "0166c707-0617-48c0-a22a-e4b69b510f0a",
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 103664,
+              "dEF": 90605,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 110008
+              }
+            ]
+          },
+          {
+            "id": 10770010,
+            "itemId": "9f825129-cfd3-440c-ab38-b184fb936fc7",
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 37934,
+              "dEF": 82365,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 210013
+              }
+            ]
+          },
+          {
+            "id": 10140000,
+            "itemId": "8fb641c2-6e14-4a2b-a901-92b2dd2b4cfe",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4173,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "6b802487-ee5e-44f4-90d9-ec502f4324fc",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4184,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "d9eec13b-6fd4-4203-975f-b64a9b57964e",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4208,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "722fa249-29c2-467e-8cf0-5762a451f6a0",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4188,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "396d0ca9-0b67-48e4-8011-dcfa0ffa18c0",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4158,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "33177c55-b024-4800-a37c-ca39376a4710",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4198,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "afda0ea8-db2e-4c9f-b697-dbc56380f7b5",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4186,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          },
+          {
+            "id": 10140000,
+            "itemId": "c21307f5-7040-4eda-b65e-6bb047cb3c5f",
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4179,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": []
+          }
+        ]
+      }
+    }
+  }
+}

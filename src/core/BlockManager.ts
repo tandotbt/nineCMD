@@ -80,8 +80,8 @@ export class BlockManager {
         const nextTimestamp = new Date(next.object.timestamp).getTime()
 
         const interval = currentTimestamp - nextTimestamp
-        // Basic sanity check: ignore intervals > 10 minutes as they are likely due to app being closed
-        if (interval > 0 && interval < 600000) {
+        // Basic sanity check: ignore intervals > threshold as they are likely due to app being closed
+        if (interval > 0 && interval < BLOCK_CONFIG.SANITY_CHECK_INTERVAL_MS) {
           totalIntervalMs += interval
           validIntervalsCount++
         }
@@ -119,14 +119,14 @@ export class BlockManager {
     const lastBlock = this.blocks[0]
     if (!lastBlock) return
 
-    // TODO: Review virtual block generation logic for automation compatibility
+    const nextIndex = lastBlock.object.index + 1
     const virtualBlock: Block = {
-      id: `virtual-${lastBlock.object.index + 1}`,
+      id: `${BLOCK_CONFIG.VIRTUAL_ID_PREFIX}${nextIndex}`,
       object: {
         ...lastBlock.object,
-        index: lastBlock.object.index + 1,
+        index: nextIndex,
         timestamp: new Date().toISOString(),
-        hash: `virtual-hash-${Date.now()}`,
+        hash: `${BLOCK_CONFIG.VIRTUAL_HASH_PREFIX}${Date.now()}`,
       },
     }
 

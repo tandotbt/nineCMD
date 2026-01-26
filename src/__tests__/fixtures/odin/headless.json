@@ -1,0 +1,621 @@
+{
+  "stateQuery": {
+    "agent": {
+      "gold": "9335.29",
+      "crystal": "533056895.000000000000000000"
+    },
+    "unlockedWorldIds_79BB6e025762A76C8C85F73581e8c49b68FcaB0C": [
+      1,
+      10001,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "avatar_79BB6e025762A76C8C85F73581e8c49b68FcaB0C": {
+      "address": "0x79BB6e025762A76C8C85F73581e8c49b68FcaB0C",
+      "name": "shoppe02",
+      "level": 318,
+      "exp": 60884,
+      "dailyRewardReceivedIndex": 16638516,
+      "stageMap": {
+        "pairs": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            5,
+            6
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            9,
+            1
+          ],
+          [
+            10,
+            1
+          ]
+        ],
+        "count": 331
+      },
+      "runes": [
+        {
+          "level": 1,
+          "runeId": 10029
+        }
+      ],
+      "inventory": {
+        "equipments": [
+          {
+            "grade": 7,
+            "id": 10670004,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "AURA",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "0166c707-0617-48c0-a22a-e4b69b510f0a",
+            "level": 0,
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 103664,
+              "dEF": 90605,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 110008
+              }
+            ],
+            "buffSkills": []
+          },
+          {
+            "grade": 7,
+            "id": 10770010,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "GRIMOIRE",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "9f825129-cfd3-440c-ab38-b184fb936fc7",
+            "level": 0,
+            "equipped": true,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 37934,
+              "dEF": 82365,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [
+              {
+                "id": 210013
+              }
+            ],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 13096719,
+            "itemId": "8fb641c2-6e14-4a2b-a901-92b2dd2b4cfe",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4173,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 12956210,
+            "itemId": "6b802487-ee5e-44f4-90d9-ec502f4324fc",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4184,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 13017059,
+            "itemId": "d9eec13b-6fd4-4203-975f-b64a9b57964e",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4208,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 12909076,
+            "itemId": "722fa249-29c2-467e-8cf0-5762a451f6a0",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4188,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 13527587,
+            "itemId": "396d0ca9-0b67-48e4-8011-dcfa0ffa18c0",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4158,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 13081190,
+            "itemId": "33177c55-b024-4800-a37c-ca39376a4710",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4198,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 13537730,
+            "itemId": "afda0ea8-db2e-4c9f-b697-dbc56380f7b5",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4186,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          },
+          {
+            "grade": 4,
+            "id": 10140000,
+            "itemType": "EQUIPMENT",
+            "itemSubType": "WEAPON",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 13635802,
+            "itemId": "c21307f5-7040-4eda-b65e-6bb047cb3c5f",
+            "level": 0,
+            "equipped": false,
+            "statsMap": {
+              "hP": 0,
+              "aTK": 4179,
+              "dEF": 0,
+              "cRI": 0,
+              "hIT": 0,
+              "sPD": 0
+            },
+            "skills": [],
+            "buffSkills": []
+          }
+        ],
+        "costumes": [
+          {
+            "grade": 7,
+            "id": 40100059,
+            "itemType": "COSTUME",
+            "itemSubType": "FULL_COSTUME",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 0,
+            "itemId": "87a330fb-b0c2-43e3-86cd-9de168fce26b",
+            "equipped": true
+          },
+          {
+            "grade": 7,
+            "id": 49900050,
+            "itemType": "COSTUME",
+            "itemSubType": "TITLE",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 0,
+            "itemId": "d324c495-c800-446c-8dd9-49ad3e82d1bd",
+            "equipped": true
+          },
+          {
+            "grade": 6,
+            "id": 40100042,
+            "itemType": "COSTUME",
+            "itemSubType": "FULL_COSTUME",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 0,
+            "itemId": "0163ca16-3f2c-44e6-a9f8-e2260f7f395c",
+            "equipped": false
+          }
+        ],
+        "materials": [
+          {
+            "grade": 6,
+            "id": 600306,
+            "itemType": "MATERIAL",
+            "itemSubType": "EQUIPMENT_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "48dd6e845b14de64e42f003842cdd79abbd38ccf3d772e6ca844071d1eef84eb"
+          },
+          {
+            "grade": 6,
+            "id": 600401,
+            "itemType": "MATERIAL",
+            "itemSubType": "SCROLL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "8ff7180f0f532784ea938c8d53247306fb33d4d04add0f0a7e77b651dbe01843"
+          },
+          {
+            "grade": 6,
+            "id": 600402,
+            "itemType": "MATERIAL",
+            "itemSubType": "CIRCLE",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 0,
+            "itemId": "1e9c2267386176fdccafd1e16ccc28a833b6efd99a85d3d553a6987a69e7f49c"
+          },
+          {
+            "grade": 6,
+            "id": 600402,
+            "itemType": "MATERIAL",
+            "itemSubType": "CIRCLE",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "1e9c2267386176fdccafd1e16ccc28a833b6efd99a85d3d553a6987a69e7f49c"
+          },
+          {
+            "grade": 5,
+            "id": 302011,
+            "itemType": "MATERIAL",
+            "itemSubType": "FOOD_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "d2f6b0e2f50d6bc70a9057140a1b4b0b762c95faba6a687d7c35ff330980052d"
+          },
+          {
+            "grade": 5,
+            "id": 302022,
+            "itemType": "MATERIAL",
+            "itemSubType": "FOOD_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "7f5d25371e58c0f3d5a33511450f73c2e0fa4fac32a92e1cbe64d3bf2fef6328"
+          },
+          {
+            "grade": 5,
+            "id": 303004,
+            "itemType": "MATERIAL",
+            "itemSubType": "EQUIPMENT_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "f1cc3185a8f36eb9606d19f790f07bde5da9d331b1fdc7a0fb8397979534cdcd"
+          },
+          {
+            "grade": 5,
+            "id": 303104,
+            "itemType": "MATERIAL",
+            "itemSubType": "EQUIPMENT_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "e59683cdc86342dcb604d49cc6dd17226910c47c453a93ea0eb93f957e174b96"
+          },
+          {
+            "grade": 5,
+            "id": 303204,
+            "itemType": "MATERIAL",
+            "itemSubType": "EQUIPMENT_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "f2ec3e061e9806dc5783ef54fcf9365105a15d64cdab717beb3e4f19526fbf3a"
+          },
+          {
+            "grade": 5,
+            "id": 303304,
+            "itemType": "MATERIAL",
+            "itemSubType": "EQUIPMENT_MATERIAL",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": null,
+            "itemId": "30ea51c3a81aa348bcebe0e7f34d65762002ecb045ad3b88644c4f3756a45fdc"
+          }
+        ],
+        "consumables": [
+          {
+            "grade": 5,
+            "id": 201010,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9560346,
+            "itemId": "2b9c0ab9-c694-4727-a68b-366133117bdb",
+            "mainStat": "HP"
+          },
+          {
+            "grade": 5,
+            "id": 201010,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9560550,
+            "itemId": "6d96dc87-16bc-4bd7-a1ee-31df7e99b807",
+            "mainStat": "HP"
+          },
+          {
+            "grade": 5,
+            "id": 201010,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9560388,
+            "itemId": "553ce507-0ff7-4363-bc72-198b2a287b68",
+            "mainStat": "HP"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9563570,
+            "itemId": "73f664ad-7e26-4635-9995-974886c33688",
+            "mainStat": "ATK"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9561319,
+            "itemId": "4b10a3ff-67c4-4aaf-bf58-d88147206919",
+            "mainStat": "ATK"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9559481,
+            "itemId": "c03a478e-bf88-4ba9-977c-b1bf1c098d8d",
+            "mainStat": "ATK"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9561200,
+            "itemId": "e0acf4e8-e541-4db6-8c45-9351abe95948",
+            "mainStat": "ATK"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9562826,
+            "itemId": "33d8e3c4-0306-4ae4-b28c-cbc83c49fbd8",
+            "mainStat": "ATK"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9562429,
+            "itemId": "7805b46b-3686-48c7-9e05-df2b184e3b01",
+            "mainStat": "ATK"
+          },
+          {
+            "grade": 5,
+            "id": 201013,
+            "itemType": "CONSUMABLE",
+            "itemSubType": "FOOD",
+            "elementalType": "NORMAL",
+            "requiredBlockIndex": 9561398,
+            "itemId": "f67bcae3-c203-45b3-a1e9-f1ca68aa0ac5",
+            "mainStat": "ATK"
+          }
+        ],
+        "i_500000": [
+          {
+            "count": 2384,
+            "tradableId": null
+          }
+        ],
+        "i_600201": [
+          {
+            "count": 2341,
+            "tradableId": null
+          }
+        ]
+      },
+      "itemMap": {
+        "count": 183,
+        "pairs": [
+          [
+            201000,
+            20
+          ],
+          [
+            201001,
+            48
+          ],
+          [
+            201002,
+            122
+          ],
+          [
+            201003,
+            23
+          ],
+          [
+            201004,
+            19
+          ],
+          [
+            201005,
+            120
+          ],
+          [
+            201006,
+            11
+          ],
+          [
+            201007,
+            3
+          ],
+          [
+            201008,
+            122
+          ],
+          [
+            201009,
+            54
+          ]
+        ]
+      },
+      "combinationSlots": [
+        {
+          "index": 0,
+          "isUnlocked": true,
+          "unlockBlockIndex": 16640717,
+          "startBlockIndex": 16634717,
+          "petId": null
+        },
+        {
+          "index": 1,
+          "isUnlocked": true,
+          "unlockBlockIndex": 16640720,
+          "startBlockIndex": 16634720,
+          "petId": null
+        },
+        {
+          "index": 2,
+          "isUnlocked": true,
+          "unlockBlockIndex": 16645271,
+          "startBlockIndex": 16634721,
+          "petId": null
+        },
+        {
+          "index": 3,
+          "isUnlocked": true,
+          "unlockBlockIndex": 16640740,
+          "startBlockIndex": 16634740,
+          "petId": null
+        },
+        {
+          "index": 4,
+          "isUnlocked": true,
+          "unlockBlockIndex": 16642843,
+          "startBlockIndex": 16634743,
+          "petId": null
+        }
+      ]
+    },
+    "stakeState": {
+      "deposit": "5000.00"
+    }
+  }
+}

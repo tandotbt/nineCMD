@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { db } from '../db'
-import { STORAGE_KEYS } from '../constants'
-import type { Block } from '../types/block'
+import { db } from '@/db'
+import { STORAGE_KEYS } from '@/constants'
+import type { Block } from '@/types/block'
 
 describe('Dexie Database (Dexie)', () => {
   beforeEach(async () => {

@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { useFetch } from '@vueuse/core'
-import { API_URLS, PLANET_IDS, PLANET_CONFIGS } from '../constants'
-import type { PlanetConfig } from '../types/planet'
+import { API_URLS, PLANET_IDS, PLANET_CONFIGS } from '../../constants'
+import type { PlanetConfig } from '../../types/planet'
 
 /**
  * PlanetData.test.ts
- * Kiểm tra tính nhất quán của dữ liệu Planet từ API thật (PLANET_RAW_URL).
+ * Kiểm tra tính nhất quán của dữ liệu Planet (Mocked via MSW).
  * Sử dụng useFetch đồng bộ với logic trong usePlanetStore.
  */
-describe('Planet Data Consistency', () => {
-  it('should fetch real planet data and match the expected structure', async () => {
+describe('Planet Data Consistency (Mocked Playback)', () => {
+  it('should fetch planet data from mocked fixture and match the expected structure', async () => {
     console.log('Fetching planet data from:', API_URLS.PLANET_RAW[0])
 
     // Sử dụng useFetch giống như trong usePlanetStore.ts
@@ -81,16 +81,16 @@ describe('Planet Data Consistency', () => {
     expect(allDiffs, 'Found differences in Planet data').toEqual([])
   })
 
-  it.todo('should verify SEASON_PASS API is reachable', async () => {
+  it('should verify SEASON_PASS API is intercepted by MSW', async () => {
     console.log('Checking SEASON_PASS API:', API_URLS.SEASON_PASS[0])
-    const { data, error } = await useFetch(API_URLS.SEASON_PASS[0]).get().text()
+    // Use a specific planet id to match the MSW handler
+    const url = `${API_URLS.SEASON_PASS[0]}/api/user/status/all?planet_id=0x000000000000`
+    const { data, error } = await useFetch(url).get().text()
 
     if (error.value) {
       console.warn('SEASON_PASS API Error:', error.value)
     }
 
-    // Season pass API might return 404 or other status if accessed directly without path,
-    // but here we just want to ensure it doesn't throw a network error.
     expect(error.value).toBeNull()
     expect(data.value).toBeDefined()
   })

@@ -1,0 +1,156 @@
+{
+  "actionPoint": 120,
+  "dailyRewardReceivedBlockIndex": 16638516,
+  "ncg": "9335.29",
+  "myAdventureCpRanking": {
+    "rank": 1360,
+    "userDocument": {
+      "avatar": {
+        "armorId": 10242000,
+        "portraitId": 40100042
+      },
+      "cp": 42901989
+    }
+  },
+  "avatar": {
+    "level": 318,
+    "name": "shoppe02",
+    "exp": 60884,
+    "stageMap": [
+      {
+        "key": 1,
+        "value": 3
+      },
+      {
+        "key": 2,
+        "value": 1
+      },
+      {
+        "key": 3,
+        "value": 1
+      },
+      {
+        "key": 4,
+        "value": 2
+      },
+      {
+        "key": 5,
+        "value": 6
+      },
+      {
+        "key": 6,
+        "value": 1
+      },
+      {
+        "key": 7,
+        "value": 1
+      },
+      {
+        "key": 8,
+        "value": 1
+      },
+      {
+        "key": 9,
+        "value": 1
+      },
+      {
+        "key": 10,
+        "value": 1
+      },
+      {
+        "key": 11,
+        "value": 1
+      },
+      {
+        "key": 12,
+        "value": 1
+      },
+      {
+        "key": 13,
+        "value": 1
+      },
+      {
+        "key": 14,
+        "value": 1
+      },
+      {
+        "key": 15,
+        "value": 3
+      },
+      {
+        "key": 16,
+        "value": 2
+      },
+      {
+        "key": 17,
+        "value": 291
+      },
+      {
+        "key": 18,
+        "value": 1
+      },
+      {
+        "key": 19,
+        "value": 1
+      },
+      {
+        "key": 20,
+        "value": 1
+      },
+      {
+        "key": 21,
+        "value": 1
+      },
+      {
+        "key": 22,
+        "value": 1
+      },
+      {
+        "key": 23,
+        "value": 2
+      },
+      {
+        "key": 24,
+        "value": 4
+      },
+      {
+        "key": 25,
+        "value": 1
+      },
+      {
+        "key": 26,
+        "value": 1
+      },
+      {
+        "key": 27,
+        "value": 9
+      },
+      {
+        "key": 28,
+        "value": 1
+      },
+      {
+        "key": 29,
+        "value": 1
+      },
+      {
+        "key": 30,
+        "value": 1
+      }
+    ]
+  },
+  "isHasCraftOneTime": {
+    "items": [
+      {
+        "id": "7454ea68e24e82210a55323deb3f7eae0534a93f60255af56e4abe9c06b33756"
+      }
+    ]
+  },
+  "isClaimPatrolRewardOneTime": {
+    "items": [
+      {
+        "id": "487b6c6e5ae4c31abe6897109c8e9f22f56a21d7b463bfc0af623289951d04c0"
+      }
+    ]
+  }
+}

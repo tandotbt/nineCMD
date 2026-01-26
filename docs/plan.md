@@ -12,6 +12,7 @@ Tài liệu này vạch ra lộ trình chuyển đổi từ bộ khung cũ sang 
 
 - [x] Thiết lập **Dexie.js** schema cơ bản cho `blocks` và `settings`.
 - [x] Mở rộng hệ thống để hỗ trợ đa hành tinh (**Planets**) và chuyển đổi RPC động.
+- [x] Thêm bảng `character_history` vào Dexie để lưu lịch sử fetch avatar.
 - [ ] Mở rộng bảng `characters` và `actions` cho hệ thống Automation.
 - [ ] Tạo module `src/logic/diff.ts` tích hợp `microdiff`.
 - [x] Triển khai **Service Worker** hỗ trợ chạy ngầm và Periodic Sync.
@@ -28,6 +29,11 @@ Tài liệu này vạch ra lộ trình chuyển đổi từ bộ khung cũ sang 
 
 ## Giai đoạn 4: UI & Integration
 
+- [x] Triển khai tính năng `infoAllAvatarAddress`:
+  - Fetch dữ liệu toàn bộ Avatar của Agent (Batch GraphQL).
+  - Hiển thị thông tin chi tiết (Level, CP, Stage, NCG, Crystal).
+  - Hiển thị chi tiết trang bị (Equipments, Costumes) qua DataTable Expandable Rows.
+  - Tích hợp lưu trữ lịch sử vào Dexie DB.
 - [ ] Thiết kế Dashboard điều khiển Automation bằng Naive UI.
 - [ ] Tích hợp hệ thống thông báo (Notification) để theo dõi kết quả lệnh trong thời gian thực.
 

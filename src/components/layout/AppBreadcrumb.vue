@@ -10,6 +10,11 @@ import {
   ChevronRight24Regular as SeparatorIcon,
   Database24Regular as DataIcon,
   Link24Regular as ApiIcon,
+  Person24Regular as PersonIcon,
+  Flash24Regular as AutomationIcon,
+  Key24Regular as LoginIcon,
+  Info24Regular as InfoIcon,
+  ShieldCheckmark24Regular as GameSettingsIcon,
 } from '@vicons/fluent'
 
 const route = useRoute()
@@ -35,12 +40,30 @@ const breadcrumbItems = computed(() => {
 
   const pathSegments = route.path.split('/').filter(Boolean)
 
+  if (pathSegments.includes('login')) {
+    items.push({
+      label: t('breadcrumb_login'),
+      key: 'login',
+      path: '/login',
+      icon: LoginIcon,
+    })
+  }
+
   if (pathSegments.includes('blocks')) {
     items.push({
       label: t('breadcrumb_blocks'),
       key: 'blocks',
       path: '/blocks',
       icon: BlocksIcon,
+    })
+  }
+
+  if (pathSegments.includes('automation')) {
+    items.push({
+      label: t('breadcrumb_automation'),
+      key: 'automation',
+      path: '/automation',
+      icon: AutomationIcon,
     })
   }
 
@@ -68,6 +91,24 @@ const breadcrumbItems = computed(() => {
         icon: ApiIcon,
       })
     }
+
+    if (pathSegments.includes('game')) {
+      items.push({
+        label: t('breadcrumb_game_settings'),
+        key: 'game-settings',
+        path: '/settings/game',
+        icon: GameSettingsIcon,
+      })
+    }
+
+    if (pathSegments.includes('pwa')) {
+      items.push({
+        label: t('breadcrumb_pwa_status'),
+        key: 'pwa-status',
+        path: '/settings/pwa',
+        icon: InfoIcon,
+      })
+    }
   }
 
   if (pathSegments.includes('data-explorer')) {
@@ -77,6 +118,24 @@ const breadcrumbItems = computed(() => {
       path: '/data-explorer',
       icon: DataIcon,
     })
+  }
+
+  if (pathSegments.includes('info-all-avatar-address')) {
+    items.push({
+      label: t('breadcrumb_avatar_retrieval'),
+      key: 'avatar-retrieval',
+      path: '/info-all-avatar-address',
+      icon: PersonIcon,
+    })
+
+    const avatarAddress = route.params.avatarAddress as string
+    if (avatarAddress) {
+      items.push({
+        label: avatarAddress.slice(0, 6) + '...' + avatarAddress.slice(-4),
+        key: 'avatar-detail',
+        icon: PersonIcon,
+      })
+    }
   }
 
   return items
