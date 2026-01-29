@@ -2,14 +2,14 @@
   "blocks": {
     "items": [
       {
-        "id": "92615c2f323b3fdbb6b588b2ca59afeda19b573a510c4d7f89b00bd13375190c",
+        "id": "6c7519300eb05fd39aa51154063ee0577a383b6a674fb816292511217ce77bce",
         "object": {
-          "hash": "92615c2f323b3fdbb6b588b2ca59afeda19b573a510c4d7f89b00bd13375190c",
-          "index": 8671688,
+          "hash": "6c7519300eb05fd39aa51154063ee0577a383b6a674fb816292511217ce77bce",
+          "index": 8707203,
           "miner": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
-          "stateRootHash": "6e27cef73994d941c9e368720d6a467079d607a0a5d5a038f96950e8f62fa849",
-          "timestamp": "2026-01-26T02:39:20.640256+00:00",
-          "txCount": 2
+          "stateRootHash": "29182edf252b4391af971edde6cffb7b198db61055c455145112558be56623e2",
+          "timestamp": "2026-01-29T10:15:53.80168+00:00",
+          "txCount": 0
         }
       }
     ]

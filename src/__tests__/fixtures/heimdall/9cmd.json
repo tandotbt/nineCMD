@@ -73,10 +73,7 @@
     }
   ],
   "lookupItemSetMuti_Adventure": {
-    "costumes": [
-      "0cf6f96d-4d60-4d74-a323-031ff79a68d4",
-      "ab9ae2bb-4469-4907-b557-6bf4b92754bc"
-    ],
+    "costumes": ["0cf6f96d-4d60-4d74-a323-031ff79a68d4", "ab9ae2bb-4469-4907-b557-6bf4b92754bc"],
     "equipments": [
       "1a06cf5b-0961-4c46-9db5-f46894032b73",
       "55b413bd-a605-4854-bdec-85403ca3fb5c",
@@ -87,10 +84,7 @@
       "eaa5654c-f888-487f-91a3-b94aea994f19"
     ]
   },
-  "other_lookupClaimedGiftIds": [
-    1,
-    2
-  ],
+  "other_lookupClaimedGiftIds": [1, 2],
   "other_lookupPatrolReward": {
     "blockLastClaim": 8148616
   }

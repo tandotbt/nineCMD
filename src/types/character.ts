@@ -13,8 +13,8 @@ export interface StatsMap {
 }
 
 export interface Equipment {
-  id: string
-  itemId: number
+  id: number | string // Template ID (numeric) or GUID
+  itemId: number | string // GUID or Template ID
   level: number
   equipped: boolean
   grade: string | number
@@ -27,17 +27,22 @@ export interface Equipment {
   skills: { id: string }[]
   buffSkills: { id: string }[]
   CP: number
+  index?: number
 }
 
 export interface Costume {
-  id: string
-  itemId: number
+  id: number | string // Template ID (numeric) or GUID
+  itemId: number | string // GUID or Template ID
   equipped: boolean
   grade: string | number
   itemType: string
   itemSubType: string
   elementalType: string
   name?: string
+  levelReq?: number
+  statsMap?: StatsMap
+  CP?: number
+  index?: number
 }
 
 export interface RuneSlot {
@@ -55,6 +60,7 @@ export interface RuneInfo {
   runeType?: string
   requiredLevel?: number
   tickerRune?: string
+  index?: number
 }
 
 export interface Material {
@@ -168,6 +174,61 @@ export interface RawAvatarDetail {
   timestamp: number
 }
 
+export interface PatrolRewardInfo {
+  blockLastClaim: number
+  infoPatrolReward: Record<string, unknown> | null
+  isCanClaim: boolean
+  diffBlock: number
+  interval: number
+}
+
+export interface SeasonPassInfo {
+  [passType: string]: {
+    level: number
+    last_normal_claim: number
+    last_premium_claim: number
+    isCanClaim: {
+      isCanClaimNormal: boolean
+      isCanClaimPremium: boolean
+    }
+    isInTimeClaim: boolean
+    claim_limit_timestamp?: string
+    [key: string]: unknown
+  }
+}
+
+export interface EventDungeonInfo {
+  roundReset: number
+  ticket: number
+  ticketBuyed: number
+  stageIdUnlocked: number
+  currentTurn: number
+  totalTurns: number
+  currentRoundStartBlock: number
+  currentRoundEndBlock: number
+}
+
+export interface WorldBossInfo {
+  hasOngoingEvent: boolean
+  listIdOngoingWorldBoss: number[]
+  totalTurns: number
+  currentTurn: number
+  tickets_reset_interval_block_range: number
+  currentRoundStartBlock: number
+  currentRoundEndBlock: number
+}
+
+export interface GiftInfo {
+  id: number
+  isCanClaim: boolean
+  giftItems: [number, number, boolean][] // [id, quantity, tradable]
+}
+
+export interface SummonInfo {
+  groupID: number
+  itemSummons: [number, number, string | number, number][] // [id, ratio, img, is_equipment]
+}
+
 export interface AvatarData {
   address: string
   name: string
@@ -177,6 +238,7 @@ export interface AvatarData {
   crystal: number
   stage: number
   worldId: number
+  worldName?: string
   ap: number
   maxAp: number
   cp: number
@@ -198,11 +260,15 @@ export interface AvatarData {
   runes: RuneInfo[]
   craftingSlots: CraftingSlot[]
   stakeNCG: number
-  seasonPass?: Record<string, unknown> | null
+  seasonPass?: SeasonPassInfo | null
   isHasCraftOneTime: boolean
+  isClaimPatrolRewardOneTime: boolean
   claimedGifts: unknown[]
-  eventDungeonInfo?: Record<string, unknown> | null
-  worldBossInfoTotal?: Record<string, unknown> | null
-  worldBossInfoAvatar?: Record<string, unknown> | null
+  patrolReward?: PatrolRewardInfo
+  eventDungeonInfo: EventDungeonInfo
+  worldBossInfoTotal: Record<string, unknown> | null
+  worldBossInfoAvatar: Record<string, unknown> | null
+  agentAddress?: string
+  materialList: Record<number, number>
   timestamp: number
 }

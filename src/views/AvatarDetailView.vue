@@ -173,11 +173,15 @@ import {
 import { useI18n } from 'vue-i18n'
 import type { DataTableColumns } from 'naive-ui'
 import { useCharacterStore } from '@/stores/useCharacterStore'
+import { useCsvDataStore } from '@/stores/useCsvDataStore'
 import type { Equipment, RuneSlot, RuneInfo, Material } from '@/types/character'
+import { resolveNameFromCsv, resolveRuneInfo } from '@/logic/mapping'
+import { extractExcelId } from '@/logic/character'
 
 const route = useRoute()
 const characterStore = useCharacterStore()
-const { t } = useI18n()
+const csvStore = useCsvDataStore()
+const { t, locale } = useI18n()
 
 const props = defineProps<{
   avatarAddress: string
@@ -185,13 +189,21 @@ const props = defineProps<{
 
 const materialSearch = ref('')
 
+const getItemName = (id: number | string) => {
+  return resolveNameFromCsv(id, csvStore.allSheets, locale.value)
+}
+
+const getRuneName = (runeId: number) => {
+  return resolveRuneInfo(runeId, csvStore.allSheets, locale.value).name
+}
+
 const filteredMaterials = computed(() => {
   const all = characterStore.info?.inventory.materials || []
   if (!materialSearch.value) return all
   const s = materialSearch.value.toLowerCase()
   return all.filter(
     (m) =>
-      m.name?.toLowerCase().includes(s) ||
+      getItemName(m.id).toLowerCase().includes(s) ||
       String(m.id).includes(s) ||
       m.itemSubType?.toLowerCase().includes(s),
   )
@@ -218,7 +230,12 @@ const getGradeColor = (grade: string | number | undefined) => {
 }
 
 const itemColumns: DataTableColumns<Equipment> = [
-  { title: 'Name', key: 'name' },
+  {
+    title: 'Name',
+    key: 'name',
+    render: (row) =>
+      getItemName(extractExcelId(row as unknown as Record<string, unknown>) || row.itemId),
+  },
   { title: 'Type', key: 'itemSubType' },
   { title: 'Lv', key: 'level', width: 60, align: 'center', render: (row) => `+${row.level}` },
   {
@@ -245,7 +262,11 @@ const materialColumns: DataTableColumns<Material> = [
     width: 200,
     fixed: 'left',
     render: (row) =>
-      h('span', { style: `color: ${getGradeColor(row.grade)}; font-weight: bold` }, row.name),
+      h(
+        'span',
+        { style: `color: ${getGradeColor(row.grade)}; font-weight: bold` },
+        getItemName(row.id),
+      ),
   },
   {
     title: () => t('avatar.type'),
@@ -294,13 +315,17 @@ const materialColumns: DataTableColumns<Material> = [
 
 const runeSlotColumns: DataTableColumns<RuneSlot> = [
   { title: 'Slot', key: 'index', width: 80 },
-  { title: 'Rune Name', key: 'name' },
+  {
+    title: 'Rune Name',
+    key: 'name',
+    render: (row) => (row.runeId ? getRuneName(row.runeId) : 'Empty'),
+  },
   { title: 'Status', key: 'isLock', render: (row) => (row.isLock ? 'Locked' : 'Unlocked') },
 ]
 
 const learnedRuneColumns: DataTableColumns<RuneInfo> = [
   { title: 'Rune ID', key: 'runeId', width: 100 },
-  { title: 'Name', key: 'name' },
+  { title: 'Name', key: 'name', render: (row) => getRuneName(row.runeId) },
   { title: 'Lv', key: 'level', width: 60, align: 'center' },
 ]
 

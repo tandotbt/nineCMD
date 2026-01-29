@@ -1,7 +1,7 @@
 {
   "transaction": {
     "object": {
-      "txStatus": "SUCCESS"
+      "txStatus": "FAILURE"
     }
   }
 }

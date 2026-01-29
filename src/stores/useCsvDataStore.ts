@@ -155,6 +155,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
           base64Content,
           keyMain: config.keyMain,
           unique: config.unique || false,
+          indexFields: config.indexFields,
         }
         worker?.postMessage(message)
       })

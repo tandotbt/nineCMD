@@ -10,21 +10,22 @@ import { queryGraphql } from '@/api/graphql'
 import { db } from '@/db'
 import { useFetch } from '@vueuse/core'
 import {
-  REST_API_CONFIG,
   RETRY_CONFIG,
   CHARACTER_LOGIC_CONSTANTS,
   CHARACTER_CODE_GETS,
+  REST_API_CONFIG,
 } from '@/constants'
 import { get9cmdApiUrl } from '@/api/rest'
 import {
   calculateAPCost,
-  getWorldInfo,
   getLatestStageId,
-  calculateAPRefill,
   processMaterials,
   calculateTotalCP,
   resolveItemNames,
+  refreshAvatarNames,
+  aggregateAvatarData,
 } from '@/logic/character'
+import { resolveWorldBossInfo, resolveWorldInfo } from '@/logic/mapping'
 import { CHARACTER_QUERIES } from '@/api/queries/character'
 import type {
   AvatarData,
@@ -53,109 +54,13 @@ export const useCharacterStore = defineStore('character', () => {
     const raw = currentAvatarDetail.value
     if (!raw) return null
 
-    const headlessData = raw.headless.stateQuery
-    const avatar = headlessData.avatar
-    const mimirData = raw.mimir
-    const restData = raw.rest
-    const seasonPassData = raw.seasonPass
-    const sheets = csvStore.allSheets
-
-    const stagePairs = avatar?.stageMap?.pairs || []
-    const latestStage = getLatestStageId(stagePairs)
-    const worldInfo = getWorldInfo(
-      latestStage,
-      (sheets['WorldSheet']?.mappedData as unknown as Record<
-        string,
-        Record<string, string | number>
-      >) || {},
-      headlessData.unlockedWorldIds || [],
-    )
-
-    const gameConfig = sheets['GameConfigSheet']?.mappedData as
-      | Record<string, Record<string, string | number>>
-      | undefined
-    const dailyRewardInterval =
-      parseInt(String(gameConfig?.['daily_reward_interval']?.['value'] || '0')) ||
-      CHARACTER_LOGIC_CONSTANTS.AP.DAILY_REFILL_INTERVAL
-
-    const { timeRefill, timeRefillReal } = calculateAPRefill(
-      mimirData?.dailyRewardReceivedBlockIndex ?? -1,
-      blockStore.blockNow,
-      dailyRewardInterval,
+    return aggregateAvatarData(
+      raw,
+      csvStore.allSheets,
+      locale.value,
       blockStore.averageBlockTimeMs / 1000,
+      blockStore.blockNow,
     )
-
-    const equipments = (avatar?.inventory?.equipments || []).map((eq) => ({ ...eq }))
-    const costumes = (avatar?.inventory?.costumes || []).map((cos) => ({ ...cos }))
-    resolveItemNames(equipments, sheets, locale.value)
-    resolveItemNames(costumes, sheets, locale.value)
-
-    const runeSlots = (restData?.lookupRuneSetMuti_Adventure || []).map((slot) => {
-      const runeData = slot.runeId
-        ? (sheets['RuneSheet']?.mappedData?.[slot.runeId] as
-            | Record<string, string | number>
-            | undefined)
-        : undefined
-      return {
-        ...slot,
-        name: runeData ? String(runeData.Name || runeData._name || '') : 'Empty',
-      }
-    })
-
-    const learnedRunes = (avatar?.runes || []).map((r) => {
-      const runeData = sheets['RuneSheet']?.mappedData?.[r.runeId] as
-        | Record<string, string | number>
-        | undefined
-      return {
-        ...r,
-        name: String(runeData?.Name || runeData?._name || 'Unknown Rune'),
-      }
-    })
-
-    const stakeNCG = parseFloat(headlessData.stakeState?.deposit) || 0
-    const restObj = restData as Record<string, unknown> | null
-
-    return {
-      address: avatar?.address || '',
-      name: avatar?.name || 'N/A',
-      level: avatar?.level || 0,
-      exp: avatar?.exp || 0,
-      ncg: parseFloat(headlessData.agent?.gold) || 0,
-      crystal: parseFloat(headlessData.agent?.crystal) || 0,
-      stage: latestStage,
-      worldId: worldInfo.worldId,
-      ap: mimirData?.actionPoint || 0,
-      maxAp: CHARACTER_LOGIC_CONSTANTS.AP.MAX,
-      cp: mimirData?.myAdventureCpRanking?.userDocument?.cp || calculateTotalCP(equipments),
-      adventureCp: restData?.other_lookupAdventureCp || 0,
-      portraitId: mimirData?.myAdventureCpRanking?.userDocument?.avatar?.portraitId || 10200000,
-      rank: mimirData?.myAdventureCpRanking?.rank || 0,
-      dailyRewardReceivedIndex: avatar?.dailyRewardReceivedIndex || 0,
-      dailyRewardReceivedBlockIndex: mimirData?.dailyRewardReceivedBlockIndex || 0,
-      timeRefill,
-      timeRefillReal,
-      dailyRewardInterval,
-      apCost: calculateAPCost(stakeNCG),
-      inventory: {
-        equipments,
-        costumes,
-        materials: processMaterials(avatar || ({} as AvatarDetailHeadless), sheets, locale.value),
-      },
-      runeSlots,
-      runes: learnedRunes,
-      craftingSlots: avatar?.combinationSlots || [],
-      stakeNCG,
-      seasonPass: seasonPassData,
-      isHasCraftOneTime: (mimirData?.isHasCraftOneTime?.items?.length ?? 0) > 0,
-      claimedGifts: restData?.other_lookupClaimedGiftIds || [],
-      eventDungeonInfo: (restObj?.[REST_API_CONFIG.CODE_GETS.EVENT_DUNGEON_INFO('any')] ||
-        null) as Record<string, unknown> | null,
-      worldBossInfoTotal: (restObj?.[REST_API_CONFIG.CODE_GETS.WORLD_BOSS_TOTAL('any')] ||
-        null) as Record<string, unknown> | null,
-      worldBossInfoAvatar: (restObj?.[REST_API_CONFIG.CODE_GETS.WORLD_BOSS_AVATAR('any')] ||
-        null) as Record<string, unknown> | null,
-      timestamp: raw.timestamp,
-    }
   })
 
   async function withRetry<T>(
@@ -257,14 +162,12 @@ export const useCharacterStore = defineStore('character', () => {
           resolveItemNames(equipments, sheets, locale.value)
 
           const latestStage = getLatestStageId(data.stageMap?.pairs || [])
-          const worldInfo = getWorldInfo(
-            latestStage,
-            (sheets['WorldSheet']?.mappedData as unknown as Record<
-              string,
-              Record<string, string | number>
-            >) || {},
-            unlockedWorlds,
-          )
+          const worldInfo = resolveWorldInfo(latestStage, sheets, unlockedWorlds, locale.value)
+          const materials = processMaterials(data, sheets, locale.value)
+          const materialList: Record<number, number> = {}
+          materials.forEach((m) => {
+            materialList[m.id] = (materialList[m.id] || 0) + m.count
+          })
 
           processed.push({
             address: data.address,
@@ -275,6 +178,7 @@ export const useCharacterStore = defineStore('character', () => {
             crystal,
             stage: latestStage,
             worldId: worldInfo.worldId,
+            worldName: worldInfo.name,
             ap: 0,
             maxAp: CHARACTER_LOGIC_CONSTANTS.AP.MAX,
             cp: calculateTotalCP(equipments),
@@ -290,14 +194,28 @@ export const useCharacterStore = defineStore('character', () => {
             inventory: {
               equipments,
               costumes: [],
-              materials: processMaterials(data, sheets, locale.value),
+              materials,
             },
             runeSlots: [],
             runes: [],
             craftingSlots: data.combinationSlots || [],
             stakeNCG: stakeNCGValue,
             isHasCraftOneTime: false,
+            isClaimPatrolRewardOneTime: false,
             claimedGifts: [],
+            eventDungeonInfo: {
+              roundReset: 1,
+              ticket: 0,
+              ticketBuyed: 0,
+              stageIdUnlocked: 0,
+              currentTurn: 1,
+              totalTurns: 1,
+              currentRoundStartBlock: 0,
+              currentRoundEndBlock: 0,
+            },
+            worldBossInfoTotal: null,
+            worldBossInfoAvatar: null,
+            materialList,
             timestamp,
           })
         }
@@ -336,6 +254,35 @@ export const useCharacterStore = defineStore('character', () => {
       // Get material IDs from itemMap (v2 logic)
       const materialIds = (info.value?.inventory.materials || []).map((m) => m.id)
 
+      // Build dynamic codeGets for REST API enrichment
+      const sheets = csvStore.allSheets
+      const blockNow = blockStore.blockNow
+      const codeGets = [...CHARACTER_CODE_GETS]
+
+      // Add World Boss codes if ongoing
+      const wbInfo = resolveWorldBossInfo(sheets, blockNow)
+      if (wbInfo.hasOngoingEvent) {
+        wbInfo.listIdOngoingWorldBoss.forEach((id) => {
+          codeGets.push(REST_API_CONFIG.CODE_GETS.WORLD_BOSS_TOTAL(id))
+          codeGets.push(REST_API_CONFIG.CODE_GETS.WORLD_BOSS_AVATAR(id))
+        })
+      }
+
+      // Add Event Dungeon codes if ongoing
+      const eventSheet = sheets[CHARACTER_LOGIC_CONSTANTS.SHEETS.EVENT_SCHEDULE]
+      if (eventSheet) {
+        Object.values(eventSheet.mappedData).forEach((event) => {
+          const start = parseInt(String(event['start_block_index'] || '0'))
+          const end = parseInt(String(event['dungeon_end_block_index'] || '0'))
+          if (blockNow >= start && blockNow <= end) {
+            const dungeonId = event['id']
+            if (dungeonId) {
+              codeGets.push(REST_API_CONFIG.CODE_GETS.EVENT_DUNGEON_INFO(String(dungeonId)))
+            }
+          }
+        })
+      }
+
       const [headlessRes, mimirData, restData, seasonPassData] = await Promise.all([
         withRetry(() =>
           queryGraphql<{
@@ -357,7 +304,7 @@ export const useCharacterStore = defineStore('character', () => {
             agentAddress: targetAgent,
           }),
         ),
-        withRetry(() => fetch9cmdApiData(targetAvatar, planetStore.currentPlanetName)),
+        withRetry(() => fetch9cmdApiData(targetAvatar, planetStore.currentPlanetName, codeGets)),
         fetchSeasonPassData(targetAvatar, targetAgent),
       ])
 
@@ -400,8 +347,12 @@ export const useCharacterStore = defineStore('character', () => {
     }
   }
 
-  async function fetch9cmdApiData(avatarAddress: string, planet: string) {
-    const url = get9cmdApiUrl(apiStore.api9CmdUrl, avatarAddress, planet, CHARACTER_CODE_GETS)
+  async function fetch9cmdApiData(
+    avatarAddress: string,
+    planet: string,
+    codeGets: string[] = CHARACTER_CODE_GETS,
+  ) {
+    const url = get9cmdApiUrl(apiStore.api9CmdUrl, avatarAddress, planet, codeGets)
     console.log(`[CharacterStore] Fetching 9cmd data: ${url}`)
     const { data } = await useFetch<RestApiResponse>(url).json()
     return data.value?.data
@@ -420,10 +371,14 @@ export const useCharacterStore = defineStore('character', () => {
       .toArray()
     if (history.length > 0) {
       const latestMap = new Map<string, AvatarData>()
+      const sheets = csvStore.allSheets
       history.forEach((h) => {
         const existing = latestMap.get(h.avatarAddress)
         if (!existing || h.timestamp > (existing.timestamp ?? 0)) {
-          latestMap.set(h.avatarAddress, h.data as unknown as AvatarData)
+          const charData = h.data as unknown as AvatarData
+          // Refresh names to match current locale
+          refreshAvatarNames(charData, sheets, locale.value)
+          latestMap.set(h.avatarAddress, charData)
         }
       })
       characters.value = Array.from(latestMap.values()).sort((a, b) => b.level - a.level)

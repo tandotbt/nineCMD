@@ -47,7 +47,7 @@
   },
   "rest": {
     "api9cmd": {
-      "baseUrl": "https://api.9cmd.top",
+      "baseUrl": "http://127.0.0.1:8000",
       "params": [
         "other_lookupAdventureCp",
         "lookupRuneSetMuti_type_Adventure",

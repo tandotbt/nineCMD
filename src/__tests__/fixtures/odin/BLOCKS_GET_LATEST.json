@@ -2,26 +2,15 @@
   "blocks": {
     "items": [
       {
-        "id": "9b0976548a74e14bcbed2c5ee5dffadc29e4344f463a4d0832210e0430681321",
+        "id": "d6354975b1be62eb54472a25c1dcdb08f19dd987af247b9203b17835a397c4e9",
         "object": {
-          "hash": "9b0976548a74e14bcbed2c5ee5dffadc29e4344f463a4d0832210e0430681321",
-          "index": 17162287,
+          "hash": "d6354975b1be62eb54472a25c1dcdb08f19dd987af247b9203b17835a397c4e9",
+          "index": 17198187,
           "miner": "0x8E1b572db70aB80bb02783A0D2c594A0edE6db28",
-          "stateRootHash": "d2916b3ff72e486e3e6124e71d4e3774861c0268cf148adb84a275d1b4fd51c0",
-          "timestamp": "2026-01-26T02:38:32.11873+00:00",
-          "txCount": 18,
-          "txIds": [
-            "007c04d1361074dd07811c6c6a28c2f4a7dd5ec09be33931ca916e5be68570ad",
-            "02b5f2f312185818ceb7af6d480bea3c62d5b348b894c6267d8118e2eec003a4",
-            "081a595f5449aeede03bf507feef1f2287ee1f95c0851470b91b91a2ee93e16f",
-            "08e4db1c436e1a6b2028e7a289e084c2c12e9396df9fab6f26d5d005ef3fdd06",
-            "3b72bcbaaf5ba3fcc4dcc1ab172a267970b066542bd87f12403dd44f0b5e3b5d",
-            "4c43e30d93c755ed7cc69fd3569ecdeadb0ae399e7599b5a7a4ad5af24fa4476",
-            "4e98924f975230a19524eb7592ce6dfdb97e55af24739b3ca8d795d54d053a15",
-            "4fbcaa8ace27f7032623154cb3a010e93b867012f903bc5dbf71bfb7fa454404",
-            "801245e370de65e96a0c981e6b94eade5c43854c88a7770a2261e541e1244555",
-            "813ad353aae08cf2afca67e7c956c0116fe81a036518b7d9319b6d5c227e81be"
-          ]
+          "stateRootHash": "d39fcc5eb9266017c82233f223dcd4fb8c7ad97cadde3a641ceb018735e37541",
+          "timestamp": "2026-01-29T10:15:57.227946+00:00",
+          "txCount": 1,
+          "txIds": ["5136b3de9eb130aa834fbf2753a90ded1783ac9a060a4a74aabc1bde5916c97c"]
         }
       }
     ]

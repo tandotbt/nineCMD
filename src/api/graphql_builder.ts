@@ -15,7 +15,7 @@ export function buildAvatarBatchPart(
 ): string {
   const allTrackedIds = [...new Set([...TRACKED_ITEM_IDS, ...materialIds])]
   const trackedItems = allTrackedIds
-    .map((id) => `i_${id}: items(inventoryItemId: ${id}) { count tradableId }`)
+    .map((id) => `i${id}: items(inventoryItemId: ${id}) { count tradableId }`)
     .join('\n        ')
 
   const cleanAddr = addr.startsWith('0x') ? addr.slice(2) : addr

@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { h, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { NDataTable, NButton, NText } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import type { AvatarData } from '@/stores/useCharacterStore'
@@ -23,6 +24,7 @@ defineProps<{
   loading: boolean
 }>()
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -34,6 +36,14 @@ const pagination = ref({
   showSizePicker: true,
   pageSizes: [10, 20, 50],
 })
+
+function handleViewDetail(row: AvatarData) {
+  router.push({
+    name: 'avatar-detail',
+    params: { avatarAddress: row.address },
+    query: { agent: (route.query.agent as string) || '' },
+  })
+}
 
 const columns: DataTableColumns<AvatarData> = [
   {
@@ -91,19 +101,11 @@ const columns: DataTableColumns<AvatarData> = [
           type: 'primary',
           onClick: () => handleViewDetail(row),
         },
-        { default: () => 'Detail' },
+        { default: () => t('avatar_detail_btn_detail') || 'Detail' },
       )
     },
   },
 ]
-
-function handleViewDetail(row: AvatarData) {
-  router.push({
-    name: 'avatar-detail',
-    params: { avatarAddress: row.address },
-    query: { agent: (route.query.agent as string) || '' },
-  })
-}
 </script>
 
 <style scoped>

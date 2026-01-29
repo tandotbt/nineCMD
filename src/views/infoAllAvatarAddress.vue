@@ -72,10 +72,7 @@
               <n-gi v-for="id in TRACKED_ITEM_IDS" :key="id">
                 <n-card size="small" embedded>
                   <n-statistic
-                    :label="
-                      activeAvatar.inventory.materials.find((m) => m.id === id)?.name ||
-                      `Item ${id}`
-                    "
+                    :label="getItemName(id)"
                     :value="activeAvatar.inventory.materials.find((m) => m.id === id)?.count ?? 0"
                   >
                     <template #prefix>📦</template>
@@ -151,7 +148,7 @@
               <n-grid :cols="4" :x-gap="12" :y-gap="12">
                 <n-gi v-for="mat in activeAvatar.inventory.materials" :key="mat.id">
                   <n-card size="small" hoverable>
-                    <n-statistic :label="mat.name" :value="mat.count">
+                    <n-statistic :label="getItemName(mat.id)" :value="mat.count">
                       <template #prefix>📦</template>
                       <template #suffix v-if="mat.tradableCount">
                         <n-text depth="3" style="font-size: 12px">
@@ -179,7 +176,7 @@
                       </n-tag>
                     </n-space>
                     <div style="margin-top: 8px">
-                      <n-text strong>{{ slot.name }}</n-text>
+                      <n-text strong>{{ slot.runeId ? getRuneName(slot.runeId) : 'Empty' }}</n-text>
                     </div>
                   </n-card>
                 </n-gi>
@@ -188,7 +185,7 @@
               <n-divider title-placement="left">{{ t('avatar_detail_learned_runes') }}</n-divider>
               <n-space>
                 <n-tag v-for="rune in activeAvatar.runes" :key="rune.runeId" type="info">
-                  {{ rune.name }} (Lv.{{ rune.level }})
+                  {{ getRuneName(rune.runeId) }} (Lv.{{ rune.level }})
                 </n-tag>
               </n-space>
             </n-space>
@@ -198,7 +195,7 @@
           <n-tab-pane name="season" :tab="t('avatar_detail_tab_season')">
             <n-grid :cols="2" :x-gap="12" :y-gap="12" style="margin-top: 12px">
               <n-gi v-for="(pass, index) in activeAvatar.seasonPass as any" :key="index">
-                <n-card size="small" :title="pass.season_pass.pass_type">
+                <n-card size="small" :title="String(pass.season_pass.pass_type)">
                   <template #header-extra>
                     <n-tag type="info">Season {{ pass.season_pass.season_index }}</n-tag>
                   </template>
@@ -286,17 +283,35 @@ import type { DataTableColumns } from 'naive-ui'
 import type { AvatarData, Equipment, Costume } from '@/types/character'
 import { useCharacterStore } from '@/stores/useCharacterStore'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { useCsvDataStore } from '@/stores/useCsvDataStore'
 import { TRACKED_ITEM_IDS } from '@/constants'
+import { resolveNameFromCsv, resolveRuneInfo } from '@/logic/mapping'
+import { extractExcelId } from '@/logic/character'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const characterStore = useCharacterStore()
 const settingsStore = useSettingsStore()
+const csvStore = useCsvDataStore()
 
 const selectedRowAddress = ref<string | null>(null)
+
+const getItemName = (id: number | string) => {
+  return resolveNameFromCsv(id, csvStore.allSheets, locale.value)
+}
+
+const getRuneName = (runeId: number) => {
+  return resolveRuneInfo(runeId, csvStore.allSheets, locale.value).name
+}
 
 const activeAvatar = computed(() => {
   const address = selectedRowAddress.value || settingsStore.avatarAddress
   if (!address) return null
+
+  // Prefer the fully reactive info from store if it matches the selected address
+  if (characterStore.info && characterStore.info.address.toLowerCase() === address.toLowerCase()) {
+    return characterStore.info
+  }
+
   return characterStore.characters.find((c) => c.address.toLowerCase() === address.toLowerCase())
 })
 
@@ -419,7 +434,14 @@ const columns: DataTableColumns<AvatarData> = [
 ]
 
 const equipmentColumns: DataTableColumns<Equipment> = [
-  { title: 'Name', key: 'name', width: 150, fixed: 'left' },
+  {
+    title: 'Name',
+    key: 'name',
+    width: 150,
+    fixed: 'left',
+    render: (row) =>
+      getItemName(extractExcelId(row as unknown as Record<string, unknown>) || row.itemId),
+  },
   {
     title: 'Status',
     key: 'equipped',
@@ -439,7 +461,14 @@ const equipmentColumns: DataTableColumns<Equipment> = [
 ]
 
 const costumeColumns: DataTableColumns<Costume> = [
-  { title: 'Name', key: 'name', width: 150, fixed: 'left' },
+  {
+    title: 'Name',
+    key: 'name',
+    width: 150,
+    fixed: 'left',
+    render: (row) =>
+      getItemName(extractExcelId(row as unknown as Record<string, unknown>) || row.itemId),
+  },
   {
     title: 'Status',
     key: 'equipped',

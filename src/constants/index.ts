@@ -10,7 +10,7 @@ import type { PlanetName, PlanetConfig } from '../types/planet'
 // API URLs
 export const API_URLS = {
   API_9CMD: [
-    // 'http://127.0.0.1:8000',
+    'http://127.0.0.1:8000',
     'https://api.9cmd.top',
     'https://steep-carolee-9cmd-701971d5.koyeb.app',
   ],
@@ -25,15 +25,16 @@ export const API_URLS = {
 export interface SheetConfig {
   keyMain: string
   unique?: boolean
+  indexFields?: string[]
 }
 
 export const CSV_SHEET_CONFIG: Record<string, SheetConfig> = {
   ArenaSheet: { keyMain: 'start_block_index' },
   GameConfigSheet: { keyMain: 'key' },
   ItemRequirementSheet: { keyMain: 'item_id' },
-  CostumeStatSheet: { keyMain: 'costume_id', unique: true },
+  CostumeStatSheet: { keyMain: 'costume_id', unique: true, indexFields: ['costume_id'] },
   RuneListSheet: { keyMain: 'id' },
-  RuneSheet: { keyMain: 'c' },
+  RuneSheet: { keyMain: 'id' },
   CostumeItemSheet: { keyMain: 'id' },
   WorldUnlockSheet: { keyMain: 'world_id_to_unlock' },
   WorldSheet: { keyMain: 'id' },
@@ -391,7 +392,7 @@ export const CHARACTER_CODE_GETS = [
   REST_API_CONFIG.CODE_GETS.ITEM_SET_ADVENTURE,
   REST_API_CONFIG.CODE_GETS.CLAIMED_GIFT_IDS,
   REST_API_CONFIG.CODE_GETS.PATROL_REWARD,
-] as const
+] as string[]
 
 // Retry Configuration
 export const RETRY_CONFIG = {
@@ -427,6 +428,7 @@ export const CHARACTER_LOGIC_CONSTANTS = {
   AP: {
     MAX: 120,
     DAILY_REFILL_INTERVAL: 7200,
+    DAILY_WORLDBOSS_INTERVAL: 28800,
     STAKE_THRESHOLD_TIER_1: 500000,
     STAKE_THRESHOLD_TIER_2: 5000,
     COST_TIER_1: 3,
@@ -458,6 +460,21 @@ export const CHARACTER_LOGIC_CONSTANTS = {
   },
   SHEETS: {
     ITEM_NAME: 'ItemNameSheet',
+    ARENA: 'ArenaSheet',
+    GAME_CONFIG: 'GameConfigSheet',
+    ITEM_REQUIREMENT: 'ItemRequirementSheet',
+    COSTUME_STAT: 'CostumeStatSheet',
+    RUNE_LIST: 'RuneListSheet',
+    RUNE: 'RuneSheet',
+    COSTUME_ITEM: 'CostumeItemSheet',
+    WORLD_UNLOCK: 'WorldUnlockSheet',
+    WORLD: 'WorldSheet',
+    PATROL_REWARD: 'PatrolRewardSheet',
+    EQUIPMENT_RECIPE: 'EquipmentItemRecipeSheet',
+    SUMMON: 'SummonSheet',
+    CLAIMABLE_GIFTS: 'ClaimableGiftsSheet',
+    EVENT_SCHEDULE: 'EventScheduleSheet',
+    WORLD_BOSS_LIST: 'WorldBossListSheet',
   },
 } as const
 
