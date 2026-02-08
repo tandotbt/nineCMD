@@ -1,70 +1,73 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { evaluateAutomation, estimateVirtualBlock } from '@/logic/decision'
+import { aggregateAvatarData } from '@/logic/character'
 import { AUTOMATION_LOGIC, CHARACTER_LOGIC_CONSTANTS } from '@/constants'
-import type { AvatarData } from '@/stores/useCharacterStore'
+import type { RawAvatarDetail } from '@/types/character'
+
+// Import Odin fixtures
+import headlessFixture from '../fixtures/odin/headless.json'
+import mimirFixture from '../fixtures/odin/mimir.json'
+import restFixture from '../fixtures/odin/9cmd.json'
 
 describe('Automation Decision Logic', () => {
   beforeEach(() => {
     vi.useFakeTimers()
   })
 
-  const mockAvatar = (overrides: Partial<AvatarData> = {}): AvatarData =>
-    ({
-      name: 'Test Avatar',
-      address: '0x123',
-      level: 1,
-      exp: 0,
-      ncg: 0,
-      crystal: 0,
-      stage: 1,
-      worldId: 1,
-      ap: 50,
-      maxAp: 120,
-      cp: 0,
-      adventureCp: 0,
-      portraitId: 0,
-      rank: 0,
-      dailyRewardReceivedIndex: 0,
-      dailyRewardReceivedBlockIndex: 0,
-      timeRefill: 0,
-      timeRefillReal: 0,
-      dailyRewardInterval: CHARACTER_LOGIC_CONSTANTS.AP.DAILY_REFILL_INTERVAL,
-      apCost: 5,
-      inventory: {
-        equipments: [],
-        costumes: [],
-        materials: [],
+  interface TestHeadlessFixture {
+    stateQuery: {
+      agent: { gold: string; crystal: string }
+      stakeState: { deposit: string }
+      [key: string]: unknown
+    }
+  }
+
+  /**
+   * Helper to create AvatarData using production aggregation logic and real fixtures.
+   */
+  const getRealAvatarData = (overrides: { ap?: number; currentBlock?: number } = {}) => {
+    const address = '79BB6e025762A76C8C85F73581e8c49b68FcaB0C'
+    const timestamp = 1700000000 // Mock timestamp
+
+    const headless = headlessFixture as unknown as TestHeadlessFixture
+
+    // Normalize headless fixture (handle dynamic keys from Odin API)
+    const normalizedHeadless = {
+      stateQuery: {
+        agent: headless.stateQuery.agent,
+        unlockedWorldIds: headless.stateQuery[`unlockedWorldIds_${address}`] as number[],
+        avatar: headless.stateQuery[
+          `avatar_${address}`
+        ] as RawAvatarDetail['headless']['stateQuery']['avatar'],
+        stakeState: headless.stateQuery.stakeState,
       },
-      runeSlots: [],
-      runes: [],
-      craftingSlots: [],
-      stakeNCG: 0,
-      isHasCraftOneTime: false,
-      isClaimPatrolRewardOneTime: false,
-      claimedGifts: [],
-      eventDungeonInfo: {
-        roundReset: 0,
-        ticket: 0,
-        ticketBuyed: 0,
-        stageIdUnlocked: 0,
-        currentTurn: 0,
-        totalTurns: 0,
-        currentRoundStartBlock: 0,
-        currentRoundEndBlock: 0,
-      },
-      worldBossInfoTotal: null,
-      worldBossInfoAvatar: null,
-      materialList: {},
-      timestamp: Date.now(),
-      ...overrides,
-    }) as AvatarData
+    }
+
+    const raw: RawAvatarDetail = {
+      headless: normalizedHeadless as RawAvatarDetail['headless'],
+      mimir: {
+        ...mimirFixture,
+        actionPoint: overrides.ap ?? mimirFixture.actionPoint,
+      } as unknown as RawAvatarDetail['mimir'],
+      rest: restFixture as unknown as RawAvatarDetail['rest'],
+      seasonPass: [],
+      timestamp,
+    }
+
+    // Use production aggregation logic
+    // We pass empty sheets for now as decision logic mostly relies on numeric values
+    // calculated during aggregation (ap, timeRefill, apCost).
+    return aggregateAvatarData(raw, {}, 'en', 10, overrides.currentBlock)
+  }
 
   describe('evaluateAutomation', () => {
     it('should return IDLE when no conditions are met', () => {
-      const avatar = mockAvatar({
-        ap: 100,
-        timeRefill: 1000,
+      // AP is full (120), refill not available
+      const avatar = getRealAvatarData({
+        ap: 120,
+        currentBlock: mimirFixture.dailyRewardReceivedBlockIndex + 10,
       })
+
       const result = evaluateAutomation(avatar, 10000, {
         [AUTOMATION_LOGIC.IDS.REFILL_AP]: true,
       })
@@ -73,11 +76,13 @@ describe('Automation Decision Logic', () => {
 
     it('should return REFILL_AP when AP is low and refill is available', () => {
       const { AP } = CHARACTER_LOGIC_CONSTANTS
-      const avatar = mockAvatar({
+      // Set AP below threshold (apCost is 5 for this avatar due to 5000 NCG stake)
+      // Set currentBlock so that timeRefill >= dailyRewardInterval
+      const avatar = getRealAvatarData({
         ap: 2,
-        apCost: AP.COST_DEFAULT,
-        timeRefill: AP.DAILY_REFILL_INTERVAL + 1,
+        currentBlock: mimirFixture.dailyRewardReceivedBlockIndex + AP.DAILY_REFILL_INTERVAL + 1,
       })
+
       const result = evaluateAutomation(avatar, 10000, {
         [AUTOMATION_LOGIC.IDS.REFILL_AP]: true,
       })
@@ -87,11 +92,11 @@ describe('Automation Decision Logic', () => {
 
     it('should return IDLE when feature is disabled', () => {
       const { AP } = CHARACTER_LOGIC_CONSTANTS
-      const avatar = mockAvatar({
+      const avatar = getRealAvatarData({
         ap: 2,
-        apCost: AP.COST_DEFAULT,
-        timeRefill: AP.DAILY_REFILL_INTERVAL + 1,
+        currentBlock: mimirFixture.dailyRewardReceivedBlockIndex + AP.DAILY_REFILL_INTERVAL + 1,
       })
+
       const result = evaluateAutomation(avatar, 10000, {
         [AUTOMATION_LOGIC.IDS.REFILL_AP]: false,
       })

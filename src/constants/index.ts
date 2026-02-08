@@ -10,14 +10,21 @@ import type { PlanetName, PlanetConfig } from '../types/planet'
 // API URLs
 export const API_URLS = {
   API_9CMD: [
-    'http://127.0.0.1:8000',
+    // 'http://127.0.0.1:8000',
     'https://api.9cmd.top',
     'https://steep-carolee-9cmd-701971d5.koyeb.app',
   ],
   SEASON_PASS: ['https://seasonpass.9c.gg'],
   SCAN_ITEM_NAME: ['https://9cscan.com/item_name.csv'],
   PLANET_RAW: ['https://planets.nine-chronicles.com/planets/'],
+  NINE_CHRONICLES_API: ['https://nine-chronicles.com/api'],
 } as const
+
+/**
+ * Base URL for Nine Chronicles game assets (hosted on GitHub).
+ */
+export const ASSET_BASE_URL =
+  'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI'
 
 /**
  * Configuration for CSV Sheets to be fetched from 9capi
@@ -34,7 +41,7 @@ export const CSV_SHEET_CONFIG: Record<string, SheetConfig> = {
   ItemRequirementSheet: { keyMain: 'item_id' },
   CostumeStatSheet: { keyMain: 'costume_id', unique: true, indexFields: ['costume_id'] },
   RuneListSheet: { keyMain: 'id' },
-  RuneSheet: { keyMain: 'id' },
+  RuneSheet: { keyMain: 'c' },
   CostumeItemSheet: { keyMain: 'id' },
   WorldUnlockSheet: { keyMain: 'world_id_to_unlock' },
   WorldSheet: { keyMain: 'id' },
@@ -132,6 +139,7 @@ export const SCAN_ITEM_NAME_INDEX_STORAGE_KEY = 'nine-cmd-scan-item-name-index'
 export const PLANET_RAW_INDEX_STORAGE_KEY = 'nine-cmd-planet-raw-index'
 export const AVG_BLOCK_TIME_STORAGE_KEY = 'nine-cmd-avg-block-time'
 export const LAST_BLOCK_TIMESTAMP_STORAGE_KEY = 'nine-cmd-last-block-timestamp'
+export const NINE_CHRONICLES_API_INDEX_STORAGE_KEY = 'nine-cmd-nine-chronicles-api-index'
 
 /**
  * Item IDs that should always be checked for quantity,
@@ -212,7 +220,14 @@ export const GQL_QUERIES = {
         itemId
         level
         equipped
-        statsMap { hP aTK dEF cRI hIT sPD }
+        statsMap {
+          hP
+          aTK
+          dEF
+          cRI
+          hIT
+          sPD
+        }
         skills { id }
         buffSkills { id }
       }
@@ -282,6 +297,15 @@ export const GQL_QUERIES = {
         }
       }
     `,
+    GET_AGENT_BY_AVATAR: `
+      query GetAgentByAvatar($avatarAddress: Address!) {
+        stateQuery {
+          avatar(avatarAddress: $avatarAddress) {
+            agentAddress
+          }
+        }
+      }
+    `,
     GET_AVATAR_MIMIR_SIMPLE: `
       query GetAvatarMimirSimple($avatarAddress: Address!, $agentAddress: Address!) {
         actionPoint(address: $avatarAddress)
@@ -337,7 +361,14 @@ export const GQL_QUERIES = {
                 id
                 itemId
                 equipped
-                statsMap { hP aTK dEF cRI hIT sPD }
+                statsMap {
+                  hP
+                  aTK
+                  dEF
+                  cRI
+                  hIT
+                  sPD
+                }
                 skills { id }
               }
             }
@@ -416,6 +447,51 @@ export const BLOCK_CONFIG = {
 export const APP_NAME = 'Nine CMD'
 
 /**
+ * Asset-related constants.
+ */
+export const ASSET_CONFIG = {
+  FALLBACK_ICON: '/assets/icons/UI_main_icon_box.png',
+} as const
+
+/**
+ * Centralized Game Assets
+ */
+export const GAME_ASSETS = {
+  ICONS: {
+    NCG: '/assets/icons/NCG.png',
+    CRYSTAL: '/assets/icons/CRYSTAL.png',
+    AP: 'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/500000.png',
+    EVENT_TICKET: '/assets/icons/EVENT_TICKET.png',
+    WORLDBOSS_TICKET: '/assets/icons/WORLDBOSS_TICKET.png',
+    ARENA_TICKET: '/assets/icons/ARENA_TICKET.png',
+    GOLD: '/assets/icons/NCG.png',
+    STAKE: '/assets/icons/NCG_STAKE.png',
+    UI_BAR_BG: '/assets/icons/UI_bar_02_bg.png',
+    UI_BOX_BG: '/assets/icons/UI_main_icon_box.png',
+    POPUP_BG: '/assets/icons/UI_icon_Popup_00.png',
+    STAGE: '/assets/lobby/stage.png',
+    ARENA: '/assets/lobby/arena.png',
+    CRAFT: '/assets/lobby/craft.png',
+    SHOP: '/assets/lobby/shop.png',
+    BOSS: '/assets/icons/WORLDBOSS_TICKET.png',
+  },
+  AVATAR: {
+    FRAME_NORMAL: `${ASSET_BASE_URL}/Icons/Item/character_frame.png`,
+    FRAME_DCC: `${ASSET_BASE_URL}/Icons/Item/character_frame_dcc.png`,
+    LEVEL_BG: `${ASSET_BASE_URL}/Icons/Item/Character_Level_Bg.png`,
+  },
+  ITEMS: {
+    EQUIP_ICON: '/assets/itemsGear/UI_icon_equip.png',
+    OPTION_STAT: '/assets/itemsGear/UI_icon_option_stat.png',
+    OPTION_SKILL: '/assets/itemsGear/UI_icon_option_skill.png',
+    CP_BG: '/assets/itemsGear/UI_bg_CP.png',
+    GRADE_BG: (grade: number) => `/assets/itemsGear/item_bg_${grade}.png`,
+    GRADE_OPTION_BG: (grade: number) => `/assets/itemsGear/item_option_bg_${grade}.png`,
+    GRADE_TOOLTIP_BG: (grade: number) => `/assets/itemsGear/item_bg_Normal_Tooltip_${grade}.png`,
+  },
+} as const
+
+/**
  * Character and Game Logic Constants
  */
 export const CHARACTER_LOGIC_CONSTANTS = {
@@ -458,6 +534,13 @@ export const CHARACTER_LOGIC_CONSTANTS = {
     VI: 'Vietnam',
     EN: 'English',
   },
+  ARENA: {
+    FIRST_SEASON: {
+      odin: 'Season 19',
+      heimdall: 'Season 1',
+      thor: 'Thor Season 2',
+    },
+  },
   SHEETS: {
     ITEM_NAME: 'ItemNameSheet',
     ARENA: 'ArenaSheet',
@@ -477,6 +560,11 @@ export const CHARACTER_LOGIC_CONSTANTS = {
     WORLD_BOSS_LIST: 'WorldBossListSheet',
   },
 } as const
+
+/**
+ * Fallback level requirement if data is missing or undefined.
+ */
+export const LEVEL_REQUIREMENT_FALLBACK = 888
 
 // Storage Keys
 export const STORAGE_KEYS = {

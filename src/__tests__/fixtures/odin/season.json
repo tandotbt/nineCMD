@@ -4,6 +4,23 @@
     "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
     "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
     "season_pass": {
+      "id": 120,
+      "pass_type": "CouragePass",
+      "season_index": 27
+    },
+    "level": 0,
+    "exp": 0,
+    "is_premium": false,
+    "is_premium_plus": false,
+    "last_normal_claim": 0,
+    "last_premium_claim": 0,
+    "claim_limit_timestamp": "2026-03-08T09:00:00+09:00"
+  },
+  {
+    "planet_id": "0x000000000000",
+    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
+    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
+    "season_pass": {
       "id": 118,
       "pass_type": "CouragePass",
       "season_index": 26
@@ -21,17 +38,17 @@
     "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
     "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
     "season_pass": {
-      "id": 116,
-      "pass_type": "CouragePass",
-      "season_index": 25
+      "id": 121,
+      "pass_type": "AdventureBossPass",
+      "season_index": 15
     },
-    "level": 5,
-    "exp": 3142,
+    "level": 0,
+    "exp": 0,
     "is_premium": false,
     "is_premium_plus": false,
-    "last_normal_claim": 5,
+    "last_normal_claim": 0,
     "last_premium_claim": 0,
-    "claim_limit_timestamp": "2026-01-08T09:00:00+09:00"
+    "claim_limit_timestamp": "2026-03-08T09:00:00+09:00"
   },
   {
     "planet_id": "0x000000000000",
@@ -49,23 +66,6 @@
     "last_normal_claim": 0,
     "last_premium_claim": 0,
     "claim_limit_timestamp": "2026-02-08T09:00:00+09:00"
-  },
-  {
-    "planet_id": "0x000000000000",
-    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
-    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
-    "season_pass": {
-      "id": 117,
-      "pass_type": "AdventureBossPass",
-      "season_index": 13
-    },
-    "level": 0,
-    "exp": 0,
-    "is_premium": false,
-    "is_premium_plus": false,
-    "last_normal_claim": 0,
-    "last_premium_claim": 0,
-    "claim_limit_timestamp": "2026-01-08T09:00:00+09:00"
   },
   {
     "planet_id": "0x000000000000",

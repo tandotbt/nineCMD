@@ -170,7 +170,9 @@ export const useCsvDataStore = defineStore('csvData', () => {
   watch(
     () => planetStore.currentPlanetName,
     () => {
-      fetchCsvData()
+      fetchCsvData().catch((err) => {
+        console.error('[CsvDataStore] Watcher failed to fetch CSV data:', err)
+      })
     },
   )
 

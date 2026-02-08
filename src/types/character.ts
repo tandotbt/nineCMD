@@ -3,13 +3,19 @@
  * @description Centralized type definitions for character-related data.
  */
 
+export interface StatValue {
+  baseValue: number
+  additionalValue: number
+}
+
 export interface StatsMap {
-  hP: number
-  aTK: number
-  dEF: number
-  cRI: number
-  hIT: number
-  sPD: number
+  hP: number | StatValue
+  aTK: number | StatValue
+  dEF: number | StatValue
+  cRI: number | StatValue
+  hIT: number | StatValue
+  sPD: number | StatValue
+  [key: string]: number | StatValue
 }
 
 export interface Equipment {
@@ -24,10 +30,18 @@ export interface Equipment {
   name?: string
   levelReq?: number
   statsMap: StatsMap
-  skills: { id: string }[]
+  skills: {
+    id: string
+    power?: number
+    chance?: number
+    statPowerRatio?: number
+    referencedStatType?: string
+  }[]
   buffSkills: { id: string }[]
   CP: number
   index?: number
+  imageUrl?: string
+  requiredBlockIndex?: number
 }
 
 export interface Costume {
@@ -41,8 +55,9 @@ export interface Costume {
   name?: string
   levelReq?: number
   statsMap?: StatsMap
-  CP?: number
+  CP: number
   index?: number
+  imageUrl?: string
 }
 
 export interface RuneSlot {
@@ -51,6 +66,7 @@ export interface RuneSlot {
   isLock: boolean
   level?: number
   name?: string
+  imageUrl?: string
 }
 
 export interface RuneInfo {
@@ -61,6 +77,7 @@ export interface RuneInfo {
   requiredLevel?: number
   tickerRune?: string
   index?: number
+  imageUrl?: string
 }
 
 export interface Material {
@@ -170,7 +187,7 @@ export interface RawAvatarDetail {
       })
     | null
   rest: RestApiResponse['data'] | null
-  seasonPass: Record<string, unknown> | null
+  seasonPass: unknown[] | Record<string, unknown> | null
   timestamp: number
 }
 
@@ -182,19 +199,27 @@ export interface PatrolRewardInfo {
   interval: number
 }
 
-export interface SeasonPassInfo {
-  [passType: string]: {
-    level: number
-    last_normal_claim: number
-    last_premium_claim: number
-    isCanClaim: {
-      isCanClaimNormal: boolean
-      isCanClaimPremium: boolean
-    }
-    isInTimeClaim: boolean
-    claim_limit_timestamp?: string
-    [key: string]: unknown
+export interface SeasonPassStatus {
+  level: number
+  exp: number
+  is_premium: boolean
+  last_normal_claim: number
+  last_premium_claim: number
+  isCanClaim: {
+    isCanClaimNormal: boolean
+    isCanClaimPremium: boolean
   }
+  isInTimeClaim: boolean
+  claim_limit_timestamp?: string
+  season_pass: {
+    id: number
+    season_index: number
+    pass_type: string | number
+  }
+}
+
+export interface SeasonPassInfo {
+  [passType: string]: SeasonPassStatus
 }
 
 export interface EventDungeonInfo {
@@ -222,11 +247,34 @@ export interface GiftInfo {
   id: number
   isCanClaim: boolean
   giftItems: [number, number, boolean][] // [id, quantity, tradable]
+  imageUrl?: string
+  name?: string
 }
 
 export interface SummonInfo {
   groupID: number
-  itemSummons: [number, number, string | number, number][] // [id, ratio, img, is_equipment]
+  itemSummons: [number, number, string | number, number, string?][] // [id, ratio, img, is_equipment, imageUrl?]
+  name?: string
+}
+
+export interface WorldBossTotal {
+  event_id: number
+  boss_id: number
+  boss_level: number
+  total_hp: string
+  current_hp: string
+  start_block_index: number
+  end_block_index: number
+  [key: string]: unknown
+}
+
+export interface WorldBossAvatar {
+  event_id: number
+  boss_id: number
+  ticket: number
+  ticket_buyed: number
+  accumulated_damage: string
+  [key: string]: unknown
 }
 
 export interface AvatarData {
@@ -244,6 +292,7 @@ export interface AvatarData {
   cp: number
   adventureCp: number
   portraitId: number
+  portraitUrl?: string
   rank: number
   dailyRewardReceivedIndex: number
   dailyRewardReceivedBlockIndex: number
@@ -263,12 +312,60 @@ export interface AvatarData {
   seasonPass?: SeasonPassInfo | null
   isHasCraftOneTime: boolean
   isClaimPatrolRewardOneTime: boolean
-  claimedGifts: unknown[]
+  /** IDs of gifts already claimed by the avatar */
+  claimedGifts: number[]
+  /** Active gifts currently available to be claimed (filtered by claimedGifts) */
+  gifts: GiftInfo[]
+  /** Available summon groups and their item pools */
+  summons: SummonInfo[]
   patrolReward?: PatrolRewardInfo
   eventDungeonInfo: EventDungeonInfo
-  worldBossInfoTotal: Record<string, unknown> | null
-  worldBossInfoAvatar: Record<string, unknown> | null
+  worldBossInfoTotal: WorldBossTotal | null
+  worldBossInfoAvatar: WorldBossAvatar | null
   agentAddress?: string
   materialList: Record<number, number>
   timestamp: number
+}
+
+export interface CharacterSuggestion {
+  address: string
+  name: string
+  level: number
+  agentAddress?: string
+  planet: string
+  portraitUrl?: string
+  timestamp?: number
+}
+
+export interface LookupState {
+  isFetching: boolean
+  error: string | null
+}
+
+export interface ArenaSeason {
+  championshipId: number
+  roundId: number
+  titleArena: string
+  active: boolean
+  startBlockIndex: number
+  endBlockIndex: number
+  [key: string]: unknown
+}
+
+export interface ArenaRanking {
+  AvatarAddress: string
+  Name: string
+  Rank: number
+  Score: number
+  Level?: number
+  AvatarLevel?: number
+  PortraitId: number
+  AgentAddress?: string
+}
+
+export interface ArenaRankingResponse {
+  ranks: ArenaRanking[]
+  totalCount?: number
+  offset?: number
+  limit?: number
 }

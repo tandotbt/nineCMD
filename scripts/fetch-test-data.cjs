@@ -263,6 +263,33 @@ async function main() {
     } catch (error) {
       console.warn(`! Season Pass skipped: ${error.message}`)
     }
+
+    // 6. Arena Ranking Data
+    console.log(`Fetching Arena Ranking Data...`)
+    try {
+      // Fetch seasons first
+      const seasonUrl = `${registry.rest.nineChroniclesApi.baseUrl}/arena/season?planetId=${config.planetId}`
+      const seasonRes = await axios.get(seasonUrl, { timeout: 10000 })
+      if (seasonRes.data && Array.isArray(seasonRes.data) && seasonRes.data.length > 0) {
+        const latestSeason = seasonRes.data[0]
+        fs.writeFileSync(
+          path.join(planetDir, 'arena_seasons.json'),
+          JSON.stringify(seasonRes.data, null, 2),
+        )
+
+        const rankingUrl = `${registry.rest.nineChroniclesApi.baseUrl}/arena?planetId=${config.planetId}&season=${encodeURIComponent(latestSeason)}&userSet=1`
+        const rankingRes = await axios.get(rankingUrl, { timeout: 20000 })
+        if (rankingRes.data) {
+          fs.writeFileSync(
+            path.join(planetDir, 'arena_ranking.json'),
+            JSON.stringify(pruneData(rankingRes.data, 50), null, 2),
+          )
+          console.log(`✓ Saved arena_ranking.json (Season: ${latestSeason})`)
+        }
+      }
+    } catch (error) {
+      console.warn(`! Arena Ranking skipped: ${error.message}`)
+    }
   }
 
   console.log('\nFixtures update process completed.')

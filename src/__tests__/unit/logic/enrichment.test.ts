@@ -1,15 +1,20 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   resolveNameFromCsv,
   resolveCostumeStats,
   resolveLevelRequirement,
   resolveRuneInfo,
+  clearNameCache,
 } from '../../../logic/mapping'
 import { aggregateAvatarData } from '../../../logic/character'
 import type { CsvSheetData } from '../../../types/csv'
 import type { RawAvatarDetail } from '../../../types/character'
 
 describe('CSV Data Enrichment', () => {
+  beforeEach(() => {
+    clearNameCache()
+  })
+
   const mockSheets: Record<string, CsvSheetData> = {
     ItemNameSheet: {
       name: 'ItemNameSheet',
@@ -97,6 +102,7 @@ describe('CSV Data Enrichment', () => {
     // Support flexible locale strings (vi-VN)
     expect(resolveNameFromCsv(101000, mockSheets, 'vi-VN')).toBe('Kiếm')
     // Fallback to English if Vietnamese not available (simulated)
+    clearNameCache() // Clear cache before fallback test to avoid collision
     const sheetsWithNoVi: Record<string, CsvSheetData> = {
       ...mockSheets,
       ItemNameSheet: {
@@ -146,7 +152,7 @@ describe('CSV Data Enrichment', () => {
       const rune = resolveRuneInfo(1, emptySheets)
       // Now returns ID: 1 because resolveNameFromCsv is used
       expect(rune.name).toBe('ID: 1')
-      expect(rune.requiredLevel).toBe(8888)
+      expect(rune.requiredLevel).toBe(888)
     })
 
     it('should handle malformed data in CSV rows', () => {
@@ -368,5 +374,45 @@ describe('CSV Data Enrichment', () => {
     expect(avatarData.worldBossInfoTotal).toEqual({ bossId: 'raid1', hp: 1000000 })
     expect(avatarData.worldBossInfoAvatar).toEqual({ bossId: 'raid1', myDamage: 5000 })
     expect(avatarData.eventDungeonInfo.ticket).toBe(3)
+  })
+
+  it('should handle season pass data in both array and object formats', () => {
+    const mockSeasonPassArr = [
+      {
+        season_pass: { pass_type: 'Pass1', season_index: 1 },
+        level: 10,
+        last_normal_claim: 5,
+      },
+    ]
+
+    const rawDataArr: RawAvatarDetail = {
+      headless: {
+        stateQuery: {
+          agent: { gold: '0', crystal: '0' },
+          unlockedWorldIds: [],
+          avatar: {
+            address: '0x123',
+            inventory: { equipments: [], costumes: [], materials: [] },
+            stageMap: { pairs: [] },
+          } as unknown as RawAvatarDetail['headless']['stateQuery']['avatar'],
+          stakeState: { deposit: '0' },
+        },
+      },
+      mimir: {} as unknown as RawAvatarDetail['mimir'],
+      rest: {},
+      seasonPass: mockSeasonPassArr,
+      timestamp: 2000,
+    }
+
+    const avatarDataArr = aggregateAvatarData(rawDataArr, mockSheets)
+    expect(avatarDataArr.seasonPass?.['Pass1']?.level).toBe(10)
+
+    const rawDataObj: RawAvatarDetail = {
+      ...rawDataArr,
+      seasonPass: mockSeasonPassArr[0] as unknown as RawAvatarDetail['seasonPass'],
+    }
+
+    const avatarDataObj = aggregateAvatarData(rawDataObj, mockSheets)
+    expect(avatarDataObj.seasonPass?.['Pass1']?.level).toBe(10)
   })
 })

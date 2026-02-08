@@ -207,7 +207,7 @@ describe('Mapping Logic Modules', () => {
       // resolveNameFromCsv returns `ID: ${id}` if not found,
       // and resolveRuneInfo uses that if name is not in RuneSheet.
       expect(info.name).toBe('ID: 999')
-      expect(info.requiredLevel).toBe(8888)
+      expect(info.requiredLevel).toBe(888)
     })
   })
 
@@ -345,8 +345,14 @@ describe('Mapping Logic Modules', () => {
       const result = resolveSummonInfo(mockSheets)
       expect(result.length).toBe(1)
       expect(result[0]?.groupID).toBe(1)
-      // [id, ratio, img, isEquipment]
-      expect(result[0]?.itemSummons[0]).toEqual([101, 0.5, 100001, 1])
+      // [id, ratio, img, isEquipment, imageUrl]
+      expect(result[0]?.itemSummons[0]).toEqual([
+        101,
+        0.5,
+        100001,
+        1,
+        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/100001.png',
+      ])
     })
 
     it('resolves summon items as runes if recipe not found', () => {
@@ -361,7 +367,13 @@ describe('Mapping Logic Modules', () => {
       }
       const result = resolveSummonInfo(sheetsWithRune)
       const group2 = result.find((g) => g.groupID === 2)
-      expect(group2?.itemSummons[0]).toEqual([1, 0.1, 'POWER', 2])
+      expect(group2?.itemSummons[0]).toEqual([
+        1,
+        0.1,
+        'POWER',
+        2,
+        'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/FungibleAssetValue/POWER.png',
+      ])
     })
   })
 

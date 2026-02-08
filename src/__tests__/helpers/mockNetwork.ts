@@ -191,6 +191,80 @@ export const handlers = [
       }
     }
 
+    // Handle Arena Seasons via Proxy
+    if (targetUrl.pathname.includes('/arena/season')) {
+      let planet = 'odin'
+      const planetId = targetUrl.searchParams.get('planetId')
+      if (planetId === '0x000000000001') planet = 'heimdall'
+      if (planetId === '0x000000000002') planet = 'thor'
+
+      const fixturePath = path.join(FIXTURES_DIR, planet, 'arena_seasons.json')
+      if (fs.existsSync(fixturePath)) {
+        const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
+        return HttpResponse.json(content)
+      }
+      return HttpResponse.json(['Season 19', 'Season 20'])
+    }
+
+    // Handle Arena Rankings via Proxy
+    if (targetUrl.pathname.includes('/arena') && !targetUrl.pathname.includes('/season')) {
+      let planet = 'odin'
+      const planetId = targetUrl.searchParams.get('planetId')
+      if (planetId === '0x000000000001') planet = 'heimdall'
+      if (planetId === '0x000000000002') planet = 'thor'
+
+      const fixturePath = path.join(FIXTURES_DIR, planet, 'arena_ranking.json')
+      if (fs.existsSync(fixturePath)) {
+        const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
+        // Primary API expects an array of ranks directly
+        return HttpResponse.json(content.ranks || content)
+      }
+
+      return HttpResponse.json([
+        { Name: 'Alice', AvatarAddress: '0x1', Score: 1000, Rank: 1, PortraitId: 10200000 },
+        { Name: 'Bob', AvatarAddress: '0x2', Score: 900, Rank: 2, PortraitId: 10200000 },
+      ])
+    }
+
+    // Handle api-check style arena requests via Proxy
+    if (targetUrl.hostname.includes('api-check')) {
+      let planet = 'odin'
+      const network = targetUrl.searchParams.get('network')
+      if (network) planet = network
+
+      if (targetUrl.pathname.includes('season-list')) {
+        const fixturePath = path.join(FIXTURES_DIR, planet, 'arena_seasons.json')
+        if (fs.existsSync(fixturePath)) {
+          const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
+          return HttpResponse.json({
+            seasons: Array.isArray(content)
+              ? content.map((s) => ({
+                  championshipId: 0,
+                  roundId: 0,
+                  titleArena: s,
+                  active: true,
+                }))
+              : [],
+          })
+        }
+        return HttpResponse.json({
+          seasons: [{ championshipId: 1, roundId: 1, titleArena: 'Fallback Season', active: true }],
+        })
+      }
+      if (targetUrl.pathname.includes('ranking')) {
+        const fixturePath = path.join(FIXTURES_DIR, planet, 'arena_ranking.json')
+        if (fs.existsSync(fixturePath)) {
+          const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
+          return HttpResponse.json(content)
+        }
+        return HttpResponse.json({
+          ranks: [
+            { Name: 'Alice', AvatarAddress: '0x1', Score: 1000, Rank: 1, PortraitId: 10200000 },
+          ],
+        })
+      }
+    }
+
     return new HttpResponse(null, { status: 404 })
   }),
 
@@ -215,6 +289,47 @@ export const handlers = [
     if (fs.existsSync(fixturePath)) {
       const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
       return HttpResponse.json({ data: content })
+    }
+    return new HttpResponse(null, { status: 404 })
+  }),
+
+  // Handle Direct api-check style arena requests (Non-proxy)
+  http.get('https://api-check.nine-chronicles.com/api/arena/*', ({ request }) => {
+    const url = new URL(request.url)
+    let planet = 'odin'
+    const network = url.searchParams.get('network')
+    if (network) planet = network
+
+    if (url.pathname.includes('season-list')) {
+      const fixturePath = path.join(FIXTURES_DIR, planet, 'arena_seasons.json')
+      if (fs.existsSync(fixturePath)) {
+        const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
+        return HttpResponse.json({
+          seasons: Array.isArray(content)
+            ? content.map((s) => ({
+                championshipId: 0,
+                roundId: 0,
+                titleArena: s,
+                active: true,
+              }))
+            : [],
+        })
+      }
+      return HttpResponse.json({
+        seasons: [{ championshipId: 1, roundId: 1, titleArena: 'Fallback Season', active: true }],
+      })
+    }
+    if (url.pathname.includes('ranking')) {
+      const fixturePath = path.join(FIXTURES_DIR, planet, 'arena_ranking.json')
+      if (fs.existsSync(fixturePath)) {
+        const content = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
+        return HttpResponse.json(content)
+      }
+      return HttpResponse.json({
+        ranks: [
+          { Name: 'Alice', AvatarAddress: '0x1', Score: 1000, Rank: 1, PortraitId: 10200000 },
+        ],
+      })
     }
     return new HttpResponse(null, { status: 404 })
   }),

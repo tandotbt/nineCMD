@@ -39,6 +39,9 @@ async function scan() {
       planetRaw: {
         baseUrl: API_URLS.PLANET_RAW[0],
       },
+      nineChroniclesApi: {
+        baseUrl: API_URLS.NINE_CHRONICLES_API[0],
+      },
     },
   }
 

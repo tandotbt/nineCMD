@@ -12,6 +12,7 @@ import {
   SEASON_PASS_INDEX_STORAGE_KEY,
   SCAN_ITEM_NAME_INDEX_STORAGE_KEY,
   PLANET_RAW_INDEX_STORAGE_KEY,
+  NINE_CHRONICLES_API_INDEX_STORAGE_KEY,
 } from '../constants'
 
 export const useApiStore = defineStore('api', () => {
@@ -20,6 +21,7 @@ export const useApiStore = defineStore('api', () => {
   const seasonPassIndex = useStorage<number>(SEASON_PASS_INDEX_STORAGE_KEY, 0)
   const scanItemNameIndex = useStorage<number>(SCAN_ITEM_NAME_INDEX_STORAGE_KEY, 0)
   const planetRawIndex = useStorage<number>(PLANET_RAW_INDEX_STORAGE_KEY, 0)
+  const nineChroniclesApiIndex = useStorage<number>(NINE_CHRONICLES_API_INDEX_STORAGE_KEY, 0)
 
   /**
    * Helper to get URL from API_URLS with safety check
@@ -39,25 +41,32 @@ export const useApiStore = defineStore('api', () => {
     getUrl(API_URLS.SCAN_ITEM_NAME, scanItemNameIndex.value),
   )
   const planetRawUrl = computed<string>(() => getUrl(API_URLS.PLANET_RAW, planetRawIndex.value))
+  const nineChroniclesApiUrl = computed<string>(() =>
+    getUrl(API_URLS.NINE_CHRONICLES_API, nineChroniclesApiIndex.value),
+  )
 
   // Actions
   const setApi9CmdIndex = (index: number) => (api9CmdIndex.value = index)
   const setSeasonPassIndex = (index: number) => (seasonPassIndex.value = index)
   const setScanItemNameIndex = (index: number) => (scanItemNameIndex.value = index)
   const setPlanetRawIndex = (index: number) => (planetRawIndex.value = index)
+  const setNineChroniclesApiIndex = (index: number) => (nineChroniclesApiIndex.value = index)
 
   return {
     api9CmdIndex,
     seasonPassIndex,
     scanItemNameIndex,
     planetRawIndex,
+    nineChroniclesApiIndex,
     api9CmdUrl,
     seasonPassUrl,
     scanItemNameUrl,
     planetRawUrl,
+    nineChroniclesApiUrl,
     setApi9CmdIndex,
     setSeasonPassIndex,
     setScanItemNameIndex,
     setPlanetRawIndex,
+    setNineChroniclesApiIndex,
   }
 })

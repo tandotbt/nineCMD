@@ -12,6 +12,11 @@
         "type": "query"
       },
       {
+        "name": "CHARACTER_GET_AGENT_BY_AVATAR",
+        "query": "query GetAgentByAvatar($avatarAddress: Address!) { stateQuery { avatar(avatarAddress: $avatarAddress) { agentAddress } } }",
+        "type": "query"
+      },
+      {
         "name": "CHARACTER_GET_AVATAR_INVENTORY_EQUIPMENTS",
         "query": "query GetAvatarInventoryEquipments($avatarAddress: Address!) { stateQuery { avatar(avatarAddress: $avatarAddress) { inventory { equipments { id itemId equipped statsMap { hP aTK dEF cRI hIT sPD } skills { id } } } } } }",
         "type": "query"
@@ -47,7 +52,7 @@
   },
   "rest": {
     "api9cmd": {
-      "baseUrl": "http://127.0.0.1:8000",
+      "baseUrl": "https://api.9cmd.top",
       "params": [
         "other_lookupAdventureCp",
         "lookupRuneSetMuti_type_Adventure",
@@ -61,6 +66,9 @@
     },
     "planetRaw": {
       "baseUrl": "https://planets.nine-chronicles.com/planets/"
+    },
+    "nineChroniclesApi": {
+      "baseUrl": "https://nine-chronicles.com/api"
     }
   }
 }

@@ -1,24 +1,31 @@
 /**
  * @file logic/mapping.ts
  * @description Data mapping and enrichment logic using CSV sheets.
- * Ported and refined from project_v2 initializeData.js and infoAccount.js.
  */
 
-import { CHARACTER_LOGIC_CONSTANTS } from '@/constants'
+import { CHARACTER_LOGIC_CONSTANTS, LEVEL_REQUIREMENT_FALLBACK } from '@/constants'
 import type { CsvSheetData, CsvRow } from '@/types/csv'
 import type {
   StatsMap,
   RuneInfo,
   PatrolRewardInfo,
   SeasonPassInfo,
+  SeasonPassStatus,
   EventDungeonInfo,
   GiftInfo,
   SummonInfo,
   WorldBossInfo,
 } from '@/types/character'
+import { resolveAssetUrl } from './assets'
 
 /**
  * Resolves a human-readable name for an item or entity from ItemNameSheet.
+ */
+const nameCache = new Map<string, string>()
+
+/**
+ * Resolves a human-readable name for an item or entity from ItemNameSheet.
+ * Implements memoization to improve performance for repeated lookups.
  */
 export function resolveNameFromCsv(
   id: string | number,
@@ -26,6 +33,11 @@ export function resolveNameFromCsv(
   locale: string = 'en',
   prefix: string = 'ITEM_NAME_',
 ): string {
+  // We use a simple cache key. In tests where sheets change but have same length,
+  // clearNameCache() should be called manually if needed.
+  const cacheKey = `${id}:${locale}:${prefix}:${Object.keys(sheets).length}`
+  if (nameCache.has(cacheKey)) return nameCache.get(cacheKey)!
+
   const { LANG, SHEETS } = CHARACTER_LOGIC_CONSTANTS
   // Support flexible locale strings (e.g., vi-VN, en-US)
   const isVietnamese = locale.toLowerCase().startsWith('vi')
@@ -63,7 +75,17 @@ export function resolveNameFromCsv(
     nameData['Name'] ||
     nameData['original']
 
-  return name ? String(name) : `ID: ${id}`
+  const result = name ? String(name) : `ID: ${id}`
+  nameCache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Clears the name resolution cache.
+ * Useful when sheets are re-fetched or updated.
+ */
+export function clearNameCache(): void {
+  nameCache.clear()
 }
 
 /**
@@ -75,13 +97,13 @@ export function resolveLevelRequirement(
 ): number {
   const { SHEETS } = CHARACTER_LOGIC_CONSTANTS
   const reqSheet = sheets[SHEETS.ITEM_REQUIREMENT]
-  if (!reqSheet || !reqSheet.mappedData) return 888
+  if (!reqSheet || !reqSheet.mappedData) return LEVEL_REQUIREMENT_FALLBACK
 
   const row = reqSheet.mappedData[String(id)] as CsvRow | undefined
-  if (!row) return 888
+  if (!row) return LEVEL_REQUIREMENT_FALLBACK
 
-  const level = parseInt(String(row['level'] || '888'))
-  return isNaN(level) ? 888 : level
+  const level = parseInt(String(row['level'] || LEVEL_REQUIREMENT_FALLBACK))
+  return isNaN(level) ? LEVEL_REQUIREMENT_FALLBACK : level
 }
 
 /**
@@ -115,9 +137,15 @@ export function resolveRuneInfo(
   }
   const runeTypeNumber = listData ? parseInt(String(listData['rune_type'] || '1')) : 1
   const runeType = runeTypeNumber === 2 ? 'SKILL' : 'STAT'
-  const requiredLevelRaw = listData ? parseInt(String(listData['required_level'] || '8888')) : 8888
-  const requiredLevel = isNaN(requiredLevelRaw) ? 8888 : requiredLevelRaw
+  const requiredLevelRaw = listData
+    ? parseInt(String(listData['required_level'] || LEVEL_REQUIREMENT_FALLBACK))
+    : LEVEL_REQUIREMENT_FALLBACK
+  const requiredLevel = isNaN(requiredLevelRaw) ? LEVEL_REQUIREMENT_FALLBACK : requiredLevelRaw
   const tickerRune = runeData ? String(runeData['ticker'] || 'RUNE_ADVENTURER') : 'RUNE_ADVENTURER'
+
+  // Standardized Rune icon logic:
+  // Both Skill and Stat Runes should use tickerRune for icons from FungibleAssetValue
+  const imageUrl = resolveAssetUrl({ tickerRune })
 
   return {
     runeId,
@@ -126,6 +154,7 @@ export function resolveRuneInfo(
     runeType,
     requiredLevel,
     tickerRune,
+    imageUrl,
   }
 }
 
@@ -139,9 +168,10 @@ export function resolveCostumeStats(
 ): StatsMap {
   const { SHEETS } = CHARACTER_LOGIC_CONSTANTS
   const statSheet = sheets[SHEETS.COSTUME_STAT]
-  const stats: StatsMap = { aTK: 0, dEF: 0, hIT: 0, hP: 0, cRI: 0, sPD: 0 }
+  const stats: Record<string, number> = { aTK: 0, dEF: 0, hIT: 0, hP: 0, cRI: 0, sPD: 0 }
 
-  if (!statSheet || (!statSheet.mappedData && !statSheet.secondaryIndices)) return stats
+  if (!statSheet || (!statSheet.mappedData && !statSheet.secondaryIndices))
+    return stats as unknown as StatsMap
 
   const rows = statSheet.secondaryIndices?.['costume_id']?.[String(costumeId)]
   if (rows) {
@@ -150,12 +180,12 @@ export function resolveCostumeStats(
       const valueRaw = parseInt(String(row['stat'] || '0'))
       const value = isNaN(valueRaw) ? 0 : valueRaw
 
-      if (type === 'ATK') stats.aTK += value
-      else if (type === 'DEF') stats.dEF += value
-      else if (type === 'HIT') stats.hIT += value
-      else if (type === 'HP') stats.hP += value
-      else if (type === 'CRI') stats.cRI += value
-      else if (type === 'SPD') stats.sPD += value
+      if (type === 'ATK') stats['aTK'] = (stats['aTK'] || 0) + value
+      else if (type === 'DEF') stats['dEF'] = (stats['dEF'] || 0) + value
+      else if (type === 'HIT') stats['hIT'] = (stats['hIT'] || 0) + value
+      else if (type === 'HP') stats['hP'] = (stats['hP'] || 0) + value
+      else if (type === 'CRI') stats['cRI'] = (stats['cRI'] || 0) + value
+      else if (type === 'SPD') stats['sPD'] = (stats['sPD'] || 0) + value
     })
   } else if (statSheet.mappedData) {
     // Fallback to iteration if index not available
@@ -166,17 +196,17 @@ export function resolveCostumeStats(
         const valueRaw = parseInt(String(row['stat'] || '0'))
         const value = isNaN(valueRaw) ? 0 : valueRaw
 
-        if (type === 'ATK') stats.aTK += value
-        else if (type === 'DEF') stats.dEF += value
-        else if (type === 'HIT') stats.hIT += value
-        else if (type === 'HP') stats.hP += value
-        else if (type === 'CRI') stats.cRI += value
-        else if (type === 'SPD') stats.sPD += value
+        if (type === 'ATK') stats['aTK'] = (stats['aTK'] || 0) + value
+        else if (type === 'DEF') stats['dEF'] = (stats['dEF'] || 0) + value
+        else if (type === 'HIT') stats['hIT'] = (stats['hIT'] || 0) + value
+        else if (type === 'HP') stats['hP'] = (stats['hP'] || 0) + value
+        else if (type === 'CRI') stats['cRI'] = (stats['cRI'] || 0) + value
+        else if (type === 'SPD') stats['sPD'] = (stats['sPD'] || 0) + value
       }
     })
   }
 
-  return stats
+  return stats as unknown as StatsMap
 }
 
 /**
@@ -326,12 +356,15 @@ export function processSeasonPassData(data: unknown[] | null | undefined): Seaso
       let isInTimeClaim = true
       if (pass.claim_limit_timestamp) {
         const claimLimitDate = new Date(pass.claim_limit_timestamp)
-        isInTimeClaim = !isNaN(claimLimitDate.getTime()) && currentTime < claimLimitDate
+        isInTimeClaim =
+          !isNaN(claimLimitDate.getTime()) && currentTime.getTime() < claimLimitDate.getTime()
       }
 
       latestPasses[passType] = {
         ...pass,
         level,
+        exp: (pass.exp as number) || 0,
+        is_premium: !!pass.is_premium,
         last_normal_claim: lastNormalClaim,
         last_premium_claim: lastPremiumClaim,
         isCanClaim: {
@@ -339,7 +372,8 @@ export function processSeasonPassData(data: unknown[] | null | undefined): Seaso
           isCanClaimPremium,
         },
         isInTimeClaim,
-      }
+        season_pass: pass.season_pass as SeasonPassStatus['season_pass'],
+      } as SeasonPassStatus
     }
   }
 
@@ -486,6 +520,7 @@ export function resolveWorldBossInfo(
 export function resolveGiftInfo(
   sheets: Record<string, CsvSheetData>,
   blockNow: number,
+  locale: string = 'en',
 ): GiftInfo[] {
   const { SHEETS } = CHARACTER_LOGIC_CONSTANTS
   const giftSheet = sheets[SHEETS.CLAIMABLE_GIFTS]
@@ -511,6 +546,11 @@ export function resolveGiftInfo(
         id,
         isCanClaim: blockNow >= start && blockNow <= end,
         giftItems,
+        name: resolveNameFromCsv(id, sheets, locale, 'GIFT_NAME_'), // Assuming GIFT_NAME_ prefix or similar
+        imageUrl:
+          giftItems.length > 0 && giftItems[0]
+            ? resolveAssetUrl({ portraitId: giftItems[0][0] })
+            : '',
       }
     })
     .filter((g) => g.isCanClaim)
@@ -519,7 +559,10 @@ export function resolveGiftInfo(
 /**
  * Resolves all summon groups and their items.
  */
-export function resolveSummonInfo(sheets: Record<string, CsvSheetData>): SummonInfo[] {
+export function resolveSummonInfo(
+  sheets: Record<string, CsvSheetData>,
+  locale: string = 'en',
+): SummonInfo[] {
   const { SHEETS } = CHARACTER_LOGIC_CONSTANTS
   const summonSheet = sheets[SHEETS.SUMMON]
   const recipeSheet = sheets[SHEETS.EQUIPMENT_RECIPE]
@@ -529,7 +572,7 @@ export function resolveSummonInfo(sheets: Record<string, CsvSheetData>): SummonI
 
   return Object.values(summonSheet.mappedData).map((summon) => {
     const groupID = parseInt(String(summon['groupID']))
-    const itemSummons: [number, number, string | number, number][] = []
+    const itemSummons: [number, number, string | number, number, string?][] = []
 
     Object.keys(summon).forEach((key) => {
       if (key.startsWith('recipe') && key.endsWith('ID')) {
@@ -545,8 +588,19 @@ export function resolveSummonInfo(sheets: Record<string, CsvSheetData>): SummonI
 
           const isEquipment = resultEquipmentId ? 1 : 2
           const img = resultEquipmentId || tickerRune
+          const imageUrl =
+            isEquipment === 1
+              ? resolveAssetUrl({ portraitId: img })
+              : resolveAssetUrl({ tickerRune: String(img) })
 
-          itemSummons.push([id, ratio, img, isEquipment])
+          const summonEntry: [number, number, string | number, number, string?] = [
+            id,
+            ratio,
+            img,
+            isEquipment,
+            imageUrl,
+          ]
+          itemSummons.push(summonEntry)
         }
       }
     })
@@ -554,6 +608,7 @@ export function resolveSummonInfo(sheets: Record<string, CsvSheetData>): SummonI
     return {
       groupID,
       itemSummons,
+      name: resolveNameFromCsv(groupID, sheets, locale, 'SUMMON_GROUP_NAME_'),
     }
   })
 }

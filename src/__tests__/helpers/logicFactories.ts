@@ -69,19 +69,28 @@ export function createMockAvatar(overrides: Partial<AvatarData> = {}): AvatarDat
     isHasCraftOneTime: false,
     isClaimPatrolRewardOneTime: false,
     claimedGifts: [],
+    gifts: [],
+    summons: [],
     eventDungeonInfo: {
-      roundReset: 0,
-      ticket: 0,
+      roundReset: 1,
+      ticket: 3,
       ticketBuyed: 0,
       stageIdUnlocked: 0,
-      currentTurn: 0,
-      totalTurns: 0,
+      currentTurn: 1,
+      totalTurns: 1,
       currentRoundStartBlock: 0,
       currentRoundEndBlock: 0,
     },
     worldBossInfoTotal: null,
     worldBossInfoAvatar: null,
-    materialList: {},
+    materialList:
+      overrides.inventory?.materials?.reduce(
+        (acc, m) => {
+          acc[m.id] = (acc[m.id] || 0) + m.count
+          return acc
+        },
+        {} as Record<number, number>,
+      ) || {},
     timestamp: Date.now(),
     ...overrides,
   }

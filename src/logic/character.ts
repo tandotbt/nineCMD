@@ -7,6 +7,7 @@
 import { CHARACTER_LOGIC_CONSTANTS, TRACKED_ITEM_IDS } from '@/constants'
 import type {
   StatsMap,
+  StatValue,
   AvatarDetailHeadless,
   Material,
   Equipment,
@@ -15,6 +16,8 @@ import type {
   RawAvatarDetail,
   RuneSlot,
   RuneInfo,
+  WorldBossTotal,
+  WorldBossAvatar,
 } from '@/types/character'
 import type { CsvSheetData } from '@/types/csv'
 import {
@@ -27,16 +30,34 @@ import {
   processSeasonPassData,
   resolveEventDungeonInfo,
   resolveWorldBossInfo,
+  resolveGiftInfo,
+  resolveSummonInfo,
 } from './mapping'
+import { resolveAssetUrl, getGradeColor } from './assets'
+import type { ItemDisplayData, ItemStat, ItemSkill, ItemSubType } from '@/types/item'
 
 /**
  * Calculates Combat Power (CP) for a piece of equipment.
  * Formula based on infoAccount.js: combatPotion logic.
  */
 export function calculateEquipmentCP(stats: StatsMap, hasSkill: boolean): number {
-  const { hP = 0, aTK = 0, dEF = 0, sPD = 0, hIT = 0, cRI = 0 } = stats
+  const getVal = (v: number | StatValue | undefined) => {
+    if (typeof v === 'number') return v
+    if (v && typeof v === 'object' && v !== null) {
+      return (v.baseValue || 0) + (v.additionalValue || 0)
+    }
+    return 0
+  }
+
+  const hP = getVal(stats.hP)
+  const aTK = getVal(stats.aTK)
+  const dEF = getVal(stats.dEF)
+  const sPD = getVal(stats.sPD)
+  const hIT = getVal(stats.hIT)
+  const cRI = getVal(stats.cRI)
+
   const { CP } = CHARACTER_LOGIC_CONSTANTS
-  // project_v2 uses combatPotion which multiplies by 1.15 if hasSkill is true
+  // CombatPotion which multiplies by 1.15 if hasSkill is true
   const buffCP = hasSkill ? CP.SKILL_BUFF : 1
   const itemCP =
     (hP * CP.HP + aTK * CP.ATK + dEF * CP.DEF + sPD * CP.SPD + hIT * CP.HIT + cRI * 0) * buffCP
@@ -45,19 +66,32 @@ export function calculateEquipmentCP(stats: StatsMap, hasSkill: boolean): number
 
 /**
  * Converts a list of stat pairs (key-value) to a StatsMap.
- * Mimics statsMapConvert from project_v2.
+ * Mimics statsMapConvert.
  */
 export function convertToStatsMap(
-  pairs: { key: string; value: { baseValue: number; additionalValue: number } }[],
+  pairs: { key: string; value: number | { baseValue: number; additionalValue: number } }[],
 ): StatsMap {
-  const stats: StatsMap = { hP: 0, aTK: 0, dEF: 0, sPD: 0, hIT: 0, cRI: 0 }
+  const stats: Record<string, number | StatValue> = {
+    hP: 0,
+    aTK: 0,
+    dEF: 0,
+    cRI: 0,
+    hIT: 0,
+    sPD: 0,
+  }
   pairs.forEach((item) => {
+    // Normalize key to camelCase (e.g., ATK -> aTK, HP -> hP)
     const key = item.key.charAt(0).toLowerCase() + item.key.slice(1)
-    if (key in stats) {
-      stats[key as keyof StatsMap] = (item.value.baseValue || 0) + (item.value.additionalValue || 0)
+    if (typeof item.value === 'number') {
+      stats[key] = item.value
+    } else {
+      stats[key] = {
+        baseValue: item.value.baseValue || 0,
+        additionalValue: item.value.additionalValue || 0,
+      }
     }
   })
-  return stats
+  return stats as StatsMap
 }
 
 /**
@@ -118,7 +152,6 @@ export function getLatestStageId(stagePairs: [number, number][]): number {
 
 /**
  * Calculates AP refill time based on last claim block and current block.
- * Sync with project_v2: getTimeRefillAP logic.
  */
 export function calculateAPRefill(
   blockRefill: number,
@@ -152,12 +185,12 @@ export function processMaterials(
 
   // 1. Process tracked items from i_id queries (GraphQL aliases)
   TRACKED_ITEM_IDS.forEach((id) => {
-    const fieldKey = `i${id}` // project_v2 uses i600201 format
+    const fieldKey = `i${id}` // uses i600201 format
     const items = inventory[fieldKey] as { count: number; tradableId: string | null }[] | undefined
     if (items && Array.isArray(items)) {
       const name = resolveNameFromCsv(id, sheets, locale)
       if (id === ITEM_ID.AP_POTION) {
-        // Special case for AP Potion in project_v2: splits into tradable (14000000 + id) and non-tradable (id)
+        // Special case for AP Potion: splits into tradable (14000000 + id) and non-tradable (id)
         const tradableCount = items.reduce(
           (sum, item) => sum + (item.tradableId != null ? Number(item.count) || 0 : 0),
           0,
@@ -399,6 +432,7 @@ export function aggregateAvatarData(
       name: resolveNameFromCsv(excelId, sheets, locale),
       levelReq: resolveLevelRequirement(excelId, sheets),
       CP: calculateEquipmentCP(stats, (eq.skills?.length || 0) > 0),
+      imageUrl: resolveAssetUrl({ portraitId: excelId }),
     }
   })
 
@@ -413,14 +447,19 @@ export function aggregateAvatarData(
       levelReq: resolveLevelRequirement(excelId, sheets),
       statsMap,
       CP: calculateEquipmentCP(statsMap, false),
+      imageUrl: resolveAssetUrl({ portraitId: excelId }),
     }
   })
 
   // Process Runes
-  const runeSlots: RuneSlot[] = (rest?.lookupRuneSetMuti_Adventure || []).map((slot) => ({
-    ...slot,
-    name: slot.runeId ? resolveRuneInfo(slot.runeId, sheets, locale).name : 'Empty',
-  }))
+  const runeSlots: RuneSlot[] = (rest?.lookupRuneSetMuti_Adventure || []).map((slot) => {
+    const info = slot.runeId ? resolveRuneInfo(slot.runeId, sheets, locale) : null
+    return {
+      ...slot,
+      name: info ? info.name : 'Empty',
+      imageUrl: info?.imageUrl,
+    }
+  })
 
   const runes: RuneInfo[] = (avatar.runes || []).map((r, index) => ({
     ...resolveRuneInfo(r.runeId, sheets, locale),
@@ -450,6 +489,11 @@ export function aggregateAvatarData(
 
   const eventDungeonInfo = resolveEventDungeonInfo(eventDungeonInfoRaw, sheets, blockNow)
   const worldBossInfo = resolveWorldBossInfo(sheets, blockNow)
+  const claimedGifts = (rest?.other_lookupClaimedGiftIds as number[]) || []
+  const gifts = (resolveGiftInfo(sheets, blockNow, locale) || []).filter(
+    (g) => !claimedGifts.includes(g.id),
+  )
+  const summons = resolveSummonInfo(sheets, locale) || []
 
   const isHasCraftOneTime =
     (mimir?.isHasCraftOneTime?.items?.length ?? 0) > 0 || equipments.length > 3
@@ -480,6 +524,9 @@ export function aggregateAvatarData(
     cp: mimir?.myAdventureCpRanking?.userDocument.cp ?? calculateTotalCP(equipments),
     adventureCp: (rest?.other_lookupAdventureCp as number) || 0,
     portraitId: mimir?.myAdventureCpRanking?.userDocument.avatar.portraitId ?? 10200000,
+    portraitUrl: resolveAssetUrl({
+      portraitId: mimir?.myAdventureCpRanking?.userDocument.avatar.portraitId ?? 10200000,
+    }),
     rank: mimir?.myAdventureCpRanking?.rank ?? 0,
     dailyRewardReceivedIndex: avatar.dailyRewardReceivedIndex,
     dailyRewardReceivedBlockIndex: mimir?.dailyRewardReceivedBlockIndex ?? -1,
@@ -496,16 +543,293 @@ export function aggregateAvatarData(
     runes,
     craftingSlots: avatar.combinationSlots || [],
     stakeNCG,
-    seasonPass: processSeasonPassData(seasonPass ? [seasonPass] : []),
+    seasonPass: processSeasonPassData(
+      Array.isArray(seasonPass) ? seasonPass : seasonPass ? [seasonPass] : [],
+    ),
     isHasCraftOneTime,
     isClaimPatrolRewardOneTime: (mimir?.isClaimPatrolRewardOneTime?.items?.length ?? 0) > 0,
-    claimedGifts: (rest?.other_lookupClaimedGiftIds as unknown[]) || [],
+    claimedGifts,
+    gifts,
+    summons,
     patrolReward,
     eventDungeonInfo,
-    worldBossInfoTotal: wbTotal || (worldBossInfo.hasOngoingEvent ? {} : null),
-    worldBossInfoAvatar: wbAvatar || null,
+    worldBossInfoTotal:
+      (wbTotal as unknown as WorldBossTotal) ||
+      (worldBossInfo.hasOngoingEvent ? ({} as WorldBossTotal) : null),
+    worldBossInfoAvatar: wbAvatar as unknown as WorldBossAvatar,
     agentAddress: (rest as Record<string, unknown>)?.agentAddress as string | undefined,
     materialList,
     timestamp,
   }
+}
+
+/**
+ * Standard mapper to ItemDisplayData for Equipment and Costumes.
+ */
+export function mapEquipmentToDisplayData(
+  row: Equipment | Costume,
+  sheets: Record<string, CsvSheetData>,
+  locale: string,
+): ItemDisplayData {
+  const excelId = extractExcelId(row as unknown as Record<string, unknown>) || Number(row.itemId)
+
+  const isEquipment = (item: Equipment | Costume): item is Equipment => {
+    return item.itemType.toUpperCase() === 'EQUIPMENT'
+  }
+
+  const getStatTotal = (v: number | StatValue | undefined): number => {
+    if (typeof v === 'number') return v
+    if (v && typeof v === 'object' && v !== null) {
+      return (v.baseValue || 0) + (v.additionalValue || 0)
+    }
+    return 0
+  }
+
+  const isOptionStat = (v: number | StatValue | undefined): boolean => {
+    if (typeof v === 'number') return v > 0
+    if (v && typeof v === 'object' && v !== null) {
+      return (v as StatValue).additionalValue > 0
+    }
+    return false
+  }
+
+  // 1. Identify All Active Stats
+  const stats: ItemStat[] = []
+  const statsMap = row.statsMap
+  if (statsMap) {
+    // Show all standard stats if they have a value > 0
+    const allStatKeys = ['hP', 'aTK', 'dEF', 'sPD', 'hIT', 'cRI']
+    allStatKeys.forEach((key) => {
+      const val = statsMap[key]
+      const total = getStatTotal(val)
+      if (total > 0) {
+        stats.push({ label: key.toUpperCase(), value: total })
+      }
+    })
+  }
+
+  const mappedSkills: ItemSkill[] | undefined = isEquipment(row)
+    ? row.skills?.map((s) => ({
+        id: s.id.toString(),
+        name: resolveNameFromCsv(s.id, sheets, locale) || s.id.toString(),
+        power: s.power,
+        chance: s.chance,
+        statPowerRatio: s.statPowerRatio,
+        referencedStatType: s.referencedStatType,
+      }))
+    : undefined
+
+  const grade = Number(row.grade) || 1
+  const type = row.itemType.toLowerCase() === 'costume' ? 'costume' : 'equipment'
+
+  // 2. Identify Option Stats (Yellow Stars)
+  // Gold stars are stats that have an additionalValue > 0 (rolled options)
+  // We no longer exclude main stats because they can also be rolled as options.
+  // We only count options for equipments, as costumes have fixed stats.
+  const optionStatTypes =
+    type === 'equipment' && row.statsMap
+      ? Object.entries(row.statsMap)
+          .filter(([key, val]) => key !== 'cP' && isOptionStat(val))
+          .map(([key]) => key)
+      : []
+
+  return {
+    id: excelId,
+    itemId: row.itemId,
+    name: resolveNameFromCsv(excelId, sheets, locale) || `ID: ${excelId}`,
+    grade,
+    type,
+    level: isEquipment(row) ? row.level : undefined,
+    isEquipped: row.equipped,
+    cp: row.CP,
+    levelReq: row.levelReq,
+    elementalType: row.elementalType,
+    stats,
+    statsMap: row.statsMap,
+    skills: mappedSkills,
+    hasSkill: isEquipment(row) ? (row.skills?.length || 0) > 0 : false,
+    skillsCount: isEquipment(row) ? row.skills?.length || 0 : 0,
+    optionStatTypes,
+    optionStatsCount: optionStatTypes.length,
+    itemSubType: row.itemSubType as ItemSubType,
+    gradeColor: getGradeColor(grade),
+    imageUrl: resolveAssetUrl({ portraitId: excelId }),
+  }
+}
+
+/**
+ * Standard mapper for Materials.
+ */
+export function mapMaterialToDisplayData(
+  row: Material,
+  sheets: Record<string, CsvSheetData>,
+  locale: string,
+): ItemDisplayData {
+  const grade = Number(row.grade || 1)
+  return {
+    id: row.id,
+    name: resolveNameFromCsv(row.id, sheets, locale) || `ID: ${row.id}`,
+    grade,
+    type: 'material',
+    count: row.count,
+    tradableCount: row.tradableCount,
+    elementalType: row.elementalType,
+    requiredBlockIndex: row.requiredBlockIndex,
+    itemSubType: row.itemSubType as ItemSubType,
+    gradeColor: getGradeColor(grade),
+    imageUrl: resolveAssetUrl({ portraitId: row.id }),
+    // Materials don't have stars/skills
+    hasSkill: false,
+    optionStatTypes: [],
+  }
+}
+
+/**
+ * Resolves the portrait URL for a given portrait ID.
+ */
+export function resolvePortraitUrl(portraitId: number | string): string {
+  return resolveAssetUrl({ portraitId: Number(portraitId) })
+}
+
+/**
+ * Standard mapper for Costumes.
+ */
+export function mapCostumeToDisplayData(
+  row: Costume,
+  sheets: Record<string, CsvSheetData>,
+  locale: string,
+): ItemDisplayData {
+  const excelId = extractExcelId(row as unknown as Record<string, unknown>) || Number(row.itemId)
+  const statsMap = resolveCostumeStats(Number(excelId), sheets)
+  const grade = Number(row.grade) || 1
+
+  const isOptionStat = (v: number | StatValue | undefined): boolean => {
+    if (typeof v === 'number') return v > 0
+    if (v && typeof v === 'object' && v !== null) {
+      return (v as StatValue).additionalValue > 0
+    }
+    return false
+  }
+
+  // Identify Option Stats for Costumes (if any additional values exist)
+  const optionStatTypes = statsMap
+    ? Object.entries(statsMap)
+        .filter(([key, val]) => key !== 'cP' && isOptionStat(val))
+        .map(([key]) => key)
+    : []
+
+  return {
+    id: excelId,
+    itemId: row.itemId,
+    name: resolveNameFromCsv(excelId, sheets, locale) || `ID: ${excelId}`,
+    grade,
+    type: 'costume',
+    isEquipped: row.equipped,
+    cp: calculateEquipmentCP(statsMap, false),
+    levelReq: resolveLevelRequirement(excelId, sheets),
+    elementalType: row.elementalType,
+    stats: Object.entries(statsMap)
+      .filter(([, val]) =>
+        typeof val === 'number' ? val > 0 : (val.baseValue || 0) + (val.additionalValue || 0) > 0,
+      )
+      .map(([key, val]) => ({
+        label: key.toUpperCase(),
+        value: typeof val === 'number' ? val : (val.baseValue || 0) + (val.additionalValue || 0),
+      })),
+    statsMap,
+    hasSkill: false,
+    optionStatTypes,
+    optionStatsCount: optionStatTypes.length,
+    itemSubType: row.itemSubType as ItemSubType,
+    gradeColor: getGradeColor(grade),
+    imageUrl: resolveAssetUrl({ portraitId: excelId }),
+  }
+}
+
+/**
+ * Standard mapper for Runes.
+ */
+export function mapRuneToDisplayData(
+  row: RuneSlot | RuneInfo,
+  sheets: Record<string, CsvSheetData>,
+  locale: string,
+): ItemDisplayData {
+  const runeId = (row as RuneInfo).runeId || (row as RuneSlot).runeId || 0
+  const runeInfo = resolveRuneInfo(runeId, sheets, locale)
+  const grade = 3 // Runes are generally rare (Blue) in UI standard
+  return {
+    id: runeId,
+    name: runeInfo.name || 'Unknown Rune',
+    grade,
+    type: 'rune',
+    level: row.level || 1,
+    tickerRune: runeInfo.tickerRune,
+    runeType: runeInfo.runeType as 'STAT' | 'SKILL',
+    hasSkill: runeInfo.runeType === 'SKILL',
+    optionStatTypes: [],
+    levelReq: runeInfo.requiredLevel,
+    gradeColor: getGradeColor(grade),
+    imageUrl: runeInfo.imageUrl,
+  }
+}
+
+/**
+ * Standardized sorting logic for items.
+ * Priority: Equipped > Grade (Desc) > Level (Desc) > CP (Desc) > ID (Asc)
+ */
+export function sortItems<T extends Equipment | Costume | Material>(
+  items: T[],
+  type: 'equipment' | 'material' | 'costume',
+): T[] {
+  return [...items].sort((a, b) => {
+    // 1. Equipped status (for equipment/costumes) - HIGHEST PRIORITY
+    if (type !== 'material') {
+      const aEquipped = (a as Equipment | Costume).equipped ? 1 : 0
+      const bEquipped = (b as Equipment | Costume).equipped ? 1 : 0
+      if (aEquipped !== bEquipped) return bEquipped - aEquipped
+    }
+
+    // 2. Grade (Descending)
+    const aGrade = Number(a.grade || 1)
+    const bGrade = Number(b.grade || 1)
+    if (aGrade !== bGrade) return bGrade - aGrade
+
+    // 3. Level (Descending) - For equipments
+    if (type === 'equipment') {
+      const aLevel = (a as Equipment).level || 0
+      const bLevel = (b as Equipment).level || 0
+      if (aLevel !== bLevel) return bLevel - aLevel
+    }
+
+    // 4. CP (Descending) - For equipment/costumes
+    if (type !== 'material') {
+      const aCP = (a as Equipment | Costume).CP || 0
+      const bCP = (b as Equipment | Costume).CP || 0
+      if (aCP !== bCP) return bCP - aCP
+    }
+
+    // 5. Count (for materials, Descending)
+    if (type === 'material') {
+      const aCount = (a as Material).count || 0
+      const bCount = (b as Material).count || 0
+      if (aCount !== bCount) return bCount - aCount
+    }
+
+    // 6. ID (Ascending) - Final fallback
+    return Number(a.id) - Number(b.id)
+  })
+}
+
+/**
+ * Standardized sorting logic for runes.
+ * Priority: Level (Desc) > Name (Asc) > ID (Asc)
+ */
+export function sortRunes(runes: RuneInfo[]): RuneInfo[] {
+  return [...runes].sort((a, b) => {
+    if ((b.level || 0) !== (a.level || 0)) return (b.level || 0) - (a.level || 0)
+    const nameA = a.name || ''
+    const nameB = b.name || ''
+    if (nameA !== nameB) return nameA.localeCompare(nameB)
+    return (a.runeId || 0) - (b.runeId || 0)
+  })
 }

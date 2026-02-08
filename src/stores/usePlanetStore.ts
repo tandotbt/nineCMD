@@ -22,6 +22,7 @@ import {
 } from '../constants'
 import type { PlanetName, RpcConfig, PlanetConfig } from '../types/planet'
 import { useApiStore } from './useApiStore'
+import { db } from '../db'
 
 export const usePlanetStore = defineStore('planet', () => {
   const apiStore = useApiStore()
@@ -73,7 +74,7 @@ export const usePlanetStore = defineStore('planet', () => {
   const isIdMismatch = computed(() => {
     const targetId = PLANET_IDS[currentPlanetName.value as keyof typeof PLANET_IDS]
     if (!targetId || !currentPlanetConfig.value.id) return false
-    return targetId !== currentPlanetConfig.value.id
+    return targetId !== currentPlanetId.value
   })
   const rpcEndpoints = computed(() => currentPlanetConfig.value.rpcEndpoints)
 
@@ -90,6 +91,7 @@ export const usePlanetStore = defineStore('planet', () => {
   const arenaUrl = computed(() => getUrl('arena.rest', selectedArenaIndex.value))
   const marketUrl = computed(() => getUrl('market.rest', selectedMarketIndex.value))
   const worldBossUrl = computed(() => getUrl('world-boss.rest', selectedWorldBossIndex.value))
+  const scanUrl = computed(() => getUrl('9cscan.rest', 0))
 
   // Actions
   const fetchPlanets = async () => {
@@ -108,7 +110,6 @@ export const usePlanetStore = defineStore('planet', () => {
       if (data.value && Array.isArray(data.value)) {
         rawPlanets.value = data.value
         // Sync to IndexedDB for Service Worker
-        const { db } = await import('../db')
         // Use toRaw to avoid DataCloneError in IndexedDB/fake-indexeddb
         await db.settings.put({ key: STORAGE_KEYS.RAW_PLANETS, value: toRaw(data.value) })
       }
@@ -118,7 +119,6 @@ export const usePlanetStore = defineStore('planet', () => {
 
       // Offline/Failure: Try to load from IndexedDB if rawPlanets is empty
       if (rawPlanets.value.length === 0) {
-        const { db } = await import('../db')
         const cached = await db.settings.get(STORAGE_KEYS.RAW_PLANETS)
         if (cached?.value && Array.isArray(cached.value)) {
           rawPlanets.value = cached.value
@@ -126,9 +126,6 @@ export const usePlanetStore = defineStore('planet', () => {
       }
     } finally {
       isLoading.value = false
-      // Fetch CSV data after planet info is loaded
-      const csvStore = (await import('./useCsvDataStore')).useCsvDataStore()
-      csvStore.fetchCsvData()
     }
   }
 
@@ -164,8 +161,11 @@ export const usePlanetStore = defineStore('planet', () => {
 
   // Watch for planet change to perform side effects
   watch(currentPlanetName, async (newName) => {
-    const { db } = await import('../db')
-    await db.settings.put({ key: STORAGE_KEYS.PLANET, value: newName })
+    try {
+      await db.settings.put({ key: STORAGE_KEYS.PLANET, value: newName })
+    } catch (err) {
+      console.error('[PlanetStore] Failed to sync planet to IndexedDB:', err)
+    }
   })
 
   // Sync node indexes to IndexedDB for Service Worker
@@ -178,14 +178,17 @@ export const usePlanetStore = defineStore('planet', () => {
       selectedWorldBossIndex,
     ],
     async ([nodeIdx, mimirIdx, arenaIdx, marketIdx, wbIdx]) => {
-      const { db } = await import('../db')
-      await db.settings.bulkPut([
-        { key: NODE_INDEX_STORAGE_KEY, value: nodeIdx },
-        { key: MIMIR_INDEX_STORAGE_KEY, value: mimirIdx },
-        { key: ARENA_INDEX_STORAGE_KEY, value: arenaIdx },
-        { key: MARKET_INDEX_STORAGE_KEY, value: marketIdx },
-        { key: WORLD_BOSS_INDEX_STORAGE_KEY, value: wbIdx },
-      ])
+      try {
+        await db.settings.bulkPut([
+          { key: NODE_INDEX_STORAGE_KEY, value: nodeIdx },
+          { key: MIMIR_INDEX_STORAGE_KEY, value: mimirIdx },
+          { key: ARENA_INDEX_STORAGE_KEY, value: arenaIdx },
+          { key: MARKET_INDEX_STORAGE_KEY, value: marketIdx },
+          { key: WORLD_BOSS_INDEX_STORAGE_KEY, value: wbIdx },
+        ])
+      } catch (err) {
+        console.error('[PlanetStore] Failed to sync node indexes to IndexedDB:', err)
+      }
     },
   )
 
@@ -202,6 +205,7 @@ export const usePlanetStore = defineStore('planet', () => {
     arenaUrl,
     marketUrl,
     worldBossUrl,
+    scanUrl,
     isIdMismatch,
     selectedNodeIndex,
     selectedMimirIndex,

@@ -88,8 +88,8 @@ describe('Character Logic', () => {
       { key: 'ATK', value: { baseValue: 10, additionalValue: 5 } },
     ]
     const stats = convertToStatsMap(pairs)
-    expect(stats.hP).toBe(150)
-    expect(stats.aTK).toBe(15)
+    expect(stats.hP).toEqual({ baseValue: 100, additionalValue: 50 })
+    expect(stats.aTK).toEqual({ baseValue: 10, additionalValue: 5 })
     expect(stats.dEF).toBe(0)
   })
 

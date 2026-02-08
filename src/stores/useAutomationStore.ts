@@ -42,9 +42,14 @@ export const useAutomationStore = defineStore('automation', () => {
   const notificationBackoff = ref<Record<string, number>>({}) // Track backoff for each action reason
 
   // Load initial state from DB
-  db.settings.get(STORAGE_KEYS.LAST_AUTOMATION_CHECK_BLOCK).then((s) => {
-    if (s) lastCheckBlock.value = s.value as number
-  })
+  db.settings
+    .get(STORAGE_KEYS.LAST_AUTOMATION_CHECK_BLOCK)
+    .then((s) => {
+      if (s) lastCheckBlock.value = s.value as number
+    })
+    .catch((err) => {
+      console.error('[AutomationStore] Failed to load lastCheckBlock:', err)
+    })
 
   const addLog = (message: string, data?: unknown) => {
     logs.value.unshift({
@@ -202,7 +207,9 @@ export const useAutomationStore = defineStore('automation', () => {
     () => blockStore.blockNow,
     (newBlock) => {
       if (newBlock > 0 && settingsStore.isAutomationEnabled) {
-        processLoop(newBlock)
+        processLoop(newBlock).catch((err) => {
+          console.error('[AutomationStore] Watcher failed to process loop:', err)
+        })
       }
     },
   )

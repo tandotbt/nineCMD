@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePlanetStore } from './usePlanetStore'
 import { useApiStore } from './useApiStore'
 import { useCsvDataStore } from './useCsvDataStore'
@@ -14,8 +14,10 @@ import {
   CHARACTER_LOGIC_CONSTANTS,
   CHARACTER_CODE_GETS,
   REST_API_CONFIG,
+  GQL_QUERIES,
 } from '@/constants'
 import { get9cmdApiUrl } from '@/api/rest'
+import { searchCharactersByRankingAdvanced } from '@/logic/ranking'
 import {
   calculateAPCost,
   getLatestStageId,
@@ -32,6 +34,7 @@ import type {
   RawAvatarDetail,
   AvatarDetailHeadless,
   RestApiResponse,
+  CharacterSuggestion,
 } from '@/types/character'
 
 export * from '@/types/character'
@@ -49,6 +52,21 @@ export const useCharacterStore = defineStore('character', () => {
   const previousAvatarDetail = ref<RawAvatarDetail | null>(null)
   const isFetching = ref(false)
   const error = ref<string | null>(null)
+
+  function reset() {
+    characters.value = []
+    currentAvatarDetail.value = null
+    previousAvatarDetail.value = null
+    error.value = null
+  }
+
+  // Handle planet change automatically to avoid circular dependency in usePlanetStore
+  watch(
+    () => planetStore.currentPlanetName,
+    () => {
+      reset()
+    },
+  )
 
   const info = computed<AvatarData | null>(() => {
     const raw = currentAvatarDetail.value
@@ -92,6 +110,44 @@ export const useCharacterStore = defineStore('character', () => {
     return fullUrl
   }
 
+  async function findAgentByAvatarAddress(avatarAddress: string): Promise<string | null> {
+    isFetching.value = true
+    error.value = null
+    try {
+      // 1. Try via GraphQL (Standard RPC)
+      const result = await withRetry(
+        () =>
+          queryGraphql<{ stateQuery: { avatar: { agentAddress: string } } }>(
+            planetStore.graphqlUrl,
+            GQL_QUERIES.CHARACTER.GET_AGENT_BY_AVATAR,
+            { avatarAddress },
+          ),
+        { maxRetries: 2 }, // Fail fast to try fallback
+      )
+      if (result.stateQuery?.avatar?.agentAddress) {
+        return result.stateQuery.avatar.agentAddress
+      }
+    } catch (err) {
+      console.warn('[CharacterStore] RPC reverse lookup failed, trying fallback:', err)
+    }
+
+    // 2. Fallback to 9cscan REST API if GraphQL fails or returns null
+    if (planetStore.scanUrl) {
+      try {
+        const url = `${planetStore.scanUrl}/account?avatar=${avatarAddress}`
+        const { data } = await useFetch(url).json<{ address: string }[]>()
+        if (data.value && data.value.length > 0 && data.value[0]) {
+          return data.value[0].address || null
+        }
+      } catch (scanErr) {
+        console.error('[CharacterStore] 9cscan fallback failed:', scanErr)
+      }
+    }
+
+    isFetching.value = false
+    return null
+  }
+
   async function fetchAllAvatars(agentAddress: string) {
     isFetching.value = true
     error.value = null
@@ -125,8 +181,6 @@ export const useCharacterStore = defineStore('character', () => {
 
       const agentData = agentResult.stateQuery?.agent
       const avatarAddresses = agentData.avatarStates.map((s) => s.address)
-      const ncg = parseFloat(agentData.gold) || 0
-      const crystal = parseFloat(agentData.crystal) || 0
 
       const BATCH_SIZE = 10
       const processed: AvatarData[] = []
@@ -174,8 +228,8 @@ export const useCharacterStore = defineStore('character', () => {
             name: data.name,
             level: data.level,
             exp: data.exp,
-            ncg,
-            crystal,
+            ncg: 0,
+            crystal: 0,
             stage: latestStage,
             worldId: worldInfo.worldId,
             worldName: worldInfo.name,
@@ -203,6 +257,8 @@ export const useCharacterStore = defineStore('character', () => {
             isHasCraftOneTime: false,
             isClaimPatrolRewardOneTime: false,
             claimedGifts: [],
+            gifts: [],
+            summons: [],
             eventDungeonInfo: {
               roundReset: 1,
               ticket: 0,
@@ -251,7 +307,7 @@ export const useCharacterStore = defineStore('character', () => {
     const mimirUrl = planetStore.mimirUrl
 
     try {
-      // Get material IDs from itemMap (v2 logic)
+      // Get material IDs from itemMap
       const materialIds = (info.value?.inventory.materials || []).map((m) => m.id)
 
       // Build dynamic codeGets for REST API enrichment
@@ -354,7 +410,11 @@ export const useCharacterStore = defineStore('character', () => {
   ) {
     const url = get9cmdApiUrl(apiStore.api9CmdUrl, avatarAddress, planet, codeGets)
     console.log(`[CharacterStore] Fetching 9cmd data: ${url}`)
-    const { data } = await useFetch<RestApiResponse>(url).json()
+    const { data, error: fetchErr } = await useFetch<RestApiResponse>(url).json()
+    if (fetchErr.value) {
+      console.error('[CharacterStore] 9cmd API fetch failed:', fetchErr.value)
+      throw new Error(`9cmd API Error: ${fetchErr.value}`)
+    }
     return data.value?.data
   }
 
@@ -385,6 +445,44 @@ export const useCharacterStore = defineStore('character', () => {
     }
   }
 
+  /**
+   * Fetches arena seasons and rankings to support character lookup by name.
+   */
+  async function fetchAvatarsByRanking(name: string): Promise<CharacterSuggestion[]> {
+    if (!name || name.length < 2) return []
+
+    isFetching.value = true
+    error.value = null
+    try {
+      const rankings = await searchCharactersByRankingAdvanced(
+        apiStore.api9CmdUrl,
+        planetStore.currentPlanetName,
+        name,
+        apiStore.nineChroniclesApiUrl,
+      )
+
+      return rankings.map(
+        (r): CharacterSuggestion => ({
+          address: r.AvatarAddress,
+          name: r.Name,
+          level: r.Level || r.AvatarLevel || 0,
+          planet: planetStore.currentPlanetName,
+          agentAddress: r.AgentAddress,
+        }),
+      )
+    } catch (err) {
+      console.error('[CharacterStore] Ranking search failed:', err)
+      error.value = 'ranking_search_failed'
+      return []
+    } finally {
+      isFetching.value = false
+    }
+  }
+
+  async function fetchAvatarsByName(name: string): Promise<CharacterSuggestion[]> {
+    return fetchAvatarsByRanking(name)
+  }
+
   return {
     characters,
     loadFromHistory,
@@ -393,7 +491,11 @@ export const useCharacterStore = defineStore('character', () => {
     info,
     isFetching,
     error,
+    reset,
+    findAgentByAvatarAddress,
     fetchAllAvatars,
     fetchAvatarDetail,
+    fetchAvatarsByRanking,
+    fetchAvatarsByName,
   }
 })
