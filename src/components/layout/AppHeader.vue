@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import type { SelectMixedOption } from 'naive-ui/es/select/src/interface'
+import { Settings24Regular as SettingsIcon, SignOut24Regular as LogoutIcon } from '@vicons/fluent'
+import { useRouter } from 'vue-router'
+import { useSettingsStore } from '@/stores/useSettingsStore'
+
+const router = useRouter()
+const settingsStore = useSettingsStore()
+
+const handleLogout = async () => {
+  await settingsStore.logout()
+  router.push('/login')
+}
 
 defineProps<{
   title: string
@@ -43,6 +54,16 @@ const handlePlanetUpdate = (value: string) => {
           style="width: 140px"
           @update:value="handleUpdateValue"
         />
+        <n-button quaternary circle @click="router.push('/settings/game')">
+          <template #icon>
+            <n-icon><SettingsIcon /></n-icon>
+          </template>
+        </n-button>
+        <n-button v-if="settingsStore.isLoggedIn" quaternary circle @click="handleLogout">
+          <template #icon>
+            <n-icon><LogoutIcon /></n-icon>
+          </template>
+        </n-button>
         <n-tag :type="isOnline ? 'success' : 'error'">
           {{ isOnline ? onlineText : offlineText }}
         </n-tag>

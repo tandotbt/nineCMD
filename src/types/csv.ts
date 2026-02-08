@@ -12,6 +12,7 @@ export interface CsvSheetData {
   headers: string[]
   rows: CsvRow[]
   mappedData: Record<string, CsvRow>
+  secondaryIndices?: Record<string, Record<string, CsvRow[]>> // fieldName -> fieldValue -> rows[]
   keyMain: string
 }
 
@@ -29,6 +30,7 @@ export interface CsvParserMessage {
   keyMain: string
   unique?: boolean
   isRawCsv?: boolean // If true, content is raw string, not base64
+  indexFields?: string[] // Fields to create secondary indices for
 }
 
 export interface CsvParserResult {

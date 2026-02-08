@@ -1,0 +1,22 @@
+{
+  "stateQuery": {
+    "agent": {
+      "gold": "66174.41",
+      "crystal": "536056895.000000000000000000",
+      "avatarStates": [
+        {
+          "address": "0xa340964876de35559115608ef9f5ce2b0d4cA619",
+          "index": 0
+        },
+        {
+          "address": "0xF96d67DC290FcE628D5e0362725E1f660FdCfEF4",
+          "index": 1
+        },
+        {
+          "address": "0x79BB6e025762A76C8C85F73581e8c49b68FcaB0C",
+          "index": 2
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "other_lookupAdventureCp": 42162559,
+  "lookupRuneSetMuti_Adventure": [
+    {
+      "index": 0,
+      "isLock": false,
+      "runeId": 30001,
+      "runeSlotType": "DEFAULT",
+      "runeType": "STAT"
+    },
+    {
+      "index": 1,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "NCG",
+      "runeType": "STAT"
+    },
+    {
+      "index": 2,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "STAKE",
+      "runeType": "STAT"
+    },
+    {
+      "index": 3,
+      "isLock": false,
+      "runeId": null,
+      "runeSlotType": "DEFAULT",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 4,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "NCG",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 5,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "STAKE",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 6,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "CRYSTAL",
+      "runeType": "STAT"
+    },
+    {
+      "index": 7,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "CRYSTAL",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 8,
+      "isLock": false,
+      "runeId": null,
+      "runeSlotType": "DEFAULT",
+      "runeType": "STAT"
+    },
+    {
+      "index": 9,
+      "isLock": false,
+      "runeId": null,
+      "runeSlotType": "DEFAULT",
+      "runeType": "SKILL"
+    }
+  ],
+  "lookupItemSetMuti_Adventure": {
+    "costumes": ["0cf6f96d-4d60-4d74-a323-031ff79a68d4", "ab9ae2bb-4469-4907-b557-6bf4b92754bc"],
+    "equipments": [
+      "1a06cf5b-0961-4c46-9db5-f46894032b73",
+      "55b413bd-a605-4854-bdec-85403ca3fb5c",
+      "5db5a656-dea2-4414-9dea-526282bdfe20",
+      "68c83f88-83b1-439f-8879-6311e9735b13",
+      "8cc0dde3-49f2-40bd-a4d0-b4e973150406",
+      "921cb9e6-c4a3-46f4-a95f-5555f8983104",
+      "eaa5654c-f888-487f-91a3-b94aea994f19"
+    ]
+  },
+  "other_lookupClaimedGiftIds": [1, 2],
+  "other_lookupPatrolReward": {
+    "blockLastClaim": 8148616
+  }
+}

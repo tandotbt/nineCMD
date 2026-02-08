@@ -1,0 +1,17 @@
+{
+  "blocks": {
+    "items": [
+      {
+        "id": "ad4d255c3a0ad13fb4002af78ab16153b94dfdbebc5bebd22b2d0494b083a78d",
+        "object": {
+          "hash": "ad4d255c3a0ad13fb4002af78ab16153b94dfdbebc5bebd22b2d0494b083a78d",
+          "index": 8802443,
+          "miner": "0x088d96AF8e90b8B2040AeF7B3BF7d375C9E421f7",
+          "stateRootHash": "20fa6050796c361762b73d6670fe29e2afd4ad6e093ab53f47e6ba57170c6515",
+          "timestamp": "2026-02-07T07:45:47.939326+00:00",
+          "txCount": 2
+        }
+      }
+    ]
+  }
+}

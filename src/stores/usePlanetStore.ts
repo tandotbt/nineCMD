@@ -12,17 +12,20 @@ import {
   PLANET_STORAGE_KEY,
   PLANET_RAW_DATA_KEY,
   PLANET_CONFIGS,
-  PLANET_RAW_URL,
   PLANET_IDS,
   NODE_INDEX_STORAGE_KEY,
   MIMIR_INDEX_STORAGE_KEY,
-  MARKET_INDEX_STORAGE_KEY,
   ARENA_INDEX_STORAGE_KEY,
+  MARKET_INDEX_STORAGE_KEY,
+  WORLD_BOSS_INDEX_STORAGE_KEY,
   STORAGE_KEYS,
 } from '../constants'
 import type { PlanetName, RpcConfig, PlanetConfig } from '../types/planet'
+import { useApiStore } from './useApiStore'
+import { db } from '../db'
 
 export const usePlanetStore = defineStore('planet', () => {
+  const apiStore = useApiStore()
   // State
   const isLoading = ref(false)
 
@@ -33,8 +36,9 @@ export const usePlanetStore = defineStore('planet', () => {
   const rawPlanets = useStorage<PlanetConfig[]>(PLANET_RAW_DATA_KEY, [])
   const selectedNodeIndex = useStorage<number>(NODE_INDEX_STORAGE_KEY, 0)
   const selectedMimirIndex = useStorage<number>(MIMIR_INDEX_STORAGE_KEY, 0)
-  const selectedMarketIndex = useStorage<number>(MARKET_INDEX_STORAGE_KEY, 0)
   const selectedArenaIndex = useStorage<number>(ARENA_INDEX_STORAGE_KEY, 0)
+  const selectedMarketIndex = useStorage<number>(MARKET_INDEX_STORAGE_KEY, 0)
+  const selectedWorldBossIndex = useStorage<number>(WORLD_BOSS_INDEX_STORAGE_KEY, 0)
 
   // Getters
   const currentPlanetConfig = computed<PlanetConfig>(() => {
@@ -70,7 +74,7 @@ export const usePlanetStore = defineStore('planet', () => {
   const isIdMismatch = computed(() => {
     const targetId = PLANET_IDS[currentPlanetName.value as keyof typeof PLANET_IDS]
     if (!targetId || !currentPlanetConfig.value.id) return false
-    return targetId !== currentPlanetConfig.value.id
+    return targetId !== currentPlanetId.value
   })
   const rpcEndpoints = computed(() => currentPlanetConfig.value.rpcEndpoints)
 
@@ -84,8 +88,10 @@ export const usePlanetStore = defineStore('planet', () => {
 
   const graphqlUrl = computed(() => getUrl('headless.gql', selectedNodeIndex.value))
   const mimirUrl = computed(() => getUrl('mimir.gql', selectedMimirIndex.value))
-  const marketUrl = computed(() => getUrl('market.rest', selectedMarketIndex.value))
   const arenaUrl = computed(() => getUrl('arena.rest', selectedArenaIndex.value))
+  const marketUrl = computed(() => getUrl('market.rest', selectedMarketIndex.value))
+  const worldBossUrl = computed(() => getUrl('world-boss.rest', selectedWorldBossIndex.value))
+  const scanUrl = computed(() => getUrl('9cscan.rest', 0))
 
   // Actions
   const fetchPlanets = async () => {
@@ -93,7 +99,9 @@ export const usePlanetStore = defineStore('planet', () => {
     error.value = null
 
     try {
-      const { data, error: fetchError } = await useFetch(PLANET_RAW_URL).json<PlanetConfig[]>()
+      const { data, error: fetchError } = await useFetch(apiStore.planetRawUrl).json<
+        PlanetConfig[]
+      >()
 
       if (fetchError.value) {
         throw new Error(fetchError.value)
@@ -102,7 +110,6 @@ export const usePlanetStore = defineStore('planet', () => {
       if (data.value && Array.isArray(data.value)) {
         rawPlanets.value = data.value
         // Sync to IndexedDB for Service Worker
-        const { db } = await import('../db')
         // Use toRaw to avoid DataCloneError in IndexedDB/fake-indexeddb
         await db.settings.put({ key: STORAGE_KEYS.RAW_PLANETS, value: toRaw(data.value) })
       }
@@ -112,7 +119,6 @@ export const usePlanetStore = defineStore('planet', () => {
 
       // Offline/Failure: Try to load from IndexedDB if rawPlanets is empty
       if (rawPlanets.value.length === 0) {
-        const { db } = await import('../db')
         const cached = await db.settings.get(STORAGE_KEYS.RAW_PLANETS)
         if (cached?.value && Array.isArray(cached.value)) {
           rawPlanets.value = cached.value
@@ -120,9 +126,6 @@ export const usePlanetStore = defineStore('planet', () => {
       }
     } finally {
       isLoading.value = false
-      // Fetch CSV data after planet info is loaded
-      const csvStore = (await import('./useCsvDataStore')).useCsvDataStore()
-      csvStore.fetchCsvData()
     }
   }
 
@@ -131,8 +134,9 @@ export const usePlanetStore = defineStore('planet', () => {
     // Reset node indexes when planet changes
     selectedNodeIndex.value = 0
     selectedMimirIndex.value = 0
-    selectedMarketIndex.value = 0
     selectedArenaIndex.value = 0
+    selectedMarketIndex.value = 0
+    selectedWorldBossIndex.value = 0
   }
 
   const setNodeIndex = (index: number) => {
@@ -143,31 +147,48 @@ export const usePlanetStore = defineStore('planet', () => {
     selectedMimirIndex.value = index
   }
 
-  const setMarketIndex = (index: number) => {
-    selectedMarketIndex.value = index
-  }
-
   const setArenaIndex = (index: number) => {
     selectedArenaIndex.value = index
   }
 
+  const setMarketIndex = (index: number) => {
+    selectedMarketIndex.value = index
+  }
+
+  const setWorldBossIndex = (index: number) => {
+    selectedWorldBossIndex.value = index
+  }
+
   // Watch for planet change to perform side effects
   watch(currentPlanetName, async (newName) => {
-    const { db } = await import('../db')
-    await db.settings.put({ key: STORAGE_KEYS.PLANET, value: newName })
+    try {
+      await db.settings.put({ key: STORAGE_KEYS.PLANET, value: newName })
+    } catch (err) {
+      console.error('[PlanetStore] Failed to sync planet to IndexedDB:', err)
+    }
   })
 
   // Sync node indexes to IndexedDB for Service Worker
   watch(
-    [selectedNodeIndex, selectedMimirIndex, selectedMarketIndex, selectedArenaIndex],
-    async ([nodeIdx, mimirIdx, marketIdx, arenaIdx]) => {
-      const { db } = await import('../db')
-      await db.settings.bulkPut([
-        { key: NODE_INDEX_STORAGE_KEY, value: nodeIdx },
-        { key: MIMIR_INDEX_STORAGE_KEY, value: mimirIdx },
-        { key: MARKET_INDEX_STORAGE_KEY, value: marketIdx },
-        { key: ARENA_INDEX_STORAGE_KEY, value: arenaIdx },
-      ])
+    [
+      selectedNodeIndex,
+      selectedMimirIndex,
+      selectedArenaIndex,
+      selectedMarketIndex,
+      selectedWorldBossIndex,
+    ],
+    async ([nodeIdx, mimirIdx, arenaIdx, marketIdx, wbIdx]) => {
+      try {
+        await db.settings.bulkPut([
+          { key: NODE_INDEX_STORAGE_KEY, value: nodeIdx },
+          { key: MIMIR_INDEX_STORAGE_KEY, value: mimirIdx },
+          { key: ARENA_INDEX_STORAGE_KEY, value: arenaIdx },
+          { key: MARKET_INDEX_STORAGE_KEY, value: marketIdx },
+          { key: WORLD_BOSS_INDEX_STORAGE_KEY, value: wbIdx },
+        ])
+      } catch (err) {
+        console.error('[PlanetStore] Failed to sync node indexes to IndexedDB:', err)
+      }
     },
   )
 
@@ -181,18 +202,22 @@ export const usePlanetStore = defineStore('planet', () => {
     rpcEndpoints,
     graphqlUrl,
     mimirUrl,
-    marketUrl,
     arenaUrl,
+    marketUrl,
+    worldBossUrl,
+    scanUrl,
     isIdMismatch,
     selectedNodeIndex,
     selectedMimirIndex,
-    selectedMarketIndex,
     selectedArenaIndex,
+    selectedMarketIndex,
+    selectedWorldBossIndex,
     fetchPlanets,
     setPlanet,
     setNodeIndex,
     setMimirIndex,
-    setMarketIndex,
     setArenaIndex,
+    setMarketIndex,
+    setWorldBossIndex,
   }
 })

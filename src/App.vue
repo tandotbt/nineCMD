@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppBreadcrumb from '@/components/layout/AppBreadcrumb.vue'
+import NotificationListener from '@/components/layout/NotificationListener.vue'
 import { darkTheme } from 'naive-ui'
 import { useBlockStore } from '@/stores/useBlockStore'
 import { usePlanetStore } from '@/stores/usePlanetStore'
@@ -14,6 +15,11 @@ import {
 } from '@/constants'
 import type { PlanetName } from '@/types/planet'
 import { ArrowSync24Regular as LoadingIcon } from '@vicons/fluent'
+import { NotificationService } from '@/logic/NotificationService'
+import { useSettingsStore } from '@/stores/useSettingsStore'
+import { useDark, useOnline, useStorage } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const isDark = useDark()
 const isOnline = useOnline()
@@ -43,6 +49,7 @@ const changeLang = (selectedLang: string) => {
 
 const blockStore = useBlockStore()
 const planetStore = usePlanetStore()
+const settingsStore = useSettingsStore()
 
 const planetOptions = computed(() => {
   if (planetStore.rawPlanets.length > 0) {
@@ -69,6 +76,7 @@ interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
 
 onMounted(async () => {
   changeLang(settings.value.lang)
+  await settingsStore.loadSettings()
 
   // Fetch planets first
   await planetStore.fetchPlanets()
@@ -89,6 +97,13 @@ onMounted(async () => {
       console.error('[App] Periodic Sync could not be registered:', e)
     }
   }
+
+  // Request Notification permission
+  NotificationService.requestPermission().then((granted) => {
+    if (granted) {
+      console.log('[App] Notification permission granted')
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -102,46 +117,49 @@ onUnmounted(() => {
     :locale="uiConfig"
     :date-locale="uiConfigDate"
   >
-    <n-message-provider>
-      <n-global-style />
-      <div
-        v-if="planetStore.isLoading"
-        style="
-          height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-        "
-      >
-        <n-icon size="48" :component="LoadingIcon" class="is-loading" />
-        <n-text depth="3">Loading Planet Data...</n-text>
-      </div>
-      <n-layout v-else style="height: 100vh">
-        <AppHeader
-          :title="t('app_header_title')"
-          :locale="locale"
-          :lang-options="langOptions"
-          :planet="planetStore.currentPlanetName"
-          :planet-options="planetOptions"
-          :is-online="isOnline"
-          :online-text="t('app_status_online')"
-          :offline-text="t('app_status_offline')"
-          @update:locale="changeLang"
-          @update:planet="changePlanet"
-        />
+    <n-notification-provider>
+      <NotificationListener />
+      <n-message-provider>
+        <n-global-style />
+        <div
+          v-if="planetStore.isLoading"
+          style="
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+          "
+        >
+          <n-icon size="48" :component="LoadingIcon" class="is-loading" />
+          <n-text depth="3">Loading Planet Data...</n-text>
+        </div>
+        <n-layout v-else style="height: 100vh">
+          <AppHeader
+            :title="t('app_header_title')"
+            :locale="locale"
+            :lang-options="langOptions"
+            :planet="planetStore.currentPlanetName"
+            :planet-options="planetOptions"
+            :is-online="isOnline"
+            :online-text="t('app_status_online')"
+            :offline-text="t('app_status_offline')"
+            @update:locale="changeLang"
+            @update:planet="changePlanet"
+          />
 
-        <n-layout-content style="padding: 24px">
-          <AppBreadcrumb />
-          <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </n-layout-content>
-      </n-layout>
-    </n-message-provider>
+          <n-layout-content style="padding: 24px">
+            <AppBreadcrumb />
+            <router-view v-slot="{ Component }">
+              <transition name="fade" mode="out-in">
+                <component :is="Component" />
+              </transition>
+            </router-view>
+          </n-layout-content>
+        </n-layout>
+      </n-message-provider>
+    </n-notification-provider>
   </n-config-provider>
 </template>
 

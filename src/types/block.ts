@@ -10,6 +10,7 @@ export interface BlockObject {
   stateRootHash: string
   timestamp: string
   txCount: number
+  txIds?: string[]
 }
 
 export interface Block {

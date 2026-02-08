@@ -1,0 +1,87 @@
+[
+  {
+    "planet_id": "0x000000000001",
+    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
+    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
+    "season_pass": {
+      "id": 120,
+      "pass_type": "CouragePass",
+      "season_index": 27
+    },
+    "level": 0,
+    "exp": 0,
+    "is_premium": false,
+    "is_premium_plus": false,
+    "last_normal_claim": 0,
+    "last_premium_claim": 0,
+    "claim_limit_timestamp": "2026-03-08T09:00:00+09:00"
+  },
+  {
+    "planet_id": "0x000000000001",
+    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
+    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
+    "season_pass": {
+      "id": 118,
+      "pass_type": "CouragePass",
+      "season_index": 26
+    },
+    "level": 0,
+    "exp": 0,
+    "is_premium": false,
+    "is_premium_plus": false,
+    "last_normal_claim": 0,
+    "last_premium_claim": 0,
+    "claim_limit_timestamp": "2026-02-08T09:00:00+09:00"
+  },
+  {
+    "planet_id": "0x000000000001",
+    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
+    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
+    "season_pass": {
+      "id": 121,
+      "pass_type": "AdventureBossPass",
+      "season_index": 15
+    },
+    "level": 0,
+    "exp": 0,
+    "is_premium": false,
+    "is_premium_plus": false,
+    "last_normal_claim": 0,
+    "last_premium_claim": 0,
+    "claim_limit_timestamp": "2026-03-08T09:00:00+09:00"
+  },
+  {
+    "planet_id": "0x000000000001",
+    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
+    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
+    "season_pass": {
+      "id": 119,
+      "pass_type": "AdventureBossPass",
+      "season_index": 14
+    },
+    "level": 0,
+    "exp": 0,
+    "is_premium": false,
+    "is_premium_plus": false,
+    "last_normal_claim": 0,
+    "last_premium_claim": 0,
+    "claim_limit_timestamp": "2026-02-08T09:00:00+09:00"
+  },
+  {
+    "planet_id": "0x000000000001",
+    "agent_addr": "0x6374fe5f54cded72ff334d09980270c61bc95186",
+    "avatar_addr": "0x79bb6e025762a76c8c85f73581e8c49b68fcab0c",
+    "season_pass": {
+      "id": 14,
+      "pass_type": "WorldClearPass",
+      "season_index": 1
+    },
+    "level": 38,
+    "exp": 386,
+    "is_premium": false,
+    "is_premium_plus": false,
+    "last_normal_claim": 38,
+    "last_premium_claim": 0,
+    "claim_limit_timestamp": null
+  }
+]

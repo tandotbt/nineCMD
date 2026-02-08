@@ -1,0 +1,74 @@
+{
+  "graphql": {
+    "headless": [
+      {
+        "name": "CHARACTER_GET_AGENT_AVATARS",
+        "query": "query GetAgentAvatars($agentAddress: Address!) { stateQuery { agent(address: $agentAddress) { gold crystal avatarStates { address index } } } }",
+        "type": "query"
+      },
+      {
+        "name": "CHARACTER_GET_STAKE_STATE",
+        "query": "query GetStakeState($agentAddress: Address!) { stateQuery { stakeState(address: $agentAddress) { deposit } } }",
+        "type": "query"
+      },
+      {
+        "name": "CHARACTER_GET_AGENT_BY_AVATAR",
+        "query": "query GetAgentByAvatar($avatarAddress: Address!) { stateQuery { avatar(avatarAddress: $avatarAddress) { agentAddress } } }",
+        "type": "query"
+      },
+      {
+        "name": "CHARACTER_GET_AVATAR_INVENTORY_EQUIPMENTS",
+        "query": "query GetAvatarInventoryEquipments($avatarAddress: Address!) { stateQuery { avatar(avatarAddress: $avatarAddress) { inventory { equipments { id itemId equipped statsMap { hP aTK dEF cRI hIT sPD } skills { id } } } } } }",
+        "type": "query"
+      }
+    ],
+    "mimir": [
+      {
+        "name": "BLOCKS_GET_LATEST",
+        "query": "query GetLatestBlock { blocks(skip: 0, take: 1) { items { id object { hash index miner stateRootHash timestamp txCount txIds } } } }",
+        "type": "query"
+      },
+      {
+        "name": "BLOCKS_GET_LIST",
+        "query": "query GetBlocks($skip: Int!, $take: Int!) { blocks(skip: $skip, take: $take) { items { id object { hash index miner stateRootHash timestamp txCount } } } }",
+        "type": "query"
+      },
+      {
+        "name": "CHARACTER_GET_AVATAR_MIMIR_SIMPLE",
+        "query": "query GetAvatarMimirSimple($avatarAddress: Address!, $agentAddress: Address!) { actionPoint(address: $avatarAddress) dailyRewardReceivedBlockIndex(address: $avatarAddress) ncg: balance(address: $agentAddress, currencyTicker: \"NCG\") myAdventureCpRanking(address: $avatarAddress) { rank userDocument { avatar { armorId portraitId } cp } } avatar(address: $avatarAddress) { level name exp stageMap { key value } } isHasCraftOneTime:transactions( filter: { actionTypeId: \"combination_equipment17\" avatarAddress: $avatarAddress } skip: 0 take: 1 ) { items { id } } isClaimPatrolRewardOneTime:transactions( filter: { actionTypeId: \"claim_patrol_reward\" avatarAddress: $avatarAddress } skip: 0 take: 1 ) { items { id } } }",
+        "type": "query"
+      },
+      {
+        "name": "TRANSACTION_STAGE_TRANSACTION",
+        "query": "mutation StageTransaction($payload: String!) { stageTransaction(payload: $payload) }",
+        "type": "mutation"
+      },
+      {
+        "name": "TRANSACTION_GET_STATUS",
+        "query": "query GetTransactionStatus($txHash: String!) { transaction(txId: $txHash) { object { txStatus } } }",
+        "type": "query"
+      }
+    ]
+  },
+  "rest": {
+    "api9cmd": {
+      "baseUrl": "https://api.9cmd.top",
+      "params": [
+        "other_lookupAdventureCp",
+        "lookupRuneSetMuti_type_Adventure",
+        "lookupItemSetMuti_type_Adventure",
+        "other_lookupClaimedGiftIds",
+        "other_lookupPatrolReward"
+      ]
+    },
+    "seasonPass": {
+      "baseUrl": "https://seasonpass.9c.gg"
+    },
+    "planetRaw": {
+      "baseUrl": "https://planets.nine-chronicles.com/planets/"
+    },
+    "nineChroniclesApi": {
+      "baseUrl": "https://nine-chronicles.com/api"
+    }
+  }
+}

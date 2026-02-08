@@ -1,0 +1,92 @@
+{
+  "other_lookupAdventureCp": 42901989,
+  "lookupRuneSetMuti_Adventure": [
+    {
+      "index": 0,
+      "isLock": false,
+      "runeId": null,
+      "runeSlotType": "DEFAULT",
+      "runeType": "STAT"
+    },
+    {
+      "index": 1,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "NCG",
+      "runeType": "STAT"
+    },
+    {
+      "index": 2,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "STAKE",
+      "runeType": "STAT"
+    },
+    {
+      "index": 3,
+      "isLock": false,
+      "runeId": 10029,
+      "runeSlotType": "DEFAULT",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 4,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "NCG",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 5,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "STAKE",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 6,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "CRYSTAL",
+      "runeType": "STAT"
+    },
+    {
+      "index": 7,
+      "isLock": true,
+      "runeId": null,
+      "runeSlotType": "CRYSTAL",
+      "runeType": "SKILL"
+    },
+    {
+      "index": 8,
+      "isLock": false,
+      "runeId": null,
+      "runeSlotType": "DEFAULT",
+      "runeType": "STAT"
+    },
+    {
+      "index": 9,
+      "isLock": false,
+      "runeId": null,
+      "runeSlotType": "DEFAULT",
+      "runeType": "SKILL"
+    }
+  ],
+  "lookupItemSetMuti_Adventure": {
+    "costumes": ["87a330fb-b0c2-43e3-86cd-9de168fce26b", "d324c495-c800-446c-8dd9-49ad3e82d1bd"],
+    "equipments": [
+      "0166c707-0617-48c0-a22a-e4b69b510f0a",
+      "0c6fd013-8d5b-4621-a0a4-1948f35907b3",
+      "2b2b3df0-da28-4bbb-926c-31d27913a1cb",
+      "4c7d6590-2cb3-4cdd-900d-31db0e7cfba8",
+      "56527fed-487b-4a1b-8bb0-b722b32ba09d",
+      "799345fc-d98b-4f0d-98f7-b512866d35ff",
+      "9f825129-cfd3-440c-ab38-b184fb936fc7",
+      "b90bc409-da39-44a3-a060-e454061eec21"
+    ]
+  },
+  "other_lookupClaimedGiftIds": [1, 2],
+  "other_lookupPatrolReward": {
+    "blockLastClaim": 16634373
+  }
+}

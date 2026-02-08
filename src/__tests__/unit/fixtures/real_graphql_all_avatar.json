@@ -1,0 +1,45 @@
+{
+  "data": {
+    "stateQuery": {
+      "agent": {
+        "gold": "1799.26",
+        "crystal": "726901429.500000000000000000",
+        "avatarStates": [
+          {
+            "address": "0x79BB6e025762A76C8C85F73581e8c49b68FcaB0C",
+            "name": "vnNineChronicles",
+            "level": 346,
+            "exp": 77557,
+            "dailyRewardReceivedIndex": 8153063,
+            "stageMap": {
+              "pairs": [
+                [1, 4],
+                [2, 2],
+                [3, 1]
+              ]
+            },
+            "inventory": {
+              "equipments": [
+                {
+                  "id": 10670004,
+                  "itemId": "8cc0dde3-49f2-40bd-a4d0-b4e973150406",
+                  "level": 0,
+                  "equipped": true,
+                  "statsMap": {
+                    "hP": 0,
+                    "aTK": 103959,
+                    "dEF": 116214,
+                    "cRI": 0,
+                    "hIT": 0,
+                    "sPD": 0
+                  },
+                  "skills": [{ "id": 110008 }]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

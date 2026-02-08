@@ -7,10 +7,10 @@ import Papa, { type ParseResult } from 'papaparse'
 import type { CsvParserMessage, CsvParserResult, CsvRow } from '../types/csv'
 
 self.onmessage = (event: MessageEvent<CsvParserMessage>) => {
-  const { sheetName, base64Content, keyMain, unique, isRawCsv } = event.data
+  const { sheetName, base64Content, keyMain, unique, isRawCsv, indexFields } = event.data
 
   try {
-    // Get CSV string and filter out lines starting with '_' (Harry's logic)
+    // Get CSV string and filter out lines starting with '_'
     const rawContent = isRawCsv ? base64Content : atob(base64Content)
     const csvString = rawContent
       .split('\n')
@@ -26,6 +26,13 @@ self.onmessage = (event: MessageEvent<CsvParserMessage>) => {
         const rows = results.data
         const headers = results.meta.fields || []
         const mappedData: Record<string, CsvRow> = {}
+        const secondaryIndices: Record<string, Record<string, CsvRow[]>> = {}
+
+        // Initialize indices
+        const fields = indexFields || []
+        fields.forEach((field) => {
+          secondaryIndices[field] = {}
+        })
 
         rows.forEach((row, index) => {
           const keyValue = row[keyMain]
@@ -33,6 +40,20 @@ self.onmessage = (event: MessageEvent<CsvParserMessage>) => {
             const key = unique ? `${keyValue}_${index}` : String(keyValue)
             mappedData[key] = row
           }
+
+          // Build secondary indices
+          fields.forEach((field) => {
+            const val = String(row[field] ?? '')
+            if (val !== '') {
+              const indexMap = secondaryIndices[field]
+              if (indexMap) {
+                if (!indexMap[val]) {
+                  indexMap[val] = []
+                }
+                indexMap[val].push(row)
+              }
+            }
+          })
         })
 
         const result: CsvParserResult = {
@@ -42,6 +63,7 @@ self.onmessage = (event: MessageEvent<CsvParserMessage>) => {
             headers,
             rows,
             mappedData,
+            secondaryIndices: indexFields ? secondaryIndices : undefined,
             keyMain,
           },
         }
