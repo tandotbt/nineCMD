@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useWebSocket } from '@/utilities/websocket'
 import { ref, computed } from 'vue'
-import { AVG_BLOCK, AVG_TRANS, URL_NINE_CHRONICLES_SERVE } from '@/utilities/constants'
+import { AVG_BLOCK, AVG_TRANS, URL_NINE_CHRONICLES_SERVER } from '@/utilities/constants'
 import { convertToSeconds } from '@/utilities/convertToSeconds'
 import { useDataArenaParticipateStore } from './dataArenaParticipate'
 
@@ -20,7 +20,7 @@ export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
       dataWSSList.value.push(jsonData)
       dataWSS.value = newData
     }
-    useWebSocket(URL_NINE_CHRONICLES_SERVE.find((item) => item.planet === planet).wss, addData)
+    useWebSocket(URL_NINE_CHRONICLES_SERVER.find((item) => item.planet === planet).wss, addData)
   }
 
   const webSocket_Odin = createWebSocket('Odin', dataWSS_Odin, dataWSSList_Odin)
@@ -28,7 +28,7 @@ export const useWebSocketBlockStore = defineStore('webSocketBlockStore', () => {
 
   function changePlanet(newPlanet) {
     selectedPlanet.value = newPlanet
-    selectedWss.value = URL_NINE_CHRONICLES_SERVE.find((item) => item.planet === newPlanet).wss
+    selectedWss.value = URL_NINE_CHRONICLES_SERVER.find((item) => item.planet === newPlanet).wss
     // Đưa về false để nhận danh sách avatar lại theo season mới
     useDataArenaParticipateStore().isUseAvatartLogin = false
   }

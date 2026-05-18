@@ -1,7 +1,7 @@
 export const LIST_API_NINECMD = [
   'https://steep-carolee-9cmd-701971d5.koyeb.app',
   'https://ineapi-tandotbt6668-zt8p2j3s.leapcell.dev',
-  'https://api-03.9cmd.top'
+  'https://api-nf.9cmd.top'
 ]
 export const URL_API_GUILD = 'https://guild.nine-chronicles.com'
 export const URL_API_MIMIR = 'https://mimir.nine-chronicles.dev'
@@ -21,7 +21,7 @@ export const DEFAULT_LOCALE = 'en'
 export const FALLBACK_LOCALE = 'en'
 export const AVG_BLOCK = 8
 export const AVG_TRANS = 100
-export const URL_NINE_CHRONICLES_SERVE = [
+export const URL_NINE_CHRONICLES_SERVER = [
   {
     planet: 'Odin',
     wss: 'wss://j3u7e1snee.execute-api.ap-northeast-2.amazonaws.com/production',

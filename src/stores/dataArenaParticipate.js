@@ -63,7 +63,7 @@ export const useDataArenaParticipateStore = defineStore('dataArenaParticipateSto
   //     if (!isUseAvatartLogin.value && isUseAvatartLoginOK.value) {
   //         return `${urlRest9cscan.value}${path9cscanRest.value}${address.value}`
   //     } else if (isUseAvatartLogin.value && !isUseAvatartLoginOK.value) {
-  //         return URL_NINE_CHRONICLES_SERVE.find(item => item.planet.toLowerCase() === selectedPlanet.value).arenaParticipate
+  //         return URL_NINE_CHRONICLES_SERVER.find(item => item.planet.toLowerCase() === selectedPlanet.value).arenaParticipate
   //     } else return null
   // })
   // Lấy avatar address mới bằng nine-chronicles

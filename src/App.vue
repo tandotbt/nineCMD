@@ -118,7 +118,7 @@ import { useStorage, onClickOutside } from '@vueuse/core'
 // import { NThemeEditor } from 'naive-ui'
 import { darkTheme, NIcon, NAvatar, NText } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { URL_NINE_CHRONICLES_SERVE } from '@/utilities/constants'
+import { URL_NINE_CHRONICLES_SERVER } from '@/utilities/constants'
 import { useWebSocketBlockStore } from '@/stores/webSocketBlock'
 import { useConfigURLStore } from '@/stores/configURL'
 import { useFetchDataUser9CStore } from '@/stores/fetchDataUser9C'
@@ -147,7 +147,7 @@ const nodeOptions = computed(() =>
 )
 
 const selectedNode = ref(useConfigURL.selectedNode)
-const planetOptions = URL_NINE_CHRONICLES_SERVE.map((item) => ({
+const planetOptions = URL_NINE_CHRONICLES_SERVER.map((item) => ({
   label: item.planet,
   value: item.planet
 }))
