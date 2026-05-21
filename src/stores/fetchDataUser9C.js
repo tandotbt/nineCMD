@@ -229,7 +229,7 @@ export const useFetchDataUser9CStore = defineStore('fetchDataUser9CStore', () =>
         fragment infoArena on ArenaParticipantDocument{score avatarAddress rank lastBattleBlockIndex}`
     }
   })
-  /* eslint-disable no-unused-vars */
+   
   watch(postDataJson, (newValue, oldValue) => {
     executeUser9C()
     resume()

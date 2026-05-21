@@ -677,7 +677,7 @@ function filterDataAfter(newVal) {
   else dataAfterSortAndFilter.value = resultFilter
 }
 // Sử dụng watch để theo dõi sự thay đổi trong các bộ lọc và áp dụng chúng vào dữ liệu
-// eslint-disable-next-line no-unused-vars
+ 
 watch(allFiltersRef, (newVal, oldVal) => {
   filterDataAfter(newVal)
   // Sort lại

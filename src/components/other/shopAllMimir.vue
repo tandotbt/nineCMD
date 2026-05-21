@@ -61,7 +61,7 @@ function createColumns({ buyThis }) {
     },
     {
       type: 'expand',
-      // eslint-disable-next-line no-unused-vars
+       
       expandable: (rowData) => true,
       renderExpand: (rowData) =>
         h('pre', { style: { 'white-space': 'pre-wrap' } }, JSON.stringify(rowData, null, 2))

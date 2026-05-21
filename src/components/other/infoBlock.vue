@@ -27,7 +27,7 @@ export default {
     )
     const hasError = computed(() => useConfigURL.hasError)
     // Hàm xử lý hiển thị loadingBar
-    // eslint-disable-next-line no-unused-vars
+     
     watch(isFetching, (newValue, oldValue) => {
       if (newValue) {
         loadingBar.start()

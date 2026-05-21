@@ -613,7 +613,7 @@ function openPythonanywhere() {
   window.open(`https://${baseUrl}.pythonanywhere.com`, '_blank')
 }
 
-// eslint-disable-next-line no-unused-vars
+ 
 watch(isUseAvatartLogin, (newValue, oldValue) => {
   resetValue()
 })

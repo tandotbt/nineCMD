@@ -146,7 +146,7 @@ export const useFetchDataShopMimirAvatarStore = defineStore('fetchDataShopMimirA
   const dataShopMimirAvatar_final = ref([])
   watch(
     postDataShopMimirAvatar_temp,
-    // eslint-disable-next-line no-unused-vars
+     
     async (newVal, oldVal) => {
       // Hủy bỏ các yêu cầu cũ nếu có
       abortShopMimirAvatar_productId();
