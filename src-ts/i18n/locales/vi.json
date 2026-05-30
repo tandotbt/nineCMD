@@ -1,0 +1,17 @@
+{
+  "@--App": {
+    "title": "NineCMD TypeScript",
+    "toggleTheme": {
+      "light": "Sáng",
+      "dark": "Tối"
+    },
+    "darkModeStatus": {
+      "on": "🌙 Chế độ tối BẬT",
+      "off": "☀️ Chế độ tối TẮT"
+    },
+    "description": "Phiên bản TypeScript với Chế độ Tối.",
+    "devNote": "Giao diện đang trong giai đoạn phát triển. Phiên bản đầy đủ xem tại port 1414.",
+    "language": "Ngôn ngữ",
+    "footer": "NineCMD TypeScript © 2024"
+  }
+}

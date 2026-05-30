@@ -1,0 +1,17 @@
+{
+  "@--App": {
+    "title": "NineCMD TypeScript",
+    "toggleTheme": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "darkModeStatus": {
+      "on": "🌙 Dark Mode ON",
+      "off": "☀️ Dark Mode OFF"
+    },
+    "description": "TypeScript version with Dark Mode.",
+    "devNote": "This interface is under development. Full version see at port 1414.",
+    "language": "Language",
+    "footer": "NineCMD TypeScript © 2024"
+  }
+}
