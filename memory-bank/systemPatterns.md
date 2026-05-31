@@ -1,49 +1,81 @@
 # System Patterns: NineCMD
 
 ## System Architecture
-NineCMD sử dụng một kiến trúc client-side với Vue.js 3 làm framework chính. Ứng dụng tương tác với các API của Nine Chronicles thông qua WebSocket và RPC endpoints.
+NineCMD sử dụng kiến trúc client-side với Vue.js 3 + TypeScript. Ứng dụng tương tác với Nine Chronicles thông qua GraphQL (Mimir endpoint) và REST APIs.
 
 ### Component Relationships
-- **App.vue**: Giao diện chính của ứng dụng.
-- **MenuLeft.vue**: Menu bên trái cho các chức năng chính.
-- **HeaderNineCMD.vue**: Header cho giao diện người dùng.
-- **FooterBlock.vue**: Footer cho giao diện người dùng.
-- **FloatButtonSetting.vue**: Các nút điều khiển nổi.
+- **App.vue**: ConfigProvider + watch Pinia stores để apply theme/language
+- **MainLayout.vue**: Header+Sidebar+Content+Footer layout
+- **PlaceholderMenuLeft.vue**: Sidebar menu + language selector + dark mode toggle
+- **PlaceholderHeader.vue**: Grid 24 responsive header
+- **PlaceholderFooter.vue**: FooterInfoBlock (block info) + FooterNodeManager (drawer)
 
 ### Critical Implementation Paths
-- **Tương tác WebSocket**: Sử dụng WebSocket để kết nối với server Nine Chronicles.
-- **Pinia Stores**: Sử dụng Pinia để quản lý trạng thái toàn cầu.
-- **Vue Router**: Quản lý các view và chuyển đổi giữa các trang.
-- **Vue-i18n**: Hỗ trợ đa ngôn ngữ.
-- **Arena Data Conversion**: Sử dụng hàm `convertToArenaParticipants` để chuyển đổi dữ liệu từ API Arena thành đối tượng tham gia Arena.
-- **Arena Season Management**: Sử dụng store `arenaSeason` để quản lý thông tin về mùa giải Arena.
-- **WebSocket Block Management**: Sử dụng store `webSocketBlock` để quản lý thông tin block và tính toán các thông số liên quan đến block hiện tại và trung bình.
+- **Block Polling**: GraphQL query `blocks(take: 1)` tới Mimir endpoint per planet, poll mỗi N giây
+- **Pinia Stores**: `appSettings` (global settings) + `blockPolling` (block data) share state across components
+- **Vue Router**: Quản lý views trong MainLayout
+- **Vue-i18n**: Đa ngôn ngữ (en/vi)
+- **Arena Data Conversion**: `convertToArenaParticipants` (JS version)
+- **Arena Season Management**: `arenaSeason` store (JS version)
 
 ## Design Patterns
-- **MVVM (Model-View-ViewModel)**: Sử dụng Vue.js để quản lý trạng thái và giao diện.
-- **Singleton Pattern**: Sử dụng Pinia để quản lý trạng thái toàn cầu.
-- **Observer Pattern**: Sử dụng Vue's reactivity system để cập nhật giao diện khi trạng thái thay đổi.
-- **Dependency Injection**: Sử dụng Vue's Composition API để quản lý các phụ thuộc.
-- **Lazy Loading**: Sử dụng `useFetch` và `useStorage` từ `@vueuse/core` để tải dữ liệu và lưu trữ trạng thái một cách hiệu quả.
-- **Debounce**: Sử dụng `refDebounced` để tối ưu hóa việc fetch dữ liệu khi thay đổi hành tinh.
-- **CSV Parsing**: Sử dụng `PapaParse` để phân tích và chuyển đổi dữ liệu CSV thành đối tượng có thể truy cập.
-- **Error Handling**: Sử dụng `onFetchError` để xử lý lỗi một cách hiệu quả và cung cấp dữ liệu fallback khi cần thiết.
-- **Utility Functions**: Sử dụng các hàm hỗ trợ như `combatPotion`, `statAndSkillOption`, `statsMapConvert`, `statAndSkillOption_shop`, `convertToArenaParticipants`, và các hàm liên quan đến quản lý mùa giải Arena và block.
+- **MVVM**: Vue.js 3 Composition API
+- **Singleton Pattern**: Pinia stores (appSettings, blockPolling) là singletons
+- **Observer Pattern**: Vue reactivity system + Pinia computed/watch
+- **Dependency Injection**: Vue provide/inject (theme, lang) + Pinia store injection
+- **Polling Pattern**: setInterval + GraphQL query thay WebSocket
+- **localStorage Persistence**: Store actions trực tiếp persist via `localStorage.setItem`
 
 ## Key Technical Decisions
-- **Vue.js 3**: Lựa chọn framework để xây dựng giao diện người dùng.
-- **Naive UI**: Thư viện UI để tạo giao diện người dùng hiện đại và thân thiện.
-- **Pinia**: Thư viện quản lý trạng thái thay thế cho Vuex.
-- **Vue-i18n**: Thư viện hỗ trợ đa ngôn ngữ.
-- **WebSocket**: Sử dụng để tương tác thời gian thực với server Nine Chronicles.
-- **Pinia Stores**: Sử dụng để quản lý các trạng thái liên quan đến dữ liệu người dùng, Arena, trang bị, và các tính năng khác.
-- **WebSocket Block Store**: Sử dụng để quản lý thông tin block và tính toán các thông số liên quan đến block hiện tại và trung bình.
-- **Season Management**: Sử dụng store `arenaSeason` để quản lý thông tin về mùa giải Arena.
-- **Data Fetching and Processing**: Sử dụng `useFetchDataUser9CStore` để fetch và xử lý dữ liệu người dùng, bao gồm trang bị, Arena, và các tính năng khác.
+- **GraphQL thay WebSocket**: WebSocket đã ngưng hoạt động, dùng `blocks(take: 1)` query tới Mimir GraphQL endpoint
+- **Pinia Stores thay Composable Singleton**: Dùng Pinia để share state giữa components, test được
+- **Relative imports trong src-ts/**: `@/` alias map tới `src/` (JS), dùng `../` cho imports trong src-ts/
+- **Direct localStorage thay useStorage**: Tránh sync issues giữa `useStorage` + `watch` trong test environment
+- **isPolling là ref**: Reactive state cho polling status, không dùng computed từ module-scope variable
 
-## Stores and Utilities
-- **Arena Season Store**: Quản lý thông tin về mùa giải Arena, bao gồm tính toán thời gian còn lại cho từng mùa giải và vòng đấu hiện tại.
-- **WebSocket Block Store**: Quản lý thông tin về block hiện tại và tính toán các thông số liên quan như block hiện tại, block trung bình, và thời gian chuyển đổi.
-- **Config URL Store**: Quản lý các URL và cấu hình liên quan đến API và dữ liệu game.
-- **Fetch Data User Store**: Quản lý việc fetch và xử lý dữ liệu người dùng, bao gồm trang bị, Arena, và các thông tin liên quan.
-- **Utility Functions**: Các hàm hỗ trợ như `combatPotion`, `convertToArenaParticipants`, và các hàm liên quan để xử lý thông tin trang bị và Arena.
+## Stores Architecture (src-ts/)
+```
+appSettings Store                    blockPolling Store
+├ isDarkMode (ref)                  ├ currentBlockIndex (ref)
+├ lang (ref)                        ├ blockHistory (ref<BlockPollEntry[]>)
+├ selectedPlanet (ref<PlanetName>)  ├ isLoading (ref)
+├ planetLabel (ref)                 ├ error (ref)
+├ pollIntervalMs (ref)              ├ isPolling (ref)
+├ toggleDarkMode()                  ├ avgBlockTime (computed)
+├ setDarkMode()                     ├ successRate (computed)
+├ setLang()                         ├ planetLabel (computed)
+├ setPlanet()                       ├ startPolling()
+└ setPollInterval()                 ├ stopPolling()
+    ↑ persist to localStorage       ├ refresh()
+                                    └ watch appSettings changes
+```
+
+## GraphQL Query Pattern
+```graphql
+# Exact match Python get_block_now()
+# Endpoint: https://{planet}-mimir.9c.gg/graphql
+query {
+  blocks(take: 1) {
+    items {
+      object {
+        index
+      }
+    }
+  }
+}
+# Response: response["data"]["blocks"]["items"][0]["object"]["index"]
+```
+
+## Planet Configuration
+| Planet | Mimir URL | Headless GQL |
+|--------|-----------|--------------|
+| Odin | `https://odin-mimir.9c.gg/graphql` | `https://odin-rpc-2.nine-chronicles.com/graphql` |
+| Heimdall | `https://heimdall-mimir.9c.gg/graphql` | `https://heimdall-rpc-2.nine-chronicles.com/graphql` |
+| Thor | (no mimir) | `https://thor-rpc-1.nine-chronicles.com/graphql` |
+
+## Testing Patterns
+- **Pinia stores**: `setActivePinia(createPinia())` trong beforeEach
+- **localStorage mock**: Custom mock object với vi.stubGlobal
+- **Fetch mock**: `mockFetch.mockResolvedValue(...)` cho GraphQL responses
+- **Async operations**: `await store.refresh()` (returns Promise) cho pollOnce
+- **Store auto-start**: blockPolling auto-starts, call `store.stopPolling()` trước khi test state

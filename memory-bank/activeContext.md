@@ -1,102 +1,112 @@
 # Active Context: NineCMD
 
 ## Current Work Focus
-- **TypeScript Migration**: Giai đoạn 2a hoàn thành - Vue Router + placeholder components với layout responsive.
-- **Vue Router**: Đã tích hợp với 3 routes (main layout, login, 404), transitions trong content area.
-- **Modular Components**: Header/Footer đã modularize thành các sub-components type-safe.
-- **Dark Mode + i18n**: Hoạt động qua provide/inject pattern từ App.vue.
-- **Tiếp theo**: Điền logic vào placeholder components, chuyển stores/utilities sang TypeScript.
+- **TypeScript Migration**: Giai đoạn 2b hoàn thành - Block Polling + App Settings Pinia stores + Planet selection + Dark mode store integration.
+- **Block Polling**: Thay thế WebSocket (đã ngưng hoạt động) bằng GraphQL polling qua Mimir endpoint, tính avg block time từ block index diff.
+- **Pinia Stores**: `appSettings` (dark mode, planet, language, poll interval) + `blockPolling` (block data, polling control).
+- **Footer UI**: Tab "Block Monitor" với planet selection, poll interval settings, block stats; Tab "Setting" với dark mode toggle, language.
+- **88 Tests Pass**: appSettings (22) + blockPolling (22) + darkMode (19) + i18n (12) + router (13).
+- **Tiếp theo**: Chuyển stores/utilities từ JS sang TypeScript, thêm routes cho Arena/Shop.
 
-## Session Mới Nhất - Vue Router + Modular Components
+## Session Mới Nhất - Block Polling + Pinia Stores
 
 ### Đã Hoàn Thành
-1. **Vue Router Integration**:
-   - [`src-ts/router/index.ts`](src-ts/router/index.ts) - 3 routes trong MainLayout, transitions fade
-   - Tất cả routes là children của MainLayout để có header/sidebar/footer一致
+1. **Pinia Store: appSettings** ([`src-ts/stores/appSettings.ts`](src-ts/stores/appSettings.ts)):
+   - Dark mode state + toggle/set
+   - Planet selection (odin/heimdall/thor) + label
+   - Language (en/vi)
+   - Poll interval (5s–60s)
+   - Persist to localStorage via direct `localStorage.setItem`
 
-2. **Main Layout**:
-   - [`src-ts/layouts/MainLayout.vue`](src-ts/layouts/MainLayout.vue) - Khung header+sidebar+content+footer replica JS version
-   - Sidebar collapse với onClickOutside, router-view với Transition
+2. **Pinia Store: blockPolling** ([`src-ts/stores/blockPolling.ts`](src-ts/stores/blockPolling.ts)):
+   - GraphQL query `blocks(take: 1) { items { object { index } } }` exact match Python `get_block_now()`
+   - Mimir endpoint per planet: `https://odin-mimir.9c.gg/graphql`, `https://heimdall-mimir.9c.gg/graphql`
+   - Poll cycle: configurable interval (default 10s), auto-start on store creation
+   - Avg block time: calculated from block index diff between polls
+   - Stats: pollCount, successCount, failCount, successRate, historyLength
+   - Watch planet/interval changes from appSettings store
 
-3. **Modular Header Components**:
-   - [`PlaceholderHeader.vue`](src-ts/components/PlaceholderHeader.vue) - Grid 24 columns responsive
-   - [`header/HeaderAvatar.vue`](src-ts/components/header/HeaderAvatar.vue) - Avatar với router-link
-   - [`header/HeaderProgress.vue`](src-ts/components/header/HeaderProgress.vue) - Progress bars type-safe
-   - [`header/HeaderBanner.vue`](src-ts/components/header/HeaderBanner.vue) - Carousel banners
+3. **Planet Constants** ([`src-ts/utilities/constants.ts`](src-ts/utilities/constants.ts)):
+   - `PlanetName` type: `'odin' | 'heimdall' | 'thor'`
+   - `PlanetConfig` interface: id, label, mimirUrl, headlessGql
+   - `PLANET_CONFIGS`, `PLANET_OPTIONS`, `POLL_INTERVAL_OPTIONS`
+   - `QUERY_GET_BLOCK_NOW`: exact Python GraphQL query
 
-4. **Modular Footer Components**:
-   - [`PlaceholderFooter.vue`](src-ts/components/PlaceholderFooter.vue) - InfoBlock + NodeManager
-   - [`footer/FooterInfoBlock.vue`](src-ts/components/footer/FooterInfoBlock.vue) - Block info placeholder
-   - [`footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Drawer với tabs
+4. **Updated Components**:
+   - [`FooterInfoBlock.vue`](src-ts/components/footer/FooterInfoBlock.vue) - Hiển thị #block, avg time, planet từ blockPolling store
+   - [`FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Tab "Block Monitor" (planet select, poll interval, stats, start/stop); Tab "Setting" (dark mode switch, language select)
+   - [`App.vue`](src-ts/App.vue) - Watch `appSettings.isDarkMode`/`appSettings.lang` to apply theme/language
 
-5. **Sidebar (MenuLeft)**:
-   - [`PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue) - Menu + language selector + dark mode toggle
-   - Dark mode/lang via provide/inject từ App.vue
+5. **Updated Types** ([`src-ts/types/footer.ts`](src-ts/types/footer.ts)):
+   - `FooterSettings.pollIntervalMs`
+   - `BlockPollEntry`, `BlockAverages`
 
-6. **Type Definitions**:
-   - [`types/header.ts`](src-ts/types/header.ts) - HeaderAvatarProps, HeaderProgressItem, HeaderBannerItem, HeaderSettings
-   - [`types/footer.ts`](src-ts/types/footer.ts) - BlockInfo, NodeConfig, FooterSettings
+6. **Updated naive-ui.d.ts**: Thêm `NSpin`, `NTooltip` declarations
 
-7. **i18n Keys**:
-   - Thêm `page.home`, `page.login`, `page.notFound`, `page-notFound.detail` vào en.json/vi.json
-
-8. **TypeScript Fixes** (Total: 16):
-   - Thêm NMenu, NLayoutSider, NBadge, NEllipsis, NDrawer, NDrawerContent, NTabs, NTabPane, NFlex vào naive-ui.d.ts
-   - Thêm FullscreenRound, FormatListBulletedRound, HomeRound, LogInRound vào ui.d.ts
-   - Fix FooterSettings type (thêm lastPlanet field)
-   - Provide/inject cho dark mode (thay vì emit qua router-view)
+7. **Test Cases** (88 total):
+   - [`appSettings.test.ts`](src-ts/__tests__/appSettings.test.ts) - 22 tests: dark mode, language, planet, poll interval, persistence, integration
+   - [`blockPolling.test.ts`](src-ts/__tests__/blockPolling.test.ts) - 22 tests: initial state, planet, interval, polling control, GraphQL query format, error handling, integration
+   - [`darkMode.test.ts`](src-ts/__tests__/darkMode.test.ts) - 19 tests: theme logic, localStorage, Pinia store integration, i18n config
 
 ## How To Run
 ```bash
 npm run dev      # JS version (port 1414)
 npm run dev:ts   # TS version (port 1415)
 npm run build:ts # Build TS version
-npm run test     # Vitest (24 tests, src-ts/)
+npm run test     # Vitest (88 tests, src-ts/)
 ```
 
 ## File Structure src-ts/ (Latest)
 ```
 src-ts/
-├── main.ts                              # Entry: Vue 3 + Pinia + i18n + Router
-├── App.vue                              # ConfigProvider + provide theme/lang
-├── router/index.ts                      # 3 routes trong MainLayout
-├── layouts/MainLayout.vue               # Header+Sidebar+Content+Footer
-├── components/
-│   ├── PlaceholderHeader.vue            # Grid 24 responsive (JS-like)
-│   ├── PlaceholderMenuLeft.vue          # Menu + lang + dark mode (sidebar)
-│   ├── PlaceholderFooter.vue            # InfoBlock + NodeManager
-│   ├── PlaceholderFloatButton.vue       # Float button
-│   ├── header/
-│   │   ├── HeaderAvatar.vue             # Avatar placeholder
-│   │   ├── HeaderProgress.vue           # Progress bar placeholder
-│   │   └── HeaderBanner.vue             # Banner carousel placeholder
-│   └── footer/
-│       ├── FooterInfoBlock.vue           # Block info placeholder
-│       └── FooterNodeManager.vue         # Drawer với tabs
-├── views/
-│   ├── HomePage.vue                     # Trang chủ placeholder
-│   ├── LoginPage.vue                    # Login placeholder
-│   └── NotFoundPage.vue                 # 404 placeholder
-├── types/
-│   ├── header.ts                        # Header component types
-│   ├── footer.ts                        # Footer component types
-│   ├── naive-ui.d.ts                    # 34+ naive-ui exports
-│   └── ui.d.ts                          # @vicons/material + vue-i18n + @vueuse/core
-├── i18n/                                # locales, numberFormats, datetimeFormats
-├── utilities/constants.ts               # Constants cho i18n
-├── assets/base.css                      # CSS + transitions (fade, slide-right)
-└── __tests__/                           # 24 tests
+├ main.ts                              # Entry: Vue 3 + Pinia + i18n + Router
+├ App.vue                              # ConfigProvider + watch store for theme/lang
+├ router/index.ts                      # 3 routes trong MainLayout
+├ layouts/MainLayout.vue               # Header+Sidebar+Content+Footer
+├ stores/                              # Pinia stores
+│  ├── appSettings.ts                  # Dark mode, planet, language, poll interval
+│  └── blockPolling.ts                 # Block polling via GraphQL, avg block time
+├ components/
+│  ├── PlaceholderHeader.vue           # Grid 24 responsive
+│  ├── PlaceholderMenuLeft.vue         # Menu + lang + dark mode (sidebar)
+│  ├── PlaceholderFooter.vue           # InfoBlock + NodeManager
+│  ├── PlaceholderFloatButton.vue      # Float button
+│  ├── header/
+│  │  ├── HeaderAvatar.vue
+│  │  ├── HeaderProgress.vue
+│  │  └── HeaderBanner.vue
+│  └── footer/
+│     ├── FooterInfoBlock.vue           # Block info từ blockPolling store
+│     └── FooterNodeManager.vue         # Block Monitor tab + Settings tab
+├ views/
+│  ├── HomePage.vue
+│  ├── LoginPage.vue
+│  └── NotFoundPage.vue
+├ types/
+│  ├── header.ts
+│  ├── footer.ts                       # + BlockPollEntry, BlockAverages
+│  ├── naive-ui.d.ts                   # + NSpin, NTooltip
+│  └── ui.d.ts
+├ i18n/                                # locales, numberFormats, datetimeFormats
+├ utilities/constants.ts               # + Planet configs, poll intervals, GraphQL query
+├ assets/base.css
+└ __tests__/                           # 88 tests
+   ├── i18n.test.ts (12)
+   ├── darkMode.test.ts (19)
+   ├── router.test.ts (13)
+   ├── appSettings.test.ts (22)
+   └── blockPolling.test.ts (22)
 ```
 
 ## Active Decisions
-- **Provide/Inject cho theme**: App.vue provide `toggleTheme`/`changeLang`, sidebar inject
-- **All routes as children of MainLayout**: Đảm bảo header/sidebar/footer一致
-- **Relative imports cho src-ts types**: Tránh conflict `@/` alias (map tới src/)
-- **Modular Header/Footer**: Phân nhỏ thành sub-components để dễ bảo trì
-- **Responsive Grid**: n-grid 24 cols với item-responsive giống JS version
+- **GraphQL polling thay WebSocket**: `blocks(take: 1)` query giống Python, poll mỗi N giây
+- **Pinia stores thay composable singleton**: `appSettings` + `blockPolling` stores, share state across components
+- **localStorage persistence**: Direct `localStorage.setItem` trong store actions (không dùng `useStorage` vì sync issues trong tests)
+- **Relative imports trong src-ts/**: Tránh conflict `@/` alias (map tới `src/`)
+- **isPolling là ref**: Để reactive updates, không dùng computed từ module-scope variable
 
 ## Next Steps
-1. **Điền logic vào placeholder** - Chuyển real logic từ JS HeaderNineCMD, FooterBlock
-2. **Chuyển stores** → TypeScript (10 stores)
-3. **Chuyển utilities** → TypeScript (15+ files)
-4. **Thêm routes** cho Arena, Shop
+1. **Chuyển stores JS → TypeScript** (10 stores từ src/stores/)
+2. **Chuyển utilities JS → TypeScript** (15+ files từ src/utilities/)
+3. **Thêm routes** cho Arena, Shop
+4. **Điền logic vào placeholder views** (HomePage, LoginPage)

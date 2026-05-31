@@ -115,6 +115,8 @@ declare module 'naive-ui' {
   export const NTabs: Component
   export const NTabPane: Component
   export const NFlex: Component
+  export const NSpin: Component
+  export const NTooltip: Component
   export const NGradientText: Component
   export const NPopconfirm: Component
   export const NProgress: Component

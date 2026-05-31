@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide } from 'vue'
+import { ref, provide, watch } from 'vue'
 import {
   darkTheme,
   type GlobalTheme,
@@ -31,15 +31,11 @@ import {
   NGlobalStyle
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { useStorage } from '@vueuse/core'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
-
-interface SettingNineCMD {
-  isDarkMode?: boolean
-  lang?: string
-}
+import { useAppSettingsStore } from './stores/appSettings'
 
 const { locale } = useI18n()
+const appSettings = useAppSettingsStore()
 
 const themeBreakpoints = {
   xs: 320,
@@ -54,8 +50,6 @@ const theme = ref<GlobalTheme | null>(null)
 const themeOverrides = ref<GlobalThemeOverrides | null>(null)
 const uiConfig = ref<Record<string, unknown> | null>(null)
 const uiConfigDate = ref<Record<string, unknown> | null>(null)
-
-const settingNineCMD = useStorage<SettingNineCMD>('setting-nine-cmd', {}, localStorage)
 
 const lightThemeOverrides: GlobalThemeOverrides = {
   Result: {
@@ -77,31 +71,35 @@ const darkThemeOverrides: GlobalThemeOverrides = {
   }
 }
 
-function toggleTheme(isDark: boolean): void {
+function applyTheme(isDark: boolean): void {
   theme.value = isDark ? darkTheme : null
   themeOverrides.value = isDark ? darkThemeOverrides : lightThemeOverrides
-  settingNineCMD.value.isDarkMode = isDark
 }
 
-function changeLang(selectedLang: string): void {
+function applyLang(selectedLang: string): void {
   const langConfig = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedLang)
   if (langConfig) {
     uiConfig.value = langConfig.uiConfig as unknown as Record<string, unknown>
     uiConfigDate.value = langConfig.uiConfigDate as unknown as Record<string, unknown>
   }
-  settingNineCMD.value.lang = selectedLang
   locale.value = selectedLang
 }
 
-// Provide theme toggle to child components
-provide('toggleTheme', toggleTheme)
-provide('changeLang', changeLang)
+// Provide theme toggle to child components (backward compat)
+provide('toggleTheme', (isDark: boolean) => appSettings.setDarkMode(isDark))
+provide('changeLang', (lang: string) => appSettings.setLang(lang))
 
-// Initialize from localStorage
-const isDarkMode = settingNineCMD.value.isDarkMode ?? false
-toggleTheme(isDarkMode)
+// Watch dark mode changes from store
+watch(
+  () => appSettings.isDarkMode,
+  (isDark) => applyTheme(isDark),
+  { immediate: true }
+)
 
-if (settingNineCMD.value.lang) {
-  changeLang(settingNineCMD.value.lang)
-}
+// Watch language changes from store
+watch(
+  () => appSettings.lang,
+  (lang) => applyLang(lang),
+  { immediate: true }
+)
 </script>

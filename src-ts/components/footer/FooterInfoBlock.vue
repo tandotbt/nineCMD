@@ -1,32 +1,33 @@
 <template>
   <n-text depth="3" style="font-size: 12px">
-    #{{ blockNow }}
+    #{{ blockPolling.currentBlockIndex }}
   </n-text>
   <n-divider vertical />
   <n-text depth="3" style="font-size: 12px">
-    {{ avgBlockNow }}s
+    {{ blockPolling.avgBlockTime }}s
   </n-text>
   <n-divider vertical />
   <n-text depth="3" style="font-size: 12px">
-    {{ avgTransNow }} tx/s
+    {{ blockPolling.planetLabel }}
   </n-text>
-  <n-divider vertical />
-  <n-text depth="3" style="font-size: 12px">
-    {{ selectedPlanet }}
-  </n-text>
+  <template v-if="blockPolling.isLoading">
+    <n-divider vertical />
+    <n-spin :size="10" />
+  </template>
+  <template v-else-if="blockPolling.error">
+    <n-divider vertical />
+    <n-tooltip trigger="hover">
+      <template #trigger>
+        <n-text depth="3" style="font-size: 12px; color: #d4380d">⚠</n-text>
+      </template>
+      {{ blockPolling.error }}
+    </n-tooltip>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { NText, NDivider } from 'naive-ui'
-import { useStorage } from '@vueuse/core'
-import type { FooterSettings } from '../../types/footer'
+import { NText, NDivider, NSpin, NTooltip } from 'naive-ui'
+import { useBlockPollingStore } from '../../stores/blockPolling'
 
-const settingNineCMD = useStorage<FooterSettings>('setting-nine-cmd', {} as FooterSettings, localStorage)
-
-// Placeholder values - will be replaced with real WebSocket data
-const blockNow = computed(() => '0')
-const avgBlockNow = computed(() => '0')
-const avgTransNow = computed(() => '0')
-const selectedPlanet = computed(() => settingNineCMD.value.lastPlanet ?? 'Odin')
+const blockPolling = useBlockPollingStore()
 </script>
