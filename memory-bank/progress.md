@@ -4,10 +4,8 @@
 Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song với hai entry points.
 
 ## Current Status
-- **Giai đoạn 1 - Infrastructure**: ✅ Hoàn thành
-- **Giai đoạn 1b - Simple TS UI + i18n**: ✅ Hoàn thành
-- **Giai đoạn 1c - Testing**: ✅ Hoàn thành (24/24 tests)
-- **Giai đoạn 2a - Vue Router + Layout**: ✅ Hoàn thành
+- **Giai đoạn 1 - Infrastructure + i18n + Testing**: ✅ Hoàn thành
+- **Giai đoạn 2a - Vue Router + Layout + Modular Components**: ✅ Hoàn thành
 - **Giai đoạn 2b**: Điền logic vào placeholder components
 - **Giai đoạn 3**: Chuyển stores → TypeScript
 - **Giai đoạn 4**: Chuyển utilities → TypeScript
@@ -17,45 +15,37 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 ### Phase 1: Infrastructure + i18n + Testing
 - [x] TS infrastructure, i18n, dark mode, 24 tests
 
-### Phase 2a: Vue Router + Layout + Modular Components ✅ (Latest)
-- [x] [`src-ts/router/index.ts`](src-ts/router/index.ts) - 3 routes (home, login, 404) trong MainLayout
-- [x] [`src-ts/layouts/MainLayout.vue`](src-ts/layouts/MainLayout.vue) - Header+Sidebar+Content+Footer
-- [x] [`src-ts/components/PlaceholderHeader.vue`](src-ts/components/PlaceholderHeader.vue) - Grid 24 responsive
-- [x] [`src-ts/components/PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue) - Menu + lang + dark mode
-- [x] [`src-ts/components/PlaceholderFooter.vue`](src-ts/components/PlaceholderFooter.vue) - InfoBlock + NodeManager
-- [x] [`src-ts/components/header/HeaderAvatar.vue`](src-ts/components/header/HeaderAvatar.vue) - Avatar
-- [x] [`src-ts/components/header/HeaderProgress.vue`](src-ts/components/header/HeaderProgress.vue) - Progress bar
-- [x] [`src-ts/components/header/HeaderBanner.vue`](src-ts/components/header/HeaderBanner.vue) - Banner carousel
-- [x] [`src-ts/components/footer/FooterInfoBlock.vue`](src-ts/components/footer/FooterInfoBlock.vue) - Block info
-- [x] [`src-ts/components/footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Drawer tabs
-- [x] [`src-ts/components/PlaceholderFloatButton.vue`](src-ts/components/PlaceholderFloatButton.vue) - Float button
-- [x] [`src-ts/types/header.ts`](src-ts/types/header.ts) + [`footer.ts`](src-ts/types/footer.ts) - Type definitions
+### Phase 2a: Vue Router + Layout + Modular Components ✅
+- [x] [`router/index.ts`](src-ts/router/index.ts) - 3 routes trong MainLayout
+- [x] [`layouts/MainLayout.vue`](src-ts/layouts/MainLayout.vue) - Header+Sidebar+Content+Footer
+- [x] Modular Header: PlaceholderHeader + HeaderAvatar/Progress/Banner
+- [x] Sidebar: PlaceholderMenuLeft (menu + lang + dark mode via provide/inject)
+- [x] Modular Footer: PlaceholderFooter + FooterInfoBlock/NodeManager (drawer toggle 70%↔100%)
+- [x] Views: HomePage, LoginPage, NotFoundPage
+- [x] Types: header.ts, footer.ts
 - [x] i18n keys: page.home, page.login, page.notFound
-- [x] Dark mode via provide/inject
-- [x] CSS transitions (fade, slide-right) trong content area
+- [x] CSS transitions (fade, slide-right)
+- [x] [`__tests__/router.test.ts`](src-ts/__tests__/router.test.ts) - 7 tests
 
-### Issues Resolved (Total: 16)
-1. ✅ Vite conflict → Plugin redirect
-2. ✅ n-global-style warning → NGlobalStyle import
-3. ✅ src/main.ts trùng lặp → Xóa
-4. ✅ Naive UI Plugin type error → Direct imports
-5. ✅ any types → Proper interfaces
-6. ✅ Vitest jsdom missing
-7. ✅ useI18n() outside setup → i18n.global.t()
-8. ✅ localStorage.clear() not a function
-9. ✅ Naive UI exports missing (18 → 34+)
-10. ✅ vue-i18n declarations
-11. ✅ JSON imports module
-12. ✅ NLocale/NDateLocale type mismatch
+### Tests: 31/31 Pass
+| Test File | Tests | Status |
+|-----------|-------|--------|
+| i18n.test.ts | 12 | ✅ |
+| darkMode.test.ts | 12 | ✅ |
+| router.test.ts | 7 | ✅ |
+
+### Issues Resolved (Total: 17)
+1-12. ✅ Previous issues (Vite, naive-ui, vitest, etc.)
 13. ✅ @vicons/material missing icons
 14. ✅ naive-ui missing NForm/NButton/NResult etc.
-15. ✅ Missing i18n keys (page.home, page.login)
+15. ✅ Missing i18n keys
 16. ✅ Dark mode provide/inject pattern
+17. ✅ FooterNodeManager drawer toggle (70%↔100%)
 
-## TS Files Structure
+## File Structure
 ```
 src-ts/
-├── main.ts + App.vue (entry + config provider)
+├── main.ts + App.vue (entry + provide theme/lang)
 ├── router/index.ts (3 routes)
 ├── layouts/MainLayout.vue
 ├── components/
@@ -64,7 +54,8 @@ src-ts/
 │   └── footer/{FooterInfoBlock,FooterNodeManager}.vue
 ├── views/{HomePage,LoginPage,NotFoundPage}.vue
 ├── types/{header,footer,naive-ui.d,ui.d}.ts
-├── i18n/ + utilities/ + assets/ + __tests__/
+├── i18n/ + utilities/ + assets/
+└── __tests__/{i18n,darkMode,router}.test.ts (31 tests)
 ```
 
 ## npm Scripts
@@ -73,20 +64,10 @@ src-ts/
 | `npm run dev` | JS version (port 1414) |
 | `npm run dev:ts` | TS version (port 1415) |
 | `npm run build:ts` | Build TS version |
-| `npm run test` | Vitest (24 tests) |
+| `npm run test` | Vitest (31 tests) |
 
 ## Kế Hoạch Tương Lai
-
 ### Giai đoạn 2b: Điền logic vào placeholders
-- [ ] Chuyển logic HeaderNineCMD → HeaderProgress/HeaderBanner
-- [ ] Chuyển logic MenuLeft → PlaceholderMenuLeft
-- [ ] Chuyển logic FooterBlock/ManageUseNode → Footer components
-- [ ] Chuyển views (HomeMain, LoginMain, ArenaMain, etc.)
-
 ### Giai đoạn 3: Stores → TypeScript (10 stores)
-
 ### Giai đoạn 4: Utilities → TypeScript (15+ files)
-
-### Giai đoạn 5: Testing & Review
-- [ ] Thêm unit tests cho components
-- [ ] Xóa `src-ts/` (merge vào src/)
+### Giai đoạn 5: Testing & Review → Merge src-ts/ vào src/

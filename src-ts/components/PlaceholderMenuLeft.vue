@@ -41,7 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, inject, onMounted, shallowRef } from 'vue'
+import { h, ref, inject, onMounted, shallowRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { NIcon, NMenu, NSpace, NSelect, NSwitch, NText, NDivider, NAvatar } from 'naive-ui'
 import {
   HomeRound as HomeIcon,
@@ -59,6 +60,7 @@ interface SettingNineCMD {
   lang?: string
 }
 
+const route = useRoute()
 const { t, locale, availableLocales } = useI18n()
 const settingNineCMD = useStorage<SettingNineCMD>('setting-nine-cmd', {}, localStorage)
 
@@ -157,6 +159,24 @@ const renderLabel = (option: { label: string; value: string }) => {
     ]
   )
 }
+
+// Route name -> menu key mapping
+const routeToMenuKey: Record<string, string> = {
+  'home': 'home',
+  'login': 'login'
+}
+
+// Sync selectedKey with current route
+watch(
+  () => route.name,
+  (routeName) => {
+    const key = routeToMenuKey[routeName as string]
+    if (key) {
+      selectedKey.value = key
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   // Menu initialized
