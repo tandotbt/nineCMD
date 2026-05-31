@@ -13,5 +13,19 @@
     "devNote": "Giao diện đang trong giai đoạn phát triển. Phiên bản đầy đủ xem tại port 1414.",
     "language": "Ngôn ngữ",
     "footer": "NineCMD TypeScript © 2024"
+  },
+  "page": {
+    "home": "Trang chủ",
+    "arena": {
+      "main": "Đấu trường",
+      "leaderboard": "Bảng xếp hạng",
+      "attack": "Màn hình tấn công"
+    },
+    "shop": "Cửa hàng",
+    "login": "Đăng nhập",
+    "notFound": "Trang 404"
+  },
+  "page-notFound": {
+    "detail": "Có gì đó sai sai, quay lại trang chủ"
   }
 }

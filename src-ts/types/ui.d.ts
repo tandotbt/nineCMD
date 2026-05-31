@@ -17,6 +17,15 @@ declare module '@vicons/material' {
   export const LightModeFilled: Component
   export const SunnyOutline: Component
   export const MoonOutline: Component
+  export const FormatListBulletedRound: Component
+  export const HomeRound: Component
+  export const LogInRound: Component
+  export const StadiumRound: Component
+  export const LeaderboardRound: Component
+  export const ShoppingCartFilled: Component
+  export const WarningAmberRound: Component
+  export const FullscreenRound: Component
+  export const FullscreenExitRound: Component
 }
 
 declare module 'vue-i18n' {

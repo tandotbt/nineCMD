@@ -9,72 +9,7 @@
     <n-loading-bar-provider>
       <n-modal-provider>
         <n-message-provider :closable="true" :duration="5000">
-          <n-layout style="height: 100vh">
-            <!-- Header -->
-            <n-layout-header
-              bordered
-              style="height: 10vh; display: flex; align-items: center; justify-content: space-between; padding: 0 24px"
-            >
-              <h2 style="margin: 0">{{ t('@--App.title') }}</h2>
-              <n-space align="center">
-                <!-- Language selector -->
-                <n-select
-                  v-model:value="locale"
-                  :options="langOptions"
-                  :render-label="renderLabel"
-                  :render-tag="renderSingleSelectTag"
-                  @update:value="changeLang"
-                  style="width: 180px"
-                  size="small"
-                />
-                <!-- Dark mode toggle -->
-                <n-switch
-                  :round="true"
-                  v-model:value="isDarkMode"
-                  @update:value="toggleTheme"
-                >
-                  <template #checked>
-                    <n-icon :component="DarkIcon" />
-                  </template>
-                  <template #unchecked>
-                    <n-icon :component="LightIcon" />
-                  </template>
-                </n-switch>
-              </n-space>
-            </n-layout-header>
-
-            <!-- Content -->
-            <n-layout position="absolute" style="top: 10vh; bottom: 10vh">
-              <n-scrollbar>
-                <n-space vertical align="center" style="padding: 40px 20px">
-                  <n-card :title="t('@--App.title')" style="max-width: 500px; width: 100%">
-                    <n-text depth="3">
-                      {{ t('@--App.description') }}
-                    </n-text>
-                    <n-divider />
-                    <n-space vertical>
-                      <n-text>{{ t('@--App.toggleTheme.dark') }}:</n-text>
-                      <n-tag :type="isDarkMode ? 'success' : 'warning'" round>
-                        {{ isDarkMode ? t('@--App.darkModeStatus.on') : t('@--App.darkModeStatus.off') }}
-                      </n-tag>
-                    </n-space>
-                    <n-divider />
-                    <n-text depth="3" style="font-size: 12px">
-                      {{ t('@--App.devNote') }}
-                    </n-text>
-                  </n-card>
-                </n-space>
-              </n-scrollbar>
-            </n-layout>
-
-            <!-- Footer -->
-            <n-layout-footer
-              bordered
-              style="height: 10vh; padding: 3vh; display: flex; align-items: center; justify-content: center; position: absolute; bottom: 0; left: 0; right: 0"
-            >
-              <n-text depth="3">{{ t('@--App.footer') }}</n-text>
-            </n-layout-footer>
-          </n-layout>
+          <router-view />
         </n-message-provider>
       </n-modal-provider>
     </n-loading-bar-provider>
@@ -84,49 +19,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { ref, provide } from 'vue'
 import {
   darkTheme,
-  NIcon,
-  NAvatar,
-  NText,
-  NCard,
-  NTag,
-  NDivider,
-  NSpace,
+  type GlobalTheme,
+  type GlobalThemeOverrides,
   NConfigProvider,
-  NLayout,
-  NLayoutHeader,
-  NLayoutFooter,
   NLoadingBarProvider,
   NModalProvider,
   NMessageProvider,
-  NScrollbar,
-  NSwitch,
-  NSelect,
-  NGlobalStyle,
-  type GlobalTheme,
-  type GlobalThemeOverrides
+  NGlobalStyle
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { useStorage } from '@vueuse/core'
-import { DarkModeFilled as DarkIcon, LightModeFilled as LightIcon } from '@vicons/material'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
 
-// Types
 interface SettingNineCMD {
   isDarkMode?: boolean
   lang?: string
 }
 
-// ============================================================
-// i18n
-// ============================================================
-const { t, locale, availableLocales } = useI18n()
+const { locale } = useI18n()
 
-// ============================================================
-// Theme Breakpoints (responsive)
-// ============================================================
 const themeBreakpoints = {
   xs: 320,
   s: 470,
@@ -136,10 +50,6 @@ const themeBreakpoints = {
   xxl: 1920
 }
 
-// ============================================================
-// Dark Mode + Naive UI Locale
-// ============================================================
-const isDarkMode = ref<boolean>(false)
 const theme = ref<GlobalTheme | null>(null)
 const themeOverrides = ref<GlobalThemeOverrides | null>(null)
 const uiConfig = ref<Record<string, unknown> | null>(null)
@@ -170,7 +80,6 @@ const darkThemeOverrides: GlobalThemeOverrides = {
 function toggleTheme(isDark: boolean): void {
   theme.value = isDark ? darkTheme : null
   themeOverrides.value = isDark ? darkThemeOverrides : lightThemeOverrides
-  isDarkMode.value = isDark
   settingNineCMD.value.isDarkMode = isDark
 }
 
@@ -184,81 +93,13 @@ function changeLang(selectedLang: string): void {
   locale.value = selectedLang
 }
 
-// ============================================================
-// Language Selector (with flag avatar)
-// ============================================================
-const langOptions = availableLocales.map((item: string) => ({
-  label: CONFIG_i18n_LANGUAGES.find((data) => data.lang === item)?.label ?? item,
-  value: item
-}))
+// Provide theme toggle to child components
+provide('toggleTheme', toggleTheme)
+provide('changeLang', changeLang)
 
-const renderSingleSelectTag = ({ option }: { option: { label: string; value: string } }) => {
-  return h(
-    'div',
-    {
-      style: {
-        display: 'flex',
-        alignItems: 'center'
-      }
-    },
-    [
-      h(NAvatar, {
-        src: CONFIG_i18n_LANGUAGES.find((item) => item.lang === option.value)?.png,
-        round: true,
-        size: 24,
-        style: {
-          marginRight: '12px'
-        }
-      }),
-      option.label
-    ]
-  )
-}
-
-const renderLabel = (option: { label: string; value: string }) => {
-  return h(
-    'div',
-    {
-      style: {
-        display: 'flex',
-        alignItems: 'center'
-      }
-    },
-    [
-      h(NAvatar, {
-        src: CONFIG_i18n_LANGUAGES.find((item) => item.lang === option.value)?.png,
-        round: false,
-        size: 'small'
-      }),
-      h(
-        'div',
-        {
-          style: {
-            marginLeft: '12px',
-            padding: '4px 0'
-          }
-        },
-        [
-          h('div', null, [option.label]),
-          h(
-            NText,
-            { depth: 3, tag: 'div' },
-            {
-              default: () =>
-                CONFIG_i18n_LANGUAGES.find((item) => item.lang === option.value)?.description ?? ''
-            }
-          )
-        ]
-      )
-    ]
-  )
-}
-
-// ============================================================
 // Initialize from localStorage
-// ============================================================
-isDarkMode.value = settingNineCMD.value.isDarkMode ?? false
-toggleTheme(isDarkMode.value)
+const isDarkMode = settingNineCMD.value.isDarkMode ?? false
+toggleTheme(isDarkMode)
 
 if (settingNineCMD.value.lang) {
   changeLang(settingNineCMD.value.lang)

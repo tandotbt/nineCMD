@@ -1,96 +1,102 @@
 # Active Context: NineCMD
 
 ## Current Work Focus
-- **TypeScript Migration**: Đã hoàn thành Giai đoạn 1 - giao diện TypeScript đơn giản với Dark Mode + i18n chạy song song.
-- **Testing**: Đã thêm unit tests cho i18n language switching và dark mode (24/24 pass, vue-tsc 0 errors).
-- **Tiếp theo**: Giai đoạn 2 - chuyển tiếp components, stores, utilities, router sang TypeScript.
+- **TypeScript Migration**: Giai đoạn 2a hoàn thành - Vue Router + placeholder components với layout responsive.
+- **Vue Router**: Đã tích hợp với 3 routes (main layout, login, 404), transitions trong content area.
+- **Modular Components**: Header/Footer đã modularize thành các sub-components type-safe.
+- **Dark Mode + i18n**: Hoạt động qua provide/inject pattern từ App.vue.
+- **Tiếp theo**: Điền logic vào placeholder components, chuyển stores/utilities sang TypeScript.
 
-## Session Mới Nhất - TypeScript Testing & Fix
+## Session Mới Nhất - Vue Router + Modular Components
 
 ### Đã Hoàn Thành
-1. **Viết unit tests** cho `src-ts/`:
-   - [`src-ts/__tests__/i18n.test.ts`](src-ts/__tests__/i18n.test.ts) - 12 tests: locale switching, translations, CONFIG_i18n_LANGUAGES
-   - [`src-ts/__tests__/darkMode.test.ts`](src-ts/__tests__/darkMode.test.ts) - 12 tests: theme toggle, localStorage persistence, naive-ui themes
+1. **Vue Router Integration**:
+   - [`src-ts/router/index.ts`](src-ts/router/index.ts) - 3 routes trong MainLayout, transitions fade
+   - Tất cả routes là children của MainLayout để có header/sidebar/footer一致
 
-2. **Fix TypeScript errors** (29 → 0):
-   - Cài `jsdom` dependency cho vitest
-   - Fix `useI18n()` outside Vue setup → Dùng `i18n.global.t()` trong tests
-   - Fix `localStorage.clear()` not a function → Mock localStorage
-   - Thêm 18 component exports vào [`naive-ui.d.ts`](src-ts/types/naive-ui.d.ts)
-   - Thêm `I18n` interface + `Plugin` type cho vue-i18n declarations
-   - Thêm `.json` extension + `declare module '*.json'`
-   - Cast `NLocale`/`NDateLocale` qua `unknown` trong [`App.vue`](src-ts/App.vue)
+2. **Main Layout**:
+   - [`src-ts/layouts/MainLayout.vue`](src-ts/layouts/MainLayout.vue) - Khung header+sidebar+content+footer replica JS version
+   - Sidebar collapse với onClickOutside, router-view với Transition
 
-3. **Fix vitest config**:
-   - Thêm alias `@/` → `src-ts/` vào [`vitest.config.ts`](src-ts/vitest.config.ts)
-   - Script `test` trong [`package.json`](package.json) trỏ `--config src-ts/vitest.config.ts`
+3. **Modular Header Components**:
+   - [`PlaceholderHeader.vue`](src-ts/components/PlaceholderHeader.vue) - Grid 24 columns responsive
+   - [`header/HeaderAvatar.vue`](src-ts/components/header/HeaderAvatar.vue) - Avatar với router-link
+   - [`header/HeaderProgress.vue`](src-ts/components/header/HeaderProgress.vue) - Progress bars type-safe
+   - [`header/HeaderBanner.vue`](src-ts/components/header/HeaderBanner.vue) - Carousel banners
 
-### Session Trước - Giao diện TypeScript + i18n
-1. **Tạo giao diện TS chạy song song** với JS version:
-   - [`index-ts.html`](index-ts.html) - HTML entry point trỏ `src-ts/main.ts`
-   - [`vite-ts.config.js`](vite-ts.config.js) - Vite config riêng, alias `@/` → `src-ts/`, port 1415/2829
+4. **Modular Footer Components**:
+   - [`PlaceholderFooter.vue`](src-ts/components/PlaceholderFooter.vue) - InfoBlock + NodeManager
+   - [`footer/FooterInfoBlock.vue`](src-ts/components/footer/FooterInfoBlock.vue) - Block info placeholder
+   - [`footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Drawer với tabs
 
-2. **Thêm i18n** (vue-i18n + Naive UI locales):
-   - [`src-ts/i18n/index.ts`](src-ts/i18n/index.ts) - vue-i18n setup
-   - [`src-ts/utilities/constants.ts`](src-ts/utilities/constants.ts) - Constants cho i18n
+5. **Sidebar (MenuLeft)**:
+   - [`PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue) - Menu + language selector + dark mode toggle
+   - Dark mode/lang via provide/inject từ App.vue
 
-### Files TS Trong `src-ts/` (Tự chứa, không phụ thuộc src/)
-| File | Mô tả |
-|------|-------|
-| `src-ts/main.ts` | Entry point: Vue 3 + Pinia + i18n |
-| `src-ts/App.vue` | Giao diện: Header + Language selector + Dark mode + Card content |
-| `src-ts/i18n/index.ts` | vue-i18n setup với Naive UI locales |
-| `src-ts/utilities/constants.ts` | Constants cho i18n |
-| `src-ts/types/naive-ui.d.ts` | Naive UI type augmentations (components + types) |
-| `src-ts/types/ui.d.ts` | Module declarations cho vue-i18n, @vueuse/core, @vicons/material, *.json |
-| `src-ts/vitest.config.ts` | Vitest config với alias `@/` → `src-ts/` |
-| `src-ts/__tests__/i18n.test.ts` | 12 tests: locale switching, translations |
-| `src-ts/__tests__/darkMode.test.ts` | 12 tests: theme toggle, localStorage |
+6. **Type Definitions**:
+   - [`types/header.ts`](src-ts/types/header.ts) - HeaderAvatarProps, HeaderProgressItem, HeaderBannerItem, HeaderSettings
+   - [`types/footer.ts`](src-ts/types/footer.ts) - BlockInfo, NodeConfig, FooterSettings
+
+7. **i18n Keys**:
+   - Thêm `page.home`, `page.login`, `page.notFound`, `page-notFound.detail` vào en.json/vi.json
+
+8. **TypeScript Fixes** (Total: 16):
+   - Thêm NMenu, NLayoutSider, NBadge, NEllipsis, NDrawer, NDrawerContent, NTabs, NTabPane, NFlex vào naive-ui.d.ts
+   - Thêm FullscreenRound, FormatListBulletedRound, HomeRound, LogInRound vào ui.d.ts
+   - Fix FooterSettings type (thêm lastPlanet field)
+   - Provide/inject cho dark mode (thay vì emit qua router-view)
 
 ## How To Run
 ```bash
 npm run dev      # JS version (port 1414)
 npm run dev:ts   # TS version (port 1415)
-npm run build    # Build JS version
 npm run build:ts # Build TS version
 npm run test     # Vitest (24 tests, src-ts/)
 ```
 
-## Issues Resolved (Total: 12)
-1. ✅ Vite conflict khi chạy 2 version song song → Plugin redirect
-2. ✅ `n-global-style` warning → Import `NGlobalStyle` từ naive-ui
-3. ✅ `src/main.ts` trùng lặp → Xóa, phục hồi `index.html` trỏ `src/main.js`
-4. ✅ Naive UI Plugin type error → Direct imports (tree-shaking)
-5. ✅ `any` types → Proper interfaces everywhere
-6. ✅ Vitest jsdom missing → Cài `jsdom` dependency
-7. ✅ `useI18n()` outside Vue setup → Dùng `i18n.global.t()` trong tests
-8. ✅ `localStorage.clear()` not a function → Mock localStorage trong tests
-9. ✅ Naive UI component exports missing → Thêm 18 component exports vào `naive-ui.d.ts`
-10. ✅ `createI18n` not in vue-i18n declarations → Thêm `I18n` interface + `Plugin` type
-11. ✅ JSON imports no module → Thêm `.json` extension + `declare module '*.json'`
-12. ✅ `NLocale`/`NDateLocale` type mismatch → Cast qua `unknown` trong `App.vue`
-
-## Test Files (New)
-| File | Mô tả |
-|------|-------|
-| `src-ts/__tests__/i18n.test.ts` | 12 tests: locale switching, translations, CONFIG_i18n_LANGUAGES |
-| `src-ts/__tests__/darkMode.test.ts` | 12 tests: theme toggle, localStorage persistence, naive-ui themes |
-
-## Next Steps (Giai đoạn 2)
-1. **Chuyển components** - HeaderNineCMD, MenuLeft, FooterBlock, FloatButtonSetting → TypeScript
-2. **Chuyển router** `src/router/index.js` → `src/router/index.ts`
-3. **Chuyển stores** `src/stores/*.js` → `*.ts` (10 stores)
-4. **Chuyển utilities** `src/utilities/*.js` → `*.ts` (15+ utilities)
+## File Structure src-ts/ (Latest)
+```
+src-ts/
+├── main.ts                              # Entry: Vue 3 + Pinia + i18n + Router
+├── App.vue                              # ConfigProvider + provide theme/lang
+├── router/index.ts                      # 3 routes trong MainLayout
+├── layouts/MainLayout.vue               # Header+Sidebar+Content+Footer
+├── components/
+│   ├── PlaceholderHeader.vue            # Grid 24 responsive (JS-like)
+│   ├── PlaceholderMenuLeft.vue          # Menu + lang + dark mode (sidebar)
+│   ├── PlaceholderFooter.vue            # InfoBlock + NodeManager
+│   ├── PlaceholderFloatButton.vue       # Float button
+│   ├── header/
+│   │   ├── HeaderAvatar.vue             # Avatar placeholder
+│   │   ├── HeaderProgress.vue           # Progress bar placeholder
+│   │   └── HeaderBanner.vue             # Banner carousel placeholder
+│   └── footer/
+│       ├── FooterInfoBlock.vue           # Block info placeholder
+│       └── FooterNodeManager.vue         # Drawer với tabs
+├── views/
+│   ├── HomePage.vue                     # Trang chủ placeholder
+│   ├── LoginPage.vue                    # Login placeholder
+│   └── NotFoundPage.vue                 # 404 placeholder
+├── types/
+│   ├── header.ts                        # Header component types
+│   ├── footer.ts                        # Footer component types
+│   ├── naive-ui.d.ts                    # 34+ naive-ui exports
+│   └── ui.d.ts                          # @vicons/material + vue-i18n + @vueuse/core
+├── i18n/                                # locales, numberFormats, datetimeFormats
+├── utilities/constants.ts               # Constants cho i18n
+├── assets/base.css                      # CSS + transitions (fade, slide-right)
+└── __tests__/                           # 24 tests
+```
 
 ## Active Decisions
-- **Dual entry points**: `index.html` → JS, `index-ts.html` → TS, chạy song song
-- **Naive UI darkTheme**: `n-config-provider :theme="darkTheme"` + `:locale` cho i18n
-- **No global naive-ui plugin**: Direct imports để avoid Plugin type issues + tree-shaking
-- **Self-contained src-ts/**: Không import từ src/, tự có types/constants/i18n
-- **localStorage**: `useStorage()` persist dark mode + language preference
-- **Vitest config**: `src-ts/vitest.config.ts` với alias `@/` → `src-ts/`, script `test` trỏ `--config src-ts/vitest.config.ts`
-- **JSON imports**: Luôn dùng `.json` extension trong imports để vue-tsc recognize
-- **Type casting NLocale**: Dùng `as unknown as Record<string, unknown>` khi cần convert NLocale types
-- **Vitest config**: `src-ts/vitest.config.ts` với alias `@/` → `src-ts/`, script `test` trỏ `--config src-ts/vitest.config.ts`
-- **JSON imports**: Luôn dùng `.json` extension trong imports để vue-tsc recognize
-- **Type casting NLocale**: Dùng `as unknown as Record<string, unknown>` khi cần convert NLocale types
+- **Provide/Inject cho theme**: App.vue provide `toggleTheme`/`changeLang`, sidebar inject
+- **All routes as children of MainLayout**: Đảm bảo header/sidebar/footer一致
+- **Relative imports cho src-ts types**: Tránh conflict `@/` alias (map tới src/)
+- **Modular Header/Footer**: Phân nhỏ thành sub-components để dễ bảo trì
+- **Responsive Grid**: n-grid 24 cols với item-responsive giống JS version
+
+## Next Steps
+1. **Điền logic vào placeholder** - Chuyển real logic từ JS HeaderNineCMD, FooterBlock
+2. **Chuyển stores** → TypeScript (10 stores)
+3. **Chuyển utilities** → TypeScript (15+ files)
+4. **Thêm routes** cho Arena, Shop

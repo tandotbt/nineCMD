@@ -13,5 +13,19 @@
     "devNote": "This interface is under development. Full version see at port 1414.",
     "language": "Language",
     "footer": "NineCMD TypeScript © 2024"
+  },
+  "page": {
+    "home": "Home",
+    "arena": {
+      "main": "Arena main",
+      "leaderboard": "Leaderboard",
+      "attack": "Attack screen"
+    },
+    "shop": "Shop",
+    "login": "Login",
+    "notFound": "Page 404"
+  },
+  "page-notFound": {
+    "detail": "Something went wrong, return home"
   }
 }

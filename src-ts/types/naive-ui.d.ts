@@ -92,7 +92,9 @@ declare module 'naive-ui' {
   export const NConfigProvider: Component
   export const NLayout: Component
   export const NLayoutHeader: Component
+  export const NLayoutSider: Component
   export const NLayoutFooter: Component
+  export const NMenu: Component
   export const NLoadingBarProvider: Component
   export const NModalProvider: Component
   export const NMessageProvider: Component
@@ -100,6 +102,26 @@ declare module 'naive-ui' {
   export const NSwitch: Component
   export const NSelect: Component
   export const NGlobalStyle: Component
+  export const NForm: Component
+  export const NFormItem: Component
+  export const NInput: Component
+  export const NButton: Component
+  export const NResult: Component
+  export const NFloatButton: Component
+  export const NBadge: Component
+  export const NEllipsis: Component
+  export const NDrawer: Component
+  export const NDrawerContent: Component
+  export const NTabs: Component
+  export const NTabPane: Component
+  export const NFlex: Component
+  export const NGradientText: Component
+  export const NPopconfirm: Component
+  export const NProgress: Component
+  export const NGrid: Component
+  export const NGridItem: Component
+  export const NCarousel: Component
+  export const NCarouselItem: Component
 
   // Utilities
   export function useThemeVars(): Record<string, Ref<string>>
