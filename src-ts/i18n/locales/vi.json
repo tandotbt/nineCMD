@@ -27,5 +27,45 @@
   },
   "page-notFound": {
     "detail": "Có gì đó sai sai, quay lại trang chủ"
+  },
+  "footer": {
+    "makeWith": "Made with ❤️ by tanbt ©2024"
+  },
+  "blockMonitor": {
+    "tab": "Theo dõi Block",
+    "planet": "Planet",
+    "selectPlanet": "Chọn planet",
+    "pollInterval": "Chu kỳ Poll (giây)",
+    "selectInterval": "Chọn chu kỳ",
+    "blockInfo": "Thông tin Block",
+    "currentBlock": "Block hiện tại:",
+    "avgBlockTime": "Avg block time:",
+    "planetLabel": "Planet:",
+    "pollStats": "Thống kê Poll",
+    "totalPolls": "Tổng lần poll:",
+    "success": "Thành công:",
+    "failed": "Thất bại:",
+    "successRate": "Tỷ lệ thành công:",
+    "history": "Lịch sử:",
+    "entries": "entries",
+    "status": "Trạng thái",
+    "polling": "Đang poll:",
+    "pollingRunning": "Đang chạy",
+    "pollingStopped": "Đã dừng",
+    "error": "Lỗi:",
+    "refreshNow": "Refresh ngay",
+    "stop": "Dừng",
+    "start": "Bắt đầu"
+  },
+  "settings": {
+    "tab": "Cài đặt",
+    "darkMode": "Chế độ tối",
+    "language": "Ngôn ngữ",
+    "selectLanguage": "Chọn ngôn ngữ",
+    "currentPlanet": "Planet hiện tại"
+  },
+  "actions": {
+    "tab": "Hành động",
+    "placeholder": "Actions placeholder - sẽ điền logic sau"
   }
 }

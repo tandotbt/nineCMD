@@ -27,5 +27,45 @@
   },
   "page-notFound": {
     "detail": "Something went wrong, return home"
+  },
+  "footer": {
+    "makeWith": "Make with ❤️ by tanbt ©2024"
+  },
+  "blockMonitor": {
+    "tab": "Block Monitor",
+    "planet": "Planet",
+    "selectPlanet": "Select planet",
+    "pollInterval": "Poll interval (seconds)",
+    "selectInterval": "Select interval",
+    "blockInfo": "Block Info",
+    "currentBlock": "Current block:",
+    "avgBlockTime": "Avg block time:",
+    "planetLabel": "Planet:",
+    "pollStats": "Poll Stats",
+    "totalPolls": "Total polls:",
+    "success": "Success:",
+    "failed": "Failed:",
+    "successRate": "Success rate:",
+    "history": "History:",
+    "entries": "entries",
+    "status": "Status",
+    "polling": "Polling:",
+    "pollingRunning": "Running",
+    "pollingStopped": "Stopped",
+    "error": "Error:",
+    "refreshNow": "Refresh now",
+    "stop": "Stop",
+    "start": "Start"
+  },
+  "settings": {
+    "tab": "Setting",
+    "darkMode": "Dark Mode",
+    "language": "Language",
+    "selectLanguage": "Select language",
+    "currentPlanet": "Current planet"
+  },
+  "actions": {
+    "tab": "Actions",
+    "placeholder": "Actions placeholder - will add logic later"
   }
 }
