@@ -7,6 +7,7 @@
 - **Routing**: Vue Router 5.0.7
 - **Internationalization**: Vue-i18n ^11.4.4
 - **Block Data**: GraphQL queries tới Mimir endpoint (thay WebSocket)
+- **Planet Data**: Fetch từ `https://planets.nine-chronicles.com/planets/` (URL_ALL_PLANET)
 - **Build Tool**: Vite 8.0.13
 - **Testing**: Vitest 4.1.7
 - **TypeScript**: TypeScript 6.0.3 (strict mode)
@@ -27,15 +28,15 @@
 ## TypeScript Migration Strategy
 - **Dual version approach**: JS version giữ nguyên, TS version chạy song song trong `src-ts/`
 - **Self-contained src-ts/**: Tự có types, constants, i18n - không import từ `src/`
-- **Pinia stores**: `src-ts/stores/` cho appSettings + blockPolling (thay WebSocket stores)
+- **Pinia stores**: `src-ts/stores/` cho appSettings + blockPolling + configURL
 - **Gradual Migration**: `allowJs: true` + `checkJs: false` cho过渡期
 - **Relative imports**: Dùng `../` thay `@/` trong src-ts/ (vì `@/` map tới `src/`)
 
 ## Technical Constraints
 - **Hiệu suất**: Ứng dụng chạy mượt trên thiết bị cấu hình thấp (iPhone 6)
 - **Tương thích**: Chrome, Firefox, Safari, Edge
-- **API**: Nine Chronicles GraphQL (Mimir) + REST endpoints
-- **Đa hành tinh**: Odin/Heimdall/Thor với config riêng
+- **API**: Nine Chronicles GraphQL (Mimir) + REST + URL_ALL_PLANET endpoints
+- **Đa hành tinh**: Odin/Heimdall/Thor với config riêng, dynamic từ API
 - **TypeScript Strict Mode**: `strict: true` enforced
 
 ## Dependencies
@@ -58,35 +59,44 @@ npm run dev:ts   # TS version (port 1415)
 npm run build    # Build JS version
 npm run build:ts # Build TS version
 npm run lint     # ESLint
-npm run test     # Vitest (88 tests)
+npm run test     # Vitest (124 tests)
 ```
 
 ## TypeScript File Structure
 ```
 src-ts/                           # TS version (self-contained)
 ├ main.ts                        # Entry: Vue 3 + Pinia + i18n
-├ App.vue                        # ConfigProvider + watch store
-├ router/index.ts                # 3 routes
+├ App.vue                        # ConfigProvider + FirstLoadingOverlay + watch store
+├ router/index.ts                # 3 routes (/ is home)
 ├ layouts/MainLayout.vue         # Header+Sidebar+Content+Footer
-├ stores/                        # Pinia stores (NEW)
-│  ├── appSettings.ts            # Dark mode, planet, language, poll interval
-│  └── blockPolling.ts           # GraphQL block polling
+├ stores/
+│  ├── appSettings.ts            # Dark mode, planet, language, poll interval + validate
+│  ├── blockPolling.ts           # GraphQL block polling (uses configURL for dynamic URLs)
+│  └── configURL.ts              # Fetch planet data, dynamic RPC endpoints, endpoint selection
 ├ components/
 │  ├── Placeholder*.vue          # Placeholder components
 │  ├── header/                   # HeaderAvatar, HeaderProgress, HeaderBanner
 │  └── footer/
 │     ├── FooterInfoBlock.vue    # Block info từ blockPolling store
-│     └── FooterNodeManager.vue  # Block Monitor + Settings tabs
-├ views/                         # HomePage, LoginPage, NotFoundPage
+│     └── FooterNodeManager.vue  # 4 tabs: Block Monitor, Settings, Endpoints, Actions
+├ views/
+│  ├── FirstLoadingPage.vue      # Overlay semi-transparent backdrop
+│  ├── HomePage.vue, LoginPage.vue, NotFoundPage.vue
 ├ types/
 │  ├── header.ts                 # Header component types
 │  ├── footer.ts                 # + BlockPollEntry, BlockAverages
-│  ├── naive-ui.d.ts             # + NSpin, NTooltip (36+ exports)
+│  ├── naive-ui.d.ts             # 40+ component exports
 │  └── ui.d.ts                   # @vicons/material + vue-i18n + @vueuse/core
-├ i18n/                          # locales, numberFormats, datetimeFormats
-├ utilities/constants.ts         # + Planet configs, poll intervals, GraphQL query
+├ i18n/                          # + firstLoading.*, endpoints.*
+├ utilities/constants.ts         # + URL_ALL_PLANET, PlanetData, PlanetRpcEndpoints
 ├ assets/base.css                # CSS + transitions
-└ __tests__/                     # 88 tests (5 files)
+└ __tests__/                     # 124 tests (6 files)
+   ├── i18n.test.ts (12)
+   ├── darkMode.test.ts (19)
+   ├── router.test.ts (13)
+   ├── appSettings.test.ts (22)
+   ├── blockPolling.test.ts (22)
+   └── configURL.test.ts (36)    # NEW
 ```
 
 ## Key Patterns
@@ -94,5 +104,7 @@ src-ts/                           # TS version (self-contained)
 - **Dark Mode**: Pinia store `appSettings.isDarkMode` → watch in App.vue → apply theme
 - **i18n**: vue-i18n + Naive UI locale (enUS/viVN) + localStorage persistence via Pinia store
 - **Block Polling**: GraphQL `blocks(take: 1)` → Mimir endpoint → calculate avg from index diff
-- **Planet Selection**: Pinia store shared between FooterNodeManager (UI) + blockPolling (data)
+- **ConfigURL**: Fetch từ URL_ALL_PLANET → dynamic RPC endpoints → random/manual selection
+- **FirstLoading**: Overlay backdrop → countdown 3s → redirect home
+- **Planet Selection**: Pinia stores shared between FooterNodeManager (UI) + blockPolling (data) + configURL (URLs)
 - **Test Setup**: `setActivePinia(createPinia())` + mock localStorage + mock fetch

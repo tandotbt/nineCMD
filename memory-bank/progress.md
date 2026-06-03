@@ -7,6 +7,7 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 - **Giai đoạn 1 - Infrastructure + i18n + Testing**: ✅ Hoàn thành
 - **Giai đoạn 2a - Vue Router + Layout + Modular Components**: ✅ Hoàn thành
 - **Giai đoạn 2b - Block Polling + Pinia Stores + Settings**: ✅ Hoàn thành
+- **Giai đoạn 2c - ConfigURL Store + FirstLoading Overlay + Endpoint Settings**: ✅ Hoàn thành
 - **Giai đoạn 3**: Chuyển stores JS → TypeScript (10 stores)
 - **Giai đoạn 4**: Chuyển utilities JS → TypeScript (15+ files)
 - **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/
@@ -31,17 +32,29 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 ### Phase 2b: Block Polling + Pinia Stores + Settings ✅
 - [x] [`stores/appSettings.ts`](src-ts/stores/appSettings.ts) - Pinia store: dark mode, planet, language, poll interval + localStorage persistence
 - [x] [`stores/blockPolling.ts`](src-ts/stores/blockPolling.ts) - Pinia store: GraphQL block polling, avg block time, planet-specific Mimir URLs
-- [x] [`utilities/constants.ts`](src-ts/utilities/constants.ts) - Planet configs (odin/heimdall/thor), Mimir URLs, poll interval options, GraphQL query
+- [x] [`utilities/constants.ts`](src-ts/utilities/constants.ts) - Planet configs, Mimir URLs, poll interval options, GraphQL query
 - [x] [`types/footer.ts`](src-ts/types/footer.ts) - FooterSettings.pollIntervalMs, BlockPollEntry, BlockAverages
-- [x] [`types/naive-ui.d.ts`](src-ts/types/naive-ui.d.ts) - Thêm NSpin, NTooltip
+- [x] [`types/naive-ui.d.ts`](src-ts/types/naive-ui.d.ts) - NSpin, NTooltip
 - [x] [`FooterInfoBlock.vue`](src-ts/components/footer/FooterInfoBlock.vue) - Block info từ blockPolling store
-- [x] [`FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Tab "Block Monitor" (planet, poll interval, stats); Tab "Setting" (dark mode, language)
+- [x] [`FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Tab "Block Monitor" + Tab "Setting"
 - [x] [`App.vue`](src-ts/App.vue) - Watch store for theme/language apply
-- [x] [`__tests__/appSettings.test.ts`](src-ts/__tests__/appSettings.test.ts) - 22 tests
-- [x] [`__tests__/blockPolling.test.ts`](src-ts/__tests__/blockPolling.test.ts) - 22 tests
-- [x] [`__tests__/darkMode.test.ts`](src-ts/__tests__/darkMode.test.ts) - Updated to 19 tests (thêm Pinia integration)
+- [x] Tests: appSettings (22) + blockPolling (22) + darkMode (19)
 
-### Tests: 88/88 Pass ✅
+### Phase 2c: ConfigURL Store + FirstLoading Overlay + Endpoint Settings 🔶
+- [x] [`stores/configURL.ts`](src-ts/stores/configURL.ts) - NEW: Fetch planet data từ URL_ALL_PLANET, dynamic RPC endpoints, endpoint selection (random/manual)
+- [x] [`views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue) - NEW: Overlay semi-transparent backdrop, countdown 3s, loading/error/success states
+- [x] [`App.vue`](src-ts/App.vue) - Import FirstLoadingOverlay bên trong n-config-provider
+- [x] [`utilities/constants.ts`](src-ts/utilities/constants.ts) - + URL_ALL_PLANET, PlanetData, PlanetRpcEndpoints interfaces
+- [x] [`stores/blockPolling.ts`](src-ts/stores/blockPolling.ts) - getMimirUrl() ưu tiên URL động từ configURL
+- [x] [`stores/appSettings.ts`](src-ts/stores/appSettings.ts) - + setPlanet() validate, validatePlanetAvailability()
+- [x] [`components/footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - 4 tabs: Block Monitor, Settings, Endpoints, Actions + disable unavailable planets
+- [x] [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json) - + firstLoading.*, endpoints.*
+- [x] [`types/naive-ui.d.ts`](src-ts/types/naive-ui.d.ts) - + NCollapse, NCollapseItem, NRadioGroup, NRadioButton
+- [x] [`types/ui.d.ts`](src-ts/types/ui.d.ts) - + useDark
+- [x] [`router/index.ts`](src-ts/router/index.ts) - Giữ nguyên cấu trúc gốc
+- [x] [`__tests__/router.test.ts`](src-ts/__tests__/router.test.ts) - Giữ nguyên
+
+### Tests: 124/124 Pass ✅
 | Test File | Tests | Status |
 |-----------|-------|--------|
 | i18n.test.ts | 12 | ✅ |
@@ -49,36 +62,32 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 | router.test.ts | 13 | ✅ |
 | appSettings.test.ts | 22 | ✅ |
 | blockPolling.test.ts | 22 | ✅ |
-| **Total** | **88** | **✅** |
+| configURL.test.ts | 36 | ✅ |
+| **Total** | **124** | **✅** |
 
-### Issues Resolved (Total: 19)
-1-12. ✅ Previous issues (Vite, naive-ui, vitest, etc.)
-13. ✅ @vicons/material missing icons
-14. ✅ naive-ui missing NForm/NButton/NResult etc.
-15. ✅ Missing i18n keys
-16. ✅ Dark mode provide/inject pattern
-17. ✅ FooterNodeManager drawer toggle (70%↔100%)
-18. ✅ WebSocket replaced by GraphQL polling (Mimir endpoint)
-19. ✅ Pinia stores for appSettings + blockPolling (replaced composable singleton + useStorage sync issues)
+### Known Issues
+- 🔶 Build `vue-tsc --noEmit` chưa verify thành công (task interrupted)
+- 🔶 Dark mode overlay có thể cần test thêm
 
 ## File Structure
 ```
 src-ts/
-├ main.ts + App.vue (entry + watch store theme/lang)
-├ router/index.ts (3 routes)
+├ main.ts + App.vue (entry + FirstLoadingOverlay + watch store theme/lang)
+├ router/index.ts (3 routes, / is home)
 ├ layouts/MainLayout.vue
-├ stores/ (NEW)
-│  ├── appSettings.ts (dark mode, planet, language, poll interval)
-│  └── blockPolling.ts (GraphQL block polling, avg block time)
+├ stores/
+│  ├── appSettings.ts (dark mode, planet, language, poll interval + validate)
+│  ├── blockPolling.ts (GraphQL block polling, uses configURL for dynamic URLs)
+│  └── configURL.ts (NEW: fetch planet data, dynamic RPC endpoints)
 ├ components/
 │  ├── Placeholder{Header,MenuLeft,Footer,FloatButton}.vue
 │  ├── header/{HeaderAvatar,HeaderProgress,HeaderBanner}.vue
-│  └── footer/{FooterInfoBlock,FooterNodeManager}.vue (UPDATED: block monitor + settings)
-├ views/{HomePage,LoginPage,NotFoundPage}.vue
-├ types/{header,footer,naive-ui.d,ui.d}.ts (UPDATED: footer + naive-ui)
-├ i18n/ + utilities/constants.ts (UPDATED: planet configs, poll intervals)
-├ assets/
-└ __tests__/{i18n,darkMode,router,appSettings,blockPolling}.test.ts (88 tests)
+│  └── footer/{FooterInfoBlock,FooterNodeManager}.vue (4 tabs)
+├ views/
+│  ├── FirstLoadingPage.vue (NEW: overlay)
+│  ├── HomePage.vue, LoginPage.vue, NotFoundPage.vue
+├ types/ + i18n/ + utilities/constants.ts + assets/
+└ __tests__/ (88 tests)
 ```
 
 ## npm Scripts
@@ -90,6 +99,8 @@ src-ts/
 | `npm run test` | Vitest (88 tests) |
 
 ## Kế Hoạch Tương Lai
-### Giai đoạn 3: Stores JS → TypeScript (10 stores)
-### Giai đoạn 4: Utilities JS → TypeScript (15+ files)
-### Giai đoạn 5: Testing & Review → Merge src-ts/ vào src/
+1. **Verify build**: Chạy `vue-tsc --noEmit` + fix lỗi
+2. **Update tests**: Thêm test cho configURL store, endpoint selection
+3. **Giai đoạn 3**: Stores JS → TypeScript (10 stores)
+4. **Giai đoạn 4**: Utilities JS → TypeScript (15+ files)
+5. **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/
