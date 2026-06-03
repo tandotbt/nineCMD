@@ -58,11 +58,44 @@
     "start": "Start"
   },
   "settings": {
-    "tab": "Setting",
+    "tab": "Settings",
     "darkMode": "Dark Mode",
     "language": "Language",
     "selectLanguage": "Select language",
-    "currentPlanet": "Current planet"
+    "currentPlanet": "Current planet",
+    "general": {
+      "title": "General Settings"
+    },
+    "polling": {
+      "title": "Block Polling",
+      "interval": "Poll Interval",
+      "autoStart": "Auto-start on startup"
+    },
+    "endpointsSummary": {
+      "title": "Endpoints Summary",
+      "currentPlanet": "Planet:",
+      "hint": "Edit endpoints in the Endpoints tab"
+    },
+    "storage": {
+      "title": "Storage Info",
+      "totalKeys": "Total keys",
+      "totalSize": "Total size",
+      "clearAll": "Clear All Settings",
+      "clearConfirm": "This will clear all saved settings and reload the page. Continue?"
+    },
+    "logger": {
+      "title": "Logger",
+      "level": "Log Level",
+      "filter": "Filter",
+      "clear": "Clear",
+      "noLogs": "No log entries yet",
+      "entries": "entries"
+    },
+    "about": {
+      "title": "About",
+      "build": "Framework",
+      "ui": "UI Library"
+    }
   },
   "actions": {
     "tab": "Actions",

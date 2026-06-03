@@ -96,8 +96,8 @@ describe('blockPolling Store', () => {
       const store = useBlockPollingStore()
       store.stopPolling()
 
-      store.switchPlanet('thor')
-      expect(store.planetLabel).toBe('Thor')
+      store.switchPlanet('heimdall')
+      expect(store.planetLabel).toBe('Heimdall')
 
       store.switchPlanet('odin')
       expect(store.planetLabel).toBe('Odin')
@@ -289,9 +289,9 @@ describe('blockPolling Store', () => {
       const appStore = useAppSettingsStore()
       blockStore.stopPolling()
 
-      appStore.setPlanet('thor')
-      expect(blockStore.selectedPlanet).toBe('thor')
-      expect(blockStore.planetLabel).toBe('Thor')
+      appStore.setPlanet('heimdall')
+      expect(blockStore.selectedPlanet).toBe('heimdall')
+      expect(blockStore.planetLabel).toBe('Heimdall')
     })
 
     it('should reflect poll interval from appSettings', () => {
@@ -301,6 +301,59 @@ describe('blockPolling Store', () => {
 
       appStore.setPollInterval(30000)
       expect(blockStore.pollIntervalMs).toBe(30000)
+    })
+  })
+
+  // ============================================================
+  // Auto-start polling from persisted isPolling
+  // ============================================================
+  describe('Auto-start from isPolling', () => {
+    it('should auto-start polling when isPolling is persisted as true', () => {
+      // Pre-set isPolling in localStorage before creating store
+      localStorageStore['setting-nine-cmd'] = JSON.stringify({ isPolling: true })
+      setActivePinia(createPinia())
+
+      const blockStore = useBlockPollingStore()
+      expect(blockStore.isPolling).toBe(true)
+      blockStore.stopPolling()
+    })
+
+    it('should not auto-start when isPolling is false', () => {
+      localStorageStore['setting-nine-cmd'] = JSON.stringify({ isPolling: false })
+      setActivePinia(createPinia())
+
+      const blockStore = useBlockPollingStore()
+      expect(blockStore.isPolling).toBe(false)
+    })
+
+    it('should start polling when isPolling changes to true', async () => {
+      const blockStore = useBlockPollingStore()
+      const appStore = useAppSettingsStore()
+      blockStore.stopPolling()
+
+      expect(blockStore.isPolling).toBe(false)
+      appStore.setIsPolling(true)
+
+      // The watch with { immediate: true } should trigger startPolling
+      // Give it a tick to process
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      expect(blockStore.isPolling).toBe(true)
+      blockStore.stopPolling()
+    })
+
+    it('should stop polling when isPolling changes to false', async () => {
+      const blockStore = useBlockPollingStore()
+      const appStore = useAppSettingsStore()
+
+      // Start polling first
+      appStore.setIsPolling(true)
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      expect(blockStore.isPolling).toBe(true)
+
+      // Now stop
+      appStore.setIsPolling(false)
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      expect(blockStore.isPolling).toBe(false)
     })
   })
 })

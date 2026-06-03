@@ -158,7 +158,7 @@ describe('i18n Block Monitor Translations', () => {
   describe('Settings', () => {
     it('should have settings keys in English', () => {
       i18n.global.locale.value = 'en'
-      expect(i18n.global.t('settings.tab')).toBe('Setting')
+      expect(i18n.global.t('settings.tab')).toBe('Settings')
       expect(i18n.global.t('settings.darkMode')).toBe('Dark Mode')
       expect(i18n.global.t('settings.language')).toBe('Language')
       expect(i18n.global.t('settings.currentPlanet')).toBe('Current planet')

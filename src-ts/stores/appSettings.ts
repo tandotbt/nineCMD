@@ -6,6 +6,8 @@
  * - Planet selection (odin / heimdall / thor)
  * - Poll interval for block polling
  * - Language
+ * - Polling enabled state (isPolling)
+ * - Logger level (logLevel)
  *
  * Tất cả settings được persist vào localStorage.
  *
@@ -18,6 +20,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { type PlanetName, DEFAULT_POLL_INTERVAL_MS, PLANET_CONFIGS } from '../utilities/constants'
 import { useConfigURLStore } from './configURL'
+import { createLogger, type LogLevel } from '../utilities/logger'
 
 /** localStorage key */
 const STORAGE_KEY = 'setting-nine-cmd'
@@ -28,6 +31,8 @@ interface PersistedSettings {
   lang?: string
   lastPlanet?: string
   pollIntervalMs?: number
+  isPolling?: boolean
+  logLevel?: LogLevel
 }
 
 function loadFromStorage(): PersistedSettings {
@@ -51,6 +56,11 @@ function normalizePlanet(val: string | undefined): PlanetName {
 }
 
 export const useAppSettingsStore = defineStore('appSettings', () => {
+  // ============================================================
+  // Logger
+  // ============================================================
+  const logger = createLogger({ module: 'appSettings' })
+
   // ============================================================
   // Load initial state from localStorage
   // ============================================================
@@ -82,6 +92,12 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     PLANET_CONFIGS[selectedPlanet.value]?.label ?? selectedPlanet.value
   )
 
+  /** Whether block polling is enabled (persisted) */
+  const isPolling = ref<boolean>(persisted.isPolling ?? false)
+
+  /** Logger level for UI display and config */
+  const logLevel = ref<LogLevel>(persisted.logLevel ?? 'debug')
+
   // ============================================================
   // Internal: persist all settings to localStorage
   // ============================================================
@@ -91,7 +107,9 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
       isDarkMode: isDarkMode.value,
       lang: lang.value,
       lastPlanet: selectedPlanet.value,
-      pollIntervalMs: pollIntervalMs.value
+      pollIntervalMs: pollIntervalMs.value,
+      isPolling: isPolling.value,
+      logLevel: logLevel.value
     })
   }
 
@@ -103,18 +121,21 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
   function toggleDarkMode(): void {
     isDarkMode.value = !isDarkMode.value
     persist()
+    logger.info('Dark mode toggled:', isDarkMode.value)
   }
 
   /** Set dark mode explicitly */
   function setDarkMode(value: boolean): void {
     isDarkMode.value = value
     persist()
+    logger.info('Dark mode set:', value)
   }
 
   /** Change language */
   function setLang(newLang: string): void {
     lang.value = newLang
     persist()
+    logger.info('Language changed:', newLang)
   }
 
   /** Switch planet – only allows available planets */
@@ -122,12 +143,13 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     if (planet === selectedPlanet.value) return
     // Validate against available planets from URL_ALL_PLANET
     if (!configURL.isPlanetAvailable(planet)) {
-      console.warn(`[appSettings] Planet "${planet}" is not available, skipping`)
+      logger.warn(`Planet "${planet}" is not available, skipping`)
       return
     }
     selectedPlanet.value = planet
     planetLabel.value = PLANET_CONFIGS[planet]?.label ?? planet
     persist()
+    logger.info('Planet changed:', planet)
   }
 
   /**
@@ -140,8 +162,8 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
       const available = configURL.availablePlanetNames
       if (available.length > 0) {
         const fallback = available[0]
-        console.warn(
-          `[appSettings] Current planet "${selectedPlanet.value}" not available, ` +
+        logger.warn(
+          `Current planet "${selectedPlanet.value}" not available, ` +
           `falling back to "${fallback}"`
         )
         selectedPlanet.value = fallback
@@ -156,6 +178,21 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     if (ms < 1000) return
     pollIntervalMs.value = ms
     persist()
+    logger.info('Poll interval changed:', ms, 'ms')
+  }
+
+  /** Set polling enabled state */
+  function setIsPolling(value: boolean): void {
+    isPolling.value = value
+    persist()
+    logger.info('Polling state changed:', value)
+  }
+
+  /** Set logger level */
+  function setLogLevel(level: LogLevel): void {
+    logLevel.value = level
+    persist()
+    logger.info('Log level changed:', level)
   }
 
   // ============================================================
@@ -169,6 +206,8 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     selectedPlanet,
     planetLabel,
     pollIntervalMs,
+    isPolling,
+    logLevel,
 
     // Actions
     toggleDarkMode,
@@ -176,6 +215,8 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     setLang,
     setPlanet,
     setPollInterval,
+    setIsPolling,
+    setLogLevel,
     validatePlanetAvailability
   }
 })

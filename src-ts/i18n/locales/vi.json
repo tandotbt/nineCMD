@@ -62,7 +62,40 @@
     "darkMode": "Chế độ tối",
     "language": "Ngôn ngữ",
     "selectLanguage": "Chọn ngôn ngữ",
-    "currentPlanet": "Planet hiện tại"
+    "currentPlanet": "Planet hiện tại",
+    "general": {
+      "title": "Cài đặt chung"
+    },
+    "polling": {
+      "title": "Block Polling",
+      "interval": "Chu kỳ Poll",
+      "autoStart": "Tự động poll khi khởi động"
+    },
+    "endpointsSummary": {
+      "title": "Tổng quan Endpoints",
+      "currentPlanet": "Planet:",
+      "hint": "Chỉnh sửa endpoints trong tab Endpoints"
+    },
+    "storage": {
+      "title": "Thông tin lưu trữ",
+      "totalKeys": "Tổng số key",
+      "totalSize": "Tổng kích thước",
+      "clearAll": "Xóa tất cả cài đặt",
+      "clearConfirm": "Thao tác này sẽ xóa tất cả cài đặt đã lưu và tải lại trang. Tiếp tục?"
+    },
+    "logger": {
+      "title": "Nhật ký (Logger)",
+      "level": "Cấp độ Log",
+      "filter": "Lọc",
+      "clear": "Xóa",
+      "noLogs": "Chưa có nhật ký nào",
+      "entries": "mục"
+    },
+    "about": {
+      "title": "Giới thiệu",
+      "build": "Framework",
+      "ui": "UI Library"
+    }
   },
   "actions": {
     "tab": "Hành động",

@@ -26,6 +26,9 @@ NineCMD sử dụng kiến trúc client-side với Vue.js 3 + TypeScript. Ứng 
 - **Polling Pattern**: setInterval + GraphQL query thay WebSocket
 - **Fallback Pattern**: API data → fallback static data khi fetch thất bại
 - **localStorage Persistence**: Store actions trực tiếp persist via `localStorage.setItem`
+- **Logger Pattern**: createLogger({ module }) → structured logging với module prefix, level filtering, history
+- **Component Decomposition**: FooterNodeManager tách thành 6 components riêng (Monitor, Settings, Endpoints, Actions, StorageInfo, LogViewer)
+- **Auto-start Pattern**: watch + { immediate: true } để auto-start polling từ persisted state
 
 ## Key Technical Decisions
 - **Overlay thay Router Loading**: Dùng overlay component trong App.vue thay route riêng, giữ `/` là home
@@ -43,17 +46,44 @@ configURL Store                      appSettings Store                    blockP
 ├ error (ref)                       ├ selectedPlanet (ref<PlanetName>)   ├ isLoading (ref)
 ├ isLoaded (ref)                    ├ planetLabel (ref)                  ├ error (ref)
 ├ loadingStatus (ref)               ├ pollIntervalMs (ref)               ├ isPolling (ref)
-├ fetchPlanets()                    ├ toggleDarkMode()                   ├ avgBlockTime (computed)
-├ retry()                           ├ setDarkMode()                      ├ successRate (computed)
-├ isPlanetAvailable()               ├ setLang()                          ├ startPolling()
-├ getPlanetData()                   ├ setPlanet() ← validate            ├ stopPolling()
-├ getRpcEndpoint()                  ├ setPollInterval()                  ├ refresh()
-├ getMimirUrl()                     └ validatePlanetAvailability()       └ watch appSettings changes
-├ getAvailableEndpoints()               ↑ persist to localStorage
-├ getActiveEndpoints()
-├ setEndpointMode()
-├ setEndpointSelection()
+├ fetchPlanets()                    ├ isPolling (ref) ← NEW              ├ avgBlockTime (computed)
+├ retry()                           ├ logLevel (ref) ← NEW               ├ successRate (computed)
+├ isPlanetAvailable()               ├ toggleDarkMode()                   ├ startPolling()
+├ getPlanetData()                   ├ setDarkMode()                      ├ stopPolling()
+├ getRpcEndpoint()                  ├ setLang()                          ├ refresh()
+├ getMimirUrl()                     ├ setPlanet() ← validate            └ watch appSettings changes
+├ getAvailableEndpoints()           ├ setIsPolling() ← NEW               └ auto-start watch isPolling
+├ getActiveEndpoints()              ├ setLogLevel() ← NEW
+├ setEndpointMode()                 └ validatePlanetAvailability()
+├ setEndpointSelection()               ↑ persist to localStorage
     ↑ persist to localStorage
+```
+
+## Logger Architecture
+```
+createLogger({ module: 'configURL' })
+├ debug/info/warn/error methods
+├ Format: [HH:MM:SS] [module] LEVEL: message
+├ Global logHistory ref (max 200 entries)
+├ getLogHistory() → array of LogEntry
+├ getLogHistoryByLevel() → filtered
+├ getLogHistoryByModule() → filtered
+└ FooterLogViewer.vue displays history
+```
+
+## Footer Component Architecture
+```
+FooterNodeManager.vue (drawer + tabs, 90 lines)
+├ FooterBlockMonitor.vue (Tab 1: planet, poll, stats)
+├ FooterSettings.vue (Tab 2: 6 NCollapse sections)
+│  ├── General: dark mode, language, planet
+│  ├── Polling: interval, auto-start
+│  ├── Endpoints: summary (read-only)
+│  ├── Storage: localStorage info + clear
+│  ├── Logger: level selector + log viewer
+│  └── About: version info
+├ FooterEndpoints.vue (Tab 3: endpoint URLs, mode)
+└ FooterActions.vue (Tab 4: placeholder)
 ```
 
 ## GraphQL Query Pattern

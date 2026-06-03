@@ -27,6 +27,7 @@ import {
 } from '../utilities/constants'
 import { useAppSettingsStore } from './appSettings'
 import { useConfigURLStore } from './configURL'
+import { createLogger } from '../utilities/logger'
 
 // ============================================================
 // GraphQL request helper (mirror Python send_request_QUERY)
@@ -55,6 +56,11 @@ interface BlockPollEntry {
 // Store
 // ============================================================
 export const useBlockPollingStore = defineStore('blockPolling', () => {
+  // ============================================================
+  // Logger
+  // ============================================================
+  const logger = createLogger({ module: 'blockPolling' })
+
   // Reference to appSettings store
   const appSettings = useAppSettingsStore()
   // Reference to configURL store for dynamic planet URLs
@@ -177,6 +183,7 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
       if (blockIndex <= 0) {
         error.value = 'Block index không hợp lệ'
         failCount.value++
+        logger.warn('Invalid block index received:', blockIndex)
         return
       }
 
@@ -190,7 +197,7 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)
       failCount.value++
-      console.error('[blockPolling] Poll error:', e)
+      logger.error('Poll error:', e)
     } finally {
       isLoading.value = false
     }
@@ -220,12 +227,16 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
     pollOnce()
     startPollTimer()
     isPolling.value = true
+    appSettings.setIsPolling(true)
+    logger.info('Polling started')
   }
 
   /** Stop polling */
   function stopPolling(): void {
     clearPollTimer()
     isPolling.value = false
+    appSettings.setIsPolling(false)
+    logger.info('Polling stopped')
   }
 
   /** Restart polling (e.g. after interval change) */
@@ -234,6 +245,8 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
     pollOnce()
     startPollTimer()
     isPolling.value = true
+    appSettings.setIsPolling(true)
+    logger.info('Polling restarted')
   }
 
   /** Force refresh now */
@@ -273,6 +286,19 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
         startPollTimer()
       }
     }
+  )
+
+  // Auto-start polling if isPolling was persisted as true (e.g. after page reload)
+  watch(
+    () => appSettings.isPolling,
+    (shouldPoll) => {
+      if (shouldPoll && !isPolling.value) {
+        startPolling()
+      } else if (!shouldPoll && isPolling.value) {
+        stopPolling()
+      }
+    },
+    { immediate: true }
   )
 
   // ============================================================

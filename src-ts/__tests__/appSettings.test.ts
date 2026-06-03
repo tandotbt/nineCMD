@@ -123,8 +123,8 @@ describe('appSettings Store', () => {
 
     it('should update planetLabel when planet changes', () => {
       const store = useAppSettingsStore()
-      store.setPlanet('thor')
-      expect(store.planetLabel).toBe('Thor')
+      store.setPlanet('heimdall')
+      expect(store.planetLabel).toBe('Heimdall')
 
       store.setPlanet('odin')
       expect(store.planetLabel).toBe('Odin')
@@ -189,6 +189,66 @@ describe('appSettings Store', () => {
   })
 
   // ============================================================
+  // Polling State (isPolling)
+  // ============================================================
+  describe('Polling State', () => {
+    it('should default isPolling to false', () => {
+      const store = useAppSettingsStore()
+      expect(store.isPolling).toBe(false)
+    })
+
+    it('should set isPolling', () => {
+      const store = useAppSettingsStore()
+      store.setIsPolling(true)
+      expect(store.isPolling).toBe(true)
+    })
+
+    it('should persist isPolling to localStorage', () => {
+      const store = useAppSettingsStore()
+      store.setIsPolling(true)
+
+      const stored = JSON.parse(localStorageStore['setting-nine-cmd'] || '{}')
+      expect(stored.isPolling).toBe(true)
+    })
+
+    it('should restore isPolling from localStorage', () => {
+      localStorageStore['setting-nine-cmd'] = JSON.stringify({ isPolling: true })
+      const store = useAppSettingsStore()
+      expect(store.isPolling).toBe(true)
+    })
+  })
+
+  // ============================================================
+  // Logger Level (logLevel)
+  // ============================================================
+  describe('Logger Level', () => {
+    it('should default logLevel to debug', () => {
+      const store = useAppSettingsStore()
+      expect(store.logLevel).toBe('debug')
+    })
+
+    it('should set logLevel', () => {
+      const store = useAppSettingsStore()
+      store.setLogLevel('warn')
+      expect(store.logLevel).toBe('warn')
+    })
+
+    it('should persist logLevel to localStorage', () => {
+      const store = useAppSettingsStore()
+      store.setLogLevel('error')
+
+      const stored = JSON.parse(localStorageStore['setting-nine-cmd'] || '{}')
+      expect(stored.logLevel).toBe('error')
+    })
+
+    it('should restore logLevel from localStorage', () => {
+      localStorageStore['setting-nine-cmd'] = JSON.stringify({ logLevel: 'warn' })
+      const store = useAppSettingsStore()
+      expect(store.logLevel).toBe('warn')
+    })
+  })
+
+  // ============================================================
   // Integration: multiple settings
   // ============================================================
   describe('Integration', () => {
@@ -198,28 +258,36 @@ describe('appSettings Store', () => {
       store.setLang('vi')
       store.setPlanet('heimdall')
       store.setPollInterval(5000)
+      store.setIsPolling(true)
+      store.setLogLevel('warn')
 
       const stored = JSON.parse(localStorageStore['setting-nine-cmd'] || '{}')
       expect(stored.isDarkMode).toBe(true)
       expect(stored.lang).toBe('vi')
       expect(stored.lastPlanet).toBe('heimdall')
       expect(stored.pollIntervalMs).toBe(5000)
+      expect(stored.isPolling).toBe(true)
+      expect(stored.logLevel).toBe('warn')
     })
 
     it('should restore all settings from localStorage', () => {
       localStorageStore['setting-nine-cmd'] = JSON.stringify({
         isDarkMode: true,
         lang: 'vi',
-        lastPlanet: 'thor',
-        pollIntervalMs: 8000
+        lastPlanet: 'heimdall',
+        pollIntervalMs: 8000,
+        isPolling: true,
+        logLevel: 'error'
       })
 
       const store = useAppSettingsStore()
       expect(store.isDarkMode).toBe(true)
       expect(store.lang).toBe('vi')
-      expect(store.selectedPlanet).toBe('thor')
-      expect(store.planetLabel).toBe('Thor')
+      expect(store.selectedPlanet).toBe('heimdall')
+      expect(store.planetLabel).toBe('Heimdall')
       expect(store.pollIntervalMs).toBe(8000)
+      expect(store.isPolling).toBe(true)
+      expect(store.logLevel).toBe('error')
     })
   })
 })

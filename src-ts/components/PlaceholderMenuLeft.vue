@@ -52,17 +52,12 @@ import {
 } from '@vicons/material'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useStorage } from '@vueuse/core'
+import { useAppSettingsStore } from '../stores/appSettings'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
-
-interface SettingNineCMD {
-  isDarkMode?: boolean
-  lang?: string
-}
 
 const route = useRoute()
 const { t, locale, availableLocales } = useI18n()
-const settingNineCMD = useStorage<SettingNineCMD>('setting-nine-cmd', {}, localStorage)
+const appSettings = useAppSettingsStore()
 
 // Inject theme toggle from App.vue
 const toggleTheme = inject<(isDark: boolean) => void>('toggleTheme', () => {})
@@ -70,8 +65,8 @@ const changeLangFn = inject<(lang: string) => void>('changeLang', () => {})
 
 const selectedKey = ref<string>('home')
 const menuRef = shallowRef<unknown>(null)
-const isDarkMode = ref<boolean>(settingNineCMD.value.isDarkMode ?? false)
-const currentLang = ref<string>(settingNineCMD.value.lang ?? locale.value)
+const isDarkMode = ref<boolean>(appSettings.isDarkMode)
+const currentLang = ref<string>(appSettings.lang || locale.value)
 
 const langOptions = availableLocales.map((item: string) => ({
   label: CONFIG_i18n_LANGUAGES.find((data) => data.lang === item)?.label ?? item,
@@ -80,11 +75,13 @@ const langOptions = availableLocales.map((item: string) => ({
 
 function changeLang(selectedLang: string): void {
   currentLang.value = selectedLang
+  appSettings.setLang(selectedLang)
   changeLangFn(selectedLang)
 }
 
 function onToggleTheme(isDark: boolean): void {
   isDarkMode.value = isDark
+  appSettings.setDarkMode(isDark)
   toggleTheme(isDark)
 }
 

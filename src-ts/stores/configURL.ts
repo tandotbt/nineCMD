@@ -18,6 +18,7 @@ import {
   type PlanetRpcEndpoints,
   PLANET_CONFIGS
 } from '../utilities/constants'
+import { createLogger } from '../utilities/logger'
 
 // ============================================================
 // Fallback data (khi API không khả dụng)
@@ -126,6 +127,11 @@ function savePersistedEndpoints(data: PersistedEndpoints): void {
 // Store
 // ============================================================
 export const useConfigURLStore = defineStore('configURL', () => {
+  // ============================================================
+  // Logger
+  // ============================================================
+  const logger = createLogger({ module: 'configURL' })
+
   // ============================================================
   // State
   // ============================================================
@@ -392,13 +398,13 @@ export const useConfigURLStore = defineStore('configURL', () => {
       isLoading.value = false
       loadingStatus.value = 'firstLoading.step.done'
 
-      console.log('[configURL] Fetched planets:', data.map((p) => p.name).join(', '))
+      logger.info('Fetched planets:', data.map((p) => p.name).join(', '))
       return true
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e)
       error.value = message
       loadingStatus.value = 'firstLoading.step.fallback'
-      console.error('[configURL] Failed to fetch planets:', message)
+      logger.error('Failed to fetch planets:', message)
 
       // Use fallback data
       planets.value = [...FALLBACK_PLANETS]

@@ -1,71 +1,53 @@
 # Active Context: NineCMD
 
 ## Current Work Focus
-- **TypeScript Migration**: Giai đoạn 2c gần hoàn thành - ConfigURL Store + FirstLoading Overlay + Endpoint Settings.
-- **ConfigURL Store**: Fetch dữ liệu planet từ `URL_ALL_PLANET`, lưu vào Pinia, cung cấp dynamic RPC endpoints.
-- **FirstLoading Overlay**: Overlay che phủ trang web khi dữ liệu URL chưa load xong, countdown 3s trước khi chuyển.
-- **Endpoint Settings**: Tab "Endpoints" trong FooterNodeManager cho phép chọn random/manual RPC endpoints.
-- **Dynamic URLs**: Thay vì dùng URL const cố định, giờ dùng URL từ API response, fallback về static config.
-- **Disable Planets**: Planet không có trong URL_ALL_PLANET sẽ bị disable trong UI selection.
-- **88 Tests Pass** (chưa update test cho configURL/FirstLoading).
-- **Tiếp theo**: Hoàn thiện dark mode cho overlay, cập nhật tests, chạy build verify.
+- **Logger System + Settings Tab + Code Refactor**: Giai đoạn 2d hoàn thành
+- **Logger**: `createLogger({ module })` thay thế console.log/warn/error, log history max 200 entries
+- **Settings Tab mới**: 6 sections trong FooterNodeManager (General, Polling, Endpoints, Storage, Logger, About)
+- **localStorage Audit**: Fix PlaceholderMenuLeft dùng Pinia store thay useStorage, thêm isPolling + logLevel persistence
+- **Auto-start Polling**: blockPolling watch `appSettings.isPolling` với `{ immediate: true }` → tự động poll sau reload
+- **Code Reorganization**: Tách FooterNodeManager (350→90 lines) thành 6 components riêng
 
-## Session Mới Nhất - ConfigURL + FirstLoading Overlay + Endpoint Settings
+## Session Mới Nhất - Logger + Settings + Refactor
 
 ### Đã Hoàn Thành
 
-1. **constants.ts** ([`src-ts/utilities/constants.ts`](src-ts/utilities/constants.ts)):
-   - `URL_ALL_PLANET = 'https://planets.nine-chronicles.com/planets/'`
-   - `PlanetData` interface: id, name, genesisHash, rpcEndpoints, bridges
-   - `PlanetRpcEndpoints` interface: dynamic endpoint keys (headless.gql, arena.gql, mimir.gql, etc.)
+1. **Logger System**:
+   - [`types/logger.ts`](src-ts/types/logger.ts): LogLevel, LogEntry, LoggerConfig, Logger interfaces
+   - [`utilities/logger.ts`](src-ts/utilities/logger.ts): createLogger(), log history (max 200), format `[HH:MM:SS] [module] LEVEL: message`
+   - [`__tests__/logger.test.ts`](src-ts/__tests__/logger.test.ts): 21 tests
 
-2. **configURL Store** ([`src-ts/stores/configURL.ts`](src-ts/stores/configURL.ts)):
-   - `fetchPlanets()`: Fetch từ URL_ALL_PLANET, fallback về FALLBACK_PLANETS
-   - `getRpcEndpoint(planet, key)`: Random/manual selection từ available endpoints
-   - `getAvailableEndpoints(planet, key)`: List URLs available cho endpoint
-   - `getActiveEndpoints(planet)`: Map endpointKey → URL đang dùng
-   - `setEndpointMode(planet, key, mode)`: Chuyển random/manual
-   - `setEndpointSelection(planet, key, url)`: Chọn URL cụ thể
-   - Persist endpoint selections vào localStorage
-   - `loadingStatus`: Status messages cho i18n trong overlay
+2. **Stores cập nhật dùng logger**:
+   - [`appSettings.ts`](src-ts/stores/appSettings.ts): +logger, +isPolling, +logLevel persistence
+   - [`configURL.ts`](src-ts/stores/configURL.ts): +logger thay console
+   - [`blockPolling.ts`](src-ts/stores/blockPolling.ts): +logger, +persist isPolling, +auto-start watch
 
-3. **FirstLoading Overlay** ([`src-ts/views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue)):
-   - Overlay semi-transparent backdrop (rgba + blur) che phủ hoàn toàn trang web
-   - Countdown 3s trước khi chuyển trang
-   - States: Loading (spinner + status), Error (retry button), Success (countdown)
-   - Dark mode via `appSettings.isDarkMode` (không dùng useDark vì localStorage format khác)
-   - KHÔNG dùng Teleport to="body" (giữ trong component tree cho naive-ui dark theme)
+3. **localStorage Fix**:
+   - [`PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue): Bỏ useStorage, dùng useAppSettingsStore
+   - isPolling + logLevel thêm vào PersistedSettings interface
 
-4. **App.vue** ([`src-ts/App.vue`](src-ts/App.vue)):
-   - Import + render `<FirstLoadingOverlay />` bên trong `<n-config-provider>`
+4. **Footer Components tách mới**:
+   - [`FooterBlockMonitor.vue`](src-ts/components/footer/FooterBlockMonitor.vue): Tab 1 content
+   - [`FooterSettings.vue`](src-ts/components/footer/FooterSettings.vue): Tab 2 mở rộng (6 NCollapse sections)
+   - [`FooterEndpoints.vue`](src-ts/components/footer/FooterEndpoints.vue): Tab 3 content
+   - [`FooterActions.vue`](src-ts/components/footer/FooterActions.vue): Tab 4 content
+   - [`FooterStorageInfo.vue`](src-ts/components/footer/FooterStorageInfo.vue): Storage info section
+   - [`FooterLogViewer.vue`](src-ts/components/footer/FooterLogViewer.vue): Log viewer section
 
-5. **FooterNodeManager.vue** ([`src-ts/components/footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue)):
-   - 4 tabs: Block Monitor, Settings, Endpoints, Actions
-   - Tab "Endpoints": Hiển thị active endpoints, mode selector (random/manual), URL select
-   - Disable planets không khả dụng từ configURL store
+5. **FooterNodeManager refactor**: 350→90 lines, chỉ còn drawer + tabs + imports
 
-6. **blockPolling.ts** ([`src-ts/stores/blockPolling.ts`](src-ts/stores/blockPolling.ts)):
-   - `getMimirUrl()` ưu tiên URL động từ configURL store, fallback PLANET_CONFIGS
+6. **i18n updates**: Thêm settings.general.*, settings.polling.*, settings.storage.*, settings.logger.*, settings.about.* keys (en + vi)
 
-7. **appSettings.ts** ([`src-ts/stores/appSettings.ts`](src-ts/stores/appSettings.ts)):
-   - `setPlanet()` validate against available planets
-   - `validatePlanetAvailability()` fallback planet không khả dụng
+7. **Auto-start Polling**: blockPolling watch `appSettings.isPolling` → auto-start/stop
 
-8. **i18n** ([`src-ts/i18n/locales/en.json`](src-ts/i18n/locales/en.json), [`src-ts/i18n/locales/vi.json`](src-ts/i18n/locales/vi.json)):
-   - `firstLoading.*`: loading, error, success, step messages, countdown
-   - `endpoints.*`: tab, planet, activeEndpoints, mode, random/manual, selectUrl
-
-9. **naive-ui.d.ts**: Thêm NCollapse, NCollapseItem, NRadioGroup, NRadioButton
-10. **ui.d.ts**: Thêm useDark type declaration
-11. **router/index.ts**: Giữ nguyên cấu trúc gốc (/ là home)
-12. **router.test.ts**: Giữ nguyên test cấu trúc gốc
+8. **Tests**: 164/164 pass (tăng từ 124 → 164)
 
 ## How To Run
 ```bash
 npm run dev      # JS version (port 1414)
 npm run dev:ts   # TS version (port 1415)
 npm run build:ts # Build TS version
-npm run test     # Vitest (88 tests, src-ts/)
+npm run test     # Vitest (164 tests, src-ts/)
 ```
 
 ## File Structure src-ts/ (Latest)
@@ -76,9 +58,9 @@ src-ts/
 ├ router/index.ts                      # 3 routes trong MainLayout (/ is home)
 ├ layouts/MainLayout.vue               # Header+Sidebar+Content+Footer
 ├ stores/
-│  ├── appSettings.ts                  # Dark mode, planet, language, poll interval + validatePlanet
-│  ├── blockPolling.ts                 # Block polling via GraphQL (uses configURL for dynamic URLs)
-│  └── configURL.ts                    # NEW: Fetch planet data, dynamic RPC endpoints, endpoint selection
+│  ├── appSettings.ts                  # Dark mode, planet, language, poll interval, isPolling, logLevel + logger
+│  ├── blockPolling.ts                 # Block polling via GraphQL + auto-start watch + logger
+│  └── configURL.ts                    # Fetch planet data, dynamic RPC endpoints + logger
 ├ components/
 │  ├── header/
 │  │  ├── HeaderAvatar.vue
@@ -86,30 +68,43 @@ src-ts/
 │  │  └── HeaderBanner.vue
 │  └── footer/
 │     ├── FooterInfoBlock.vue           # Block info từ blockPolling store
-│     └── FooterNodeManager.vue         # 4 tabs: Block Monitor, Settings, Endpoints, Actions
+│     ├── FooterNodeManager.vue         # Drawer + 4 tabs (90 lines, imports components mới)
+│     ├── FooterBlockMonitor.vue        # Tab 1: Planet, poll interval, block info, stats
+│     ├── FooterSettings.vue            # Tab 2: 6 NCollapse sections (General, Polling, Endpoints, Storage, Logger, About)
+│     ├── FooterEndpoints.vue           # Tab 3: Endpoint URLs, mode selector
+│     ├── FooterActions.vue             # Tab 4: Placeholder
+│     ├── FooterStorageInfo.vue         # localStorage info + clear all
+│     └── FooterLogViewer.vue           # Log history viewer với filter
 ├ views/
-│  ├── FirstLoadingPage.vue            # NEW: Overlay che phủ khi data chưa load
+│  ├── FirstLoadingPage.vue            # Overlay che phủ khi data chưa load
 │  ├── HomePage.vue
 │  ├── LoginPage.vue
 │  └── NotFoundPage.vue
 ├ types/
-│  ├── naive-ui.d.ts                   # + NCollapse, NCollapseItem, NRadioGroup, NRadioButton
-│  ├── ui.d.ts                         # + useDark
+│  ├── logger.ts                       # NEW: LogLevel, LogEntry, LoggerConfig, Logger
+│  ├── naive-ui.d.ts                   # 40+ component exports
+│  ├── ui.d.ts                         # @vicons/material + vue-i18n + @vueuse/core
 │  ├── header.ts
 │  └── footer.ts
-├ i18n/                                # + firstLoading.*, endpoints.*
-├ utilities/constants.ts               # + URL_ALL_PLANET, PlanetData, PlanetRpcEndpoints
-└ __tests__/                           # 88 tests
+├ i18n/                                # + settings.*, logger.* keys
+├ utilities/
+│  ├── constants.ts                    # Planet configs, Mimir URLs, poll interval options
+│  └── logger.ts                       # NEW: createLogger(), log history, history management
+├ assets/base.css                      # CSS + transitions
+└ __tests__/                           # 164 tests
+   ├── i18n.test.ts (19)
+   ├── darkMode.test.ts (19)
+   ├── router.test.ts (13)
+   ├── appSettings.test.ts (30)        # +8 tests (isPolling, logLevel)
+   ├── blockPolling.test.ts (26)       # +4 tests (auto-start)
+   ├── configURL.test.ts (36)
+   └── logger.test.ts (21)             # NEW
 ```
 
 ## Active Decisions
-- **Overlay thay Router Loading**: Dùng overlay component (FirstLoadingPage.vue) trong App.vue thay vì route riêng, giữ / là home
-- **No Teleport**: Overlay giữ trong component tree để naive-ui dark theme hoạt động
-- **Dynamic URLs from API**: Fetch từ URL_ALL_PLANET, fallback về FALLBACK_PLANETS static
-- **Endpoint Mode**: Random (mặc định) hoặc Manual (chọn URL cụ thể), persist vào localStorage
-- **Dark Mode Overlay**: Dùng `appSettings.isDarkMode` (không useDark) vì localStorage format khác nhau
+- **Logger singleton history**: Global logHistory ref shared across all logger instances → hiển thị trong Settings tab
+- **Auto-start via watch**: blockPolling watch `appSettings.isPolling` với `{ immediate: true }` thay vì init check
+- **isPolling persist**: Đảm bảo trạng thái poll giữ nguyên sau page reload
+- **Footer tab refactor**: Tách content ra components riêng để dễ maintain, FooterNodeManager chỉ còn drawer logic
 
 ## Known Issues
-- **Build chưa verify**: Chưa chạy `vue-tsc --noEmit` thành công (task bị interrupted)
-- **Tests chưa update**: Chưa có test cho configURL store, FirstLoading overlay, endpoint settings
-- **Dark mode overlay**: Có thể chưa hoàn hảo do naive-ui components trong overlay cần test thêm

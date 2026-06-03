@@ -70,33 +70,43 @@ src-ts/                           # TS version (self-contained)
 ├ router/index.ts                # 3 routes (/ is home)
 ├ layouts/MainLayout.vue         # Header+Sidebar+Content+Footer
 ├ stores/
-│  ├── appSettings.ts            # Dark mode, planet, language, poll interval + validate
-│  ├── blockPolling.ts           # GraphQL block polling (uses configURL for dynamic URLs)
-│  └── configURL.ts              # Fetch planet data, dynamic RPC endpoints, endpoint selection
+│  ├── appSettings.ts            # Dark mode, planet, language, poll, isPolling, logLevel + logger
+│  ├── blockPolling.ts           # GraphQL block polling + auto-start watch + logger
+│  └── configURL.ts              # Fetch planet data, dynamic RPC endpoints + logger
 ├ components/
 │  ├── Placeholder*.vue          # Placeholder components
 │  ├── header/                   # HeaderAvatar, HeaderProgress, HeaderBanner
 │  └── footer/
 │     ├── FooterInfoBlock.vue    # Block info từ blockPolling store
-│     └── FooterNodeManager.vue  # 4 tabs: Block Monitor, Settings, Endpoints, Actions
+│     ├── FooterNodeManager.vue  # Drawer + 4 tabs (90 lines)
+│     ├── FooterBlockMonitor.vue # Tab 1: planet, poll, stats
+│     ├── FooterSettings.vue     # Tab 2: 6 NCollapse sections
+│     ├── FooterEndpoints.vue    # Tab 3: endpoint URLs, mode
+│     ├── FooterActions.vue      # Tab 4: placeholder
+│     ├── FooterStorageInfo.vue  # localStorage info + clear
+│     └── FooterLogViewer.vue    # Log history viewer
 ├ views/
 │  ├── FirstLoadingPage.vue      # Overlay semi-transparent backdrop
 │  ├── HomePage.vue, LoginPage.vue, NotFoundPage.vue
 ├ types/
+│  ├── logger.ts                 # LogLevel, LogEntry, LoggerConfig, Logger
 │  ├── header.ts                 # Header component types
 │  ├── footer.ts                 # + BlockPollEntry, BlockAverages
 │  ├── naive-ui.d.ts             # 40+ component exports
 │  └── ui.d.ts                   # @vicons/material + vue-i18n + @vueuse/core
-├ i18n/                          # + firstLoading.*, endpoints.*
-├ utilities/constants.ts         # + URL_ALL_PLANET, PlanetData, PlanetRpcEndpoints
+├ i18n/                          # + settings.*, logger.* keys
+├ utilities/
+│  ├── constants.ts              # + URL_ALL_PLANET, PlanetData, PlanetRpcEndpoints
+│  └── logger.ts                 # createLogger(), log history, history management
 ├ assets/base.css                # CSS + transitions
-└ __tests__/                     # 124 tests (6 files)
-   ├── i18n.test.ts (12)
+└ __tests__/                     # 164 tests (7 files)
+   ├── i18n.test.ts (19)
    ├── darkMode.test.ts (19)
    ├── router.test.ts (13)
-   ├── appSettings.test.ts (22)
-   ├── blockPolling.test.ts (22)
-   └── configURL.test.ts (36)    # NEW
+   ├── appSettings.test.ts (30)
+   ├── blockPolling.test.ts (26)
+   ├── configURL.test.ts (36)
+   └── logger.test.ts (21)
 ```
 
 ## Key Patterns
@@ -107,4 +117,7 @@ src-ts/                           # TS version (self-contained)
 - **ConfigURL**: Fetch từ URL_ALL_PLANET → dynamic RPC endpoints → random/manual selection
 - **FirstLoading**: Overlay backdrop → countdown 3s → redirect home
 - **Planet Selection**: Pinia stores shared between FooterNodeManager (UI) + blockPolling (data) + configURL (URLs)
+- **Logger**: `createLogger({ module })` → structured logging, log history (max 200), displayed in Settings tab
+- **Auto-start Polling**: `watch(appSettings.isPolling, { immediate: true })` → auto start/stop
+- **Footer Decomposition**: FooterNodeManager tách thành 6 components riêng (Monitor, Settings, Endpoints, Actions, StorageInfo, LogViewer)
 - **Test Setup**: `setActivePinia(createPinia())` + mock localStorage + mock fetch
