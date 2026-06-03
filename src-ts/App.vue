@@ -15,6 +15,9 @@
     </n-loading-bar-provider>
 
     <n-global-style />
+
+    <!-- First Loading Overlay – hiện khi dữ liệu URL planet chưa load -->
+    <FirstLoadingOverlay />
   </n-config-provider>
 </template>
 
@@ -33,6 +36,7 @@ import {
 import { useI18n } from 'vue-i18n'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
 import { useAppSettingsStore } from './stores/appSettings'
+import FirstLoadingOverlay from './views/FirstLoadingPage.vue'
 
 const { locale } = useI18n()
 const appSettings = useAppSettingsStore()

@@ -23,7 +23,7 @@
         </n-flex>
       </template>
       <n-tabs type="bar" trigger="hover" animated>
-        <!-- Block Monitor Tab -->
+        <!-- ====== Tab 1: Block Monitor ====== -->
         <n-tab-pane name="blockMonitor" :tab="t('blockMonitor.tab')">
           <n-space vertical>
             <!-- Planet Selection -->
@@ -118,7 +118,7 @@
           </n-space>
         </n-tab-pane>
 
-        <!-- Settings Tab -->
+        <!-- ====== Tab 2: Settings ====== -->
         <n-tab-pane name="setting" :tab="t('settings.tab')">
           <n-space vertical>
             <!-- Dark Mode Toggle -->
@@ -150,7 +150,69 @@
           </n-space>
         </n-tab-pane>
 
-        <!-- Actions Tab -->
+        <!-- ====== Tab 3: Endpoints ====== -->
+        <n-tab-pane name="endpoints" :tab="t('endpoints.tab')">
+          <n-space vertical style="width: 100%">
+            <!-- Planet info -->
+            <n-space vertical>
+              <n-text depth="2" strong>{{ t('endpoints.planet') }}</n-text>
+              <n-text depth="3">{{ appSettings.planetLabel }}</n-text>
+            </n-space>
+
+            <n-divider />
+
+            <!-- Endpoint list -->
+            <n-text depth="2" strong>{{ t('endpoints.activeEndpoints') }}</n-text>
+            <n-card
+              v-for="(url, key) in activeEndpoints"
+              :key="key"
+              size="small"
+              style="margin-top: 8px"
+            >
+              <n-space vertical :size="4">
+                <!-- Endpoint name -->
+                <n-text depth="3" style="font-size: 11px; font-weight: 600">
+                  {{ key }}
+                </n-text>
+                <!-- Current URL -->
+                <n-text
+                  style="font-size: 11px; word-break: break-all; font-family: monospace"
+                >
+                  {{ url || 'N/A' }}
+                </n-text>
+                <!-- Mode selector -->
+                <n-space align="center" :size="8">
+                  <n-text depth="3" style="font-size: 11px">
+                    {{ t('endpoints.mode') }}:
+                  </n-text>
+                  <n-radio-group
+                    :value="configURL.getEndpointMode(appSettings.selectedPlanet, String(key))"
+                    size="small"
+                    @update:value="(val: string) => onEndpointModeChange(String(key), val as 'random' | 'manual')"
+                  >
+                    <n-radio-button value="random" size="small">
+                      {{ t('endpoints.random') }}
+                    </n-radio-button>
+                    <n-radio-button value="manual" size="small">
+                      {{ t('endpoints.manual') }}
+                    </n-radio-button>
+                  </n-radio-group>
+                </n-space>
+                <!-- Manual URL selection -->
+                <n-select
+                  v-if="configURL.getEndpointMode(appSettings.selectedPlanet, String(key)) === 'manual'"
+                  :value="url"
+                  :options="getEndpointOptions(String(key))"
+                  size="small"
+                  :placeholder="t('endpoints.selectUrl')"
+                  @update:value="(val: string) => onEndpointUrlSelect(String(key), val)"
+                />
+              </n-space>
+            </n-card>
+          </n-space>
+        </n-tab-pane>
+
+        <!-- ====== Tab 4: Actions ====== -->
         <n-tab-pane name="actions" :tab="t('actions.tab')">
           <n-space vertical>
             <n-text depth="3">{{ t('actions.placeholder') }}</n-text>
@@ -179,7 +241,10 @@ import {
   NDivider,
   NSelect,
   NTag,
-  NSwitch
+  NSwitch,
+  NCard,
+  NRadioGroup,
+  NRadioButton
 } from 'naive-ui'
 import {
   FullscreenRound as onFull,
@@ -188,6 +253,7 @@ import {
 import FooterInfoBlock from './FooterInfoBlock.vue'
 import { useBlockPollingStore } from '../../stores/blockPolling'
 import { useAppSettingsStore } from '../../stores/appSettings'
+import { useConfigURLStore } from '../../stores/configURL'
 import { PLANET_OPTIONS, POLL_INTERVAL_OPTIONS, type PlanetName } from '../../utilities/constants'
 
 const { t } = useI18n()
@@ -203,12 +269,14 @@ const DRAWER_SIZE_MAX = '100%'
 // Pinia stores
 const blockPolling = useBlockPollingStore()
 const appSettings = useAppSettingsStore()
+const configURL = useConfigURLStore()
 
-// Options for selects
+// Options for selects – disable planets not available from URL_ALL_PLANET
 const planetOptions = computed(() =>
   PLANET_OPTIONS.map((p) => ({
     label: p.label,
-    value: p.id
+    value: p.id,
+    disabled: !configURL.isPlanetAvailable(p.id)
   }))
 )
 
@@ -223,6 +291,18 @@ const langOptions = [
   { label: 'Tiếng Việt', value: 'vi' },
   { label: 'English', value: 'en' }
 ]
+
+/** Active endpoints for current planet */
+const activeEndpoints = computed(() => configURL.getActiveEndpoints(appSettings.selectedPlanet))
+
+/** Get endpoint options for select dropdown */
+function getEndpointOptions(endpointKey: string): Array<{ label: string; value: string }> {
+  const urls = configURL.getAvailableEndpoints(appSettings.selectedPlanet, endpointKey)
+  return urls.map((url) => ({
+    label: url.length > 60 ? url.substring(0, 57) + '...' : url,
+    value: url
+  }))
+}
 
 // Event handlers
 function onPlanetChange(val: PlanetName): void {
@@ -239,6 +319,14 @@ function onDarkModeToggle(val: boolean): void {
 
 function onLangChange(val: string): void {
   appSettings.setLang(val)
+}
+
+function onEndpointModeChange(endpointKey: string, mode: 'random' | 'manual'): void {
+  configURL.setEndpointMode(appSettings.selectedPlanet, endpointKey, mode)
+}
+
+function onEndpointUrlSelect(endpointKey: string, url: string): void {
+  configURL.setEndpointSelection(appSettings.selectedPlanet, endpointKey, url)
 }
 
 function handleTogglePoll(): void {

@@ -67,5 +67,44 @@
   "actions": {
     "tab": "Hành động",
     "placeholder": "Actions placeholder - sẽ điền logic sau"
+  },
+  "firstLoading": {
+    "loading": "Đang tải dữ liệu planet...",
+    "fetchingPlanets": "Đang kết nối đến máy chủ Nine Chronicles",
+    "errorTitle": "Không thể tải dữ liệu planet",
+    "warningTitle": "Đang dùng cấu hình dự phòng",
+    "retry": "Thử lại",
+    "usingFallback": "Sử dụng cấu hình dự phòng",
+    "successTitle": "Tải dữ liệu thành công",
+    "successDescription": "Đang chuyển đến trang chính...",
+    "goHome": "Về trang chủ",
+    "redirectIn": "Chuyển trang sau {seconds}s...",
+    "step": {
+      "connecting": "Đang kết nối server...",
+      "fetching": "Đang lấy danh sách planet...",
+      "parsing": "Đang phân tích dữ liệu...",
+      "done": "Tải dữ liệu xong!",
+      "fallback": "Đang dùng cấu hình dự phòng..."
+    },
+    "settings": {
+      "title": "Cài đặt Endpoint",
+      "endpoint": "Endpoint",
+      "mode": "Chế độ",
+      "random": "Ngẫu nhiên",
+      "manual": "Tùy chọn",
+      "selectUrl": "Chọn URL",
+      "currentUrl": "Đang dùng:",
+      "availableUrls": "URL khả dụng:"
+    }
+  },
+  "endpoints": {
+    "tab": "Endpoints",
+    "planet": "Planet hiện tại:",
+    "activeEndpoints": "Endpoints đang dùng",
+    "mode": "Chế độ",
+    "random": "Ngẫu nhiên",
+    "manual": "Tùy chọn",
+    "selectUrl": "Chọn URL",
+    "currentUrl": "Đang dùng:"
   }
 }

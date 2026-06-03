@@ -76,4 +76,10 @@ declare module '@vueuse/core' {
     callback: () => void,
     interval: number
   ): { pause: () => void; resume: () => void }
+  export function useDark(options?: {
+    storageKey?: string
+    selector?: string
+    valueDark?: string
+    valueLight?: string
+  }): import('vue').Ref<boolean>
 }

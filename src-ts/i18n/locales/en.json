@@ -67,5 +67,44 @@
   "actions": {
     "tab": "Actions",
     "placeholder": "Actions placeholder - will add logic later"
+  },
+  "firstLoading": {
+    "loading": "Loading planet data...",
+    "fetchingPlanets": "Connecting to Nine Chronicles servers",
+    "errorTitle": "Failed to load planet data",
+    "warningTitle": "Using fallback configuration",
+    "retry": "Retry",
+    "usingFallback": "Using fallback configuration",
+    "successTitle": "Data loaded successfully",
+    "successDescription": "Redirecting to the main page...",
+    "goHome": "Go to Home",
+    "redirectIn": "Redirecting in {seconds}s...",
+    "step": {
+      "connecting": "Connecting to server...",
+      "fetching": "Fetching planet list...",
+      "parsing": "Parsing planet data...",
+      "done": "Data loaded!",
+      "fallback": "Using fallback configuration..."
+    },
+    "settings": {
+      "title": "Endpoint Settings",
+      "endpoint": "Endpoint",
+      "mode": "Mode",
+      "random": "Random",
+      "manual": "Manual",
+      "selectUrl": "Select URL",
+      "currentUrl": "Currently using:",
+      "availableUrls": "Available URLs:"
+    }
+  },
+  "endpoints": {
+    "tab": "Endpoints",
+    "planet": "Current planet:",
+    "activeEndpoints": "Active endpoints",
+    "mode": "Mode",
+    "random": "Random",
+    "manual": "Manual",
+    "selectUrl": "Select URL",
+    "currentUrl": "Currently using:"
   }
 }

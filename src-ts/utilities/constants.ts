@@ -42,13 +42,53 @@ export const CONFIG_i18n_LANGUAGES: I18nLanguageConfig[] = [
 /** Planet name type */
 export type PlanetName = 'odin' | 'heimdall' | 'thor'
 
-/** Planet configuration interface */
+/** Planet configuration interface (fallback / static) */
 export interface PlanetConfig {
   id: PlanetName
   label: string
   mimirUrl: string
   /** Headless RPC GraphQL endpoint (fallback) */
   headlessGql: string
+}
+
+// ============================================================
+// URL_ALL_PLANET – Dynamic planet data from Nine Chronicles API
+// ============================================================
+
+/** URL to fetch all available planets */
+export const URL_ALL_PLANET = 'https://planets.nine-chronicles.com/planets/'
+
+/**
+ * RPC endpoints for a planet (from URL_ALL_PLANET response)
+ * Ref: .REF/python-tool/constants.py link_planet() – planet["rpcEndpoints"]
+ */
+export interface PlanetRpcEndpoints {
+  'dp.gql'?: string[]
+  '9cscan.rest'?: string[]
+  'headless.gql'?: string[]
+  'headless.grpc'?: string[]
+  'market.rest'?: string[]
+  'world-boss.rest'?: string[]
+  'patrol-reward.gql'?: string[]
+  'guild.rest'?: string[]
+  'arena.gql'?: string[]
+  'mimir.gql'?: string[]
+  [key: string]: string[] | undefined
+}
+
+/**
+ * Single planet entry from URL_ALL_PLANET response
+ * Ref: .REF/python-tool/constants.py link_planet()
+ */
+export interface PlanetData {
+  id: string
+  name: string
+  genesisHash: string
+  genesisUri?: string
+  guildIconBucket?: string
+  '9cscanUrl'?: string
+  rpcEndpoints: PlanetRpcEndpoints
+  bridges?: Record<string, { agent: string; avatar: string }>
 }
 
 /** Default poll interval for block polling (ms) */

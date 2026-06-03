@@ -26,6 +26,7 @@ import {
   QUERY_GET_BLOCK_NOW
 } from '../utilities/constants'
 import { useAppSettingsStore } from './appSettings'
+import { useConfigURLStore } from './configURL'
 
 // ============================================================
 // GraphQL request helper (mirror Python send_request_QUERY)
@@ -56,6 +57,8 @@ interface BlockPollEntry {
 export const useBlockPollingStore = defineStore('blockPolling', () => {
   // Reference to appSettings store
   const appSettings = useAppSettingsStore()
+  // Reference to configURL store for dynamic planet URLs
+  const configURL = useConfigURLStore()
 
   // ============================================================
   // State
@@ -123,7 +126,14 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
   // Internal helpers
   // ============================================================
 
+  /**
+   * Get mimir URL –优先使用 dynamic URL từ configURL store,
+   * fallback về PLANET_CONFIGS static.
+   * Ref: .REF/python-tool/constants.py link_planet() – URL_MIMIR
+   */
   function getMimirUrl(planet: PlanetName): string {
+    const dynamicUrl = configURL.getMimirUrl(planet)
+    if (dynamicUrl) return dynamicUrl
     return PLANET_CONFIGS[planet]?.mimirUrl ?? ''
   }
 

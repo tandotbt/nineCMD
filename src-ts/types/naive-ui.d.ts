@@ -124,6 +124,10 @@ declare module 'naive-ui' {
   export const NGridItem: Component
   export const NCarousel: Component
   export const NCarouselItem: Component
+  export const NCollapse: Component
+  export const NCollapseItem: Component
+  export const NRadioGroup: Component
+  export const NRadioButton: Component
 
   // Utilities
   export function useThemeVars(): Record<string, Ref<string>>

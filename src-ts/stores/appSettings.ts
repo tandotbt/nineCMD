@@ -15,8 +15,9 @@
  */
 
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { type PlanetName, DEFAULT_POLL_INTERVAL_MS, PLANET_CONFIGS } from '../utilities/constants'
+import { useConfigURLStore } from './configURL'
 
 /** localStorage key */
 const STORAGE_KEY = 'setting-nine-cmd'
@@ -54,6 +55,7 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
   // Load initial state from localStorage
   // ============================================================
   const persisted = loadFromStorage()
+  const configURL = useConfigURLStore()
 
   // ============================================================
   // Reactive state
@@ -115,12 +117,38 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     persist()
   }
 
-  /** Switch planet */
+  /** Switch planet – only allows available planets */
   function setPlanet(planet: PlanetName): void {
     if (planet === selectedPlanet.value) return
+    // Validate against available planets from URL_ALL_PLANET
+    if (!configURL.isPlanetAvailable(planet)) {
+      console.warn(`[appSettings] Planet "${planet}" is not available, skipping`)
+      return
+    }
     selectedPlanet.value = planet
     planetLabel.value = PLANET_CONFIGS[planet]?.label ?? planet
     persist()
+  }
+
+  /**
+   * Validate selected planet against available planets.
+   * If current planet is not available, fallback to first available planet.
+   * Called after configURL.fetchPlanets() completes.
+   */
+  function validatePlanetAvailability(): void {
+    if (!configURL.isPlanetAvailable(selectedPlanet.value)) {
+      const available = configURL.availablePlanetNames
+      if (available.length > 0) {
+        const fallback = available[0]
+        console.warn(
+          `[appSettings] Current planet "${selectedPlanet.value}" not available, ` +
+          `falling back to "${fallback}"`
+        )
+        selectedPlanet.value = fallback
+        planetLabel.value = PLANET_CONFIGS[fallback]?.label ?? fallback
+        persist()
+      }
+    }
   }
 
   /** Set poll interval (ms) */
@@ -147,6 +175,7 @@ export const useAppSettingsStore = defineStore('appSettings', () => {
     setDarkMode,
     setLang,
     setPlanet,
-    setPollInterval
+    setPollInterval,
+    validatePlanetAvailability
   }
 })
