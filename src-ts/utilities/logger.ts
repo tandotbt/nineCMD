@@ -20,6 +20,9 @@
 import { ref, readonly } from 'vue'
 import { type LogLevel, type LogEntry, type Logger, type LoggerConfig, type LoggerHistoryConfig, LOG_LEVEL_PRIORITY } from '../types/logger'
 
+// Re-export LogLevel for consumers (e.g. appSettings.ts)
+export type { LogLevel } from '../types/logger'
+
 // ============================================================
 // Global Log History
 // ============================================================

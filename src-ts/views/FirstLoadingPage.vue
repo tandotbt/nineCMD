@@ -5,55 +5,115 @@
     để naive-ui dark theme từ n-config-provider hoạt động đúng.
   -->
   <Transition name="fade-overlay">
-    <div v-if="!configURL.isLoaded" class="first-loading-overlay">
+    <div v-if="!allLoaded || csvData.isPlanetSwitching" class="first-loading-overlay">
       <div class="first-loading-card" :class="{ dark: isDark }">
         <!-- Title -->
         <n-text strong style="font-size: 20px; margin-bottom: 16px">
           {{ t('@--App.title') }}
         </n-text>
 
-        <!-- Loading State -->
-        <template v-if="configURL.isLoading">
+        <!-- Planet Switching State (after initial load) -->
+        <template v-if="csvData.isPlanetSwitching && allLoaded">
+          <n-spin size="large" />
+          <n-text strong style="font-size: 16px; margin-top: 16px">
+            {{ t('firstLoading.switchingPlanet') }}
+          </n-text>
+          <n-text depth="3" style="font-size: 13px; margin-top: 8px; opacity: 0.7">
+            {{ currentPlanetLabel }}
+          </n-text>
+          <n-text v-if="loadingStatusText" depth="3" style="font-size: 12px; margin-top: 4px; opacity: 0.5">
+            {{ t(loadingStatusText) }}
+          </n-text>
+        </template>
+
+        <!-- Initial Loading State -->
+        <template v-else-if="isAnyLoading">
           <n-spin size="large" />
           <n-text depth="2" style="margin-top: 16px; font-size: 15px">
             {{ t('firstLoading.loading') }}
           </n-text>
-          <n-text depth="3" style="font-size: 13px; margin-top: 8px; opacity: 0.7">
-            {{ t(configURL.loadingStatus) }}
+          <n-text v-if="loadingStatusText" depth="3" style="font-size: 13px; margin-top: 8px; opacity: 0.7">
+            {{ t(loadingStatusText) }}
+          </n-text>
+          <!-- CSV progress -->
+          <n-text v-if="csvData.isLoaded" depth="3" style="font-size: 12px; margin-top: 4px; opacity: 0.5">
+            ✓ CSV ({{ csvData.loadedSheetCount }}/{{ csvData.totalSheetCount }})
           </n-text>
         </template>
 
-        <!-- Error State (chưa countdown) -->
-        <template v-else-if="configURL.error && !countdownActive">
-          <n-result
-            status="error"
-            :title="t('firstLoading.errorTitle')"
-            :description="configURL.error"
-          >
-            <template #footer>
-              <n-space vertical align="center">
+        <!-- Error State (chưa countdown) – hiển thị lỗi riêng cho planet và CSV -->
+        <template v-else-if="hasError && !countdownActive">
+          <n-space vertical style="width: 100%">
+            <!-- Planet Error -->
+            <n-alert v-if="configURL.error" type="error" :title="t('firstLoading.planetErrorTitle')">
+              <n-text depth="2" style="font-size: 13px">
+                {{ configURL.error }}
+              </n-text>
+              <n-button
+                type="primary"
+                size="small"
+                style="margin-top: 8px"
+                :loading="configURL.isLoading"
+                @click="handleRetryPlanet"
+              >
+                {{ t('firstLoading.retry') }}
+              </n-button>
+            </n-alert>
+
+            <!-- CSV Error -->
+            <n-alert v-if="csvData.error" type="error" :title="t('firstLoading.csvErrorTitle')">
+              <n-text depth="2" style="font-size: 13px">
+                {{ csvData.error }}
+              </n-text>
+              <n-space vertical align="start" style="width: 100%; margin-top: 8px">
+                <!-- URL Selector -->
+                <n-select
+                  v-model:value="selectedApiIndex"
+                  :options="apiUrlOptions"
+                  size="small"
+                  style="width: 100%"
+                />
                 <n-button
                   type="primary"
-                  size="large"
-                  :loading="configURL.isLoading"
-                  @click="handleRetry"
+                  size="small"
+                  :loading="csvData.isLoading"
+                  @click="handleRetryCsv"
                 >
                   {{ t('firstLoading.retry') }}
                 </n-button>
-                <n-text depth="3" style="font-size: 12px">
-                  {{ t('firstLoading.usingFallback') }}
-                </n-text>
               </n-space>
-            </template>
-          </n-result>
+            </n-alert>
+
+            <!-- Planet loaded success hint -->
+            <n-alert
+              v-if="configURL.isLoaded && !configURL.error"
+              type="success"
+              :title="t('firstLoading.planetLoadedTitle')"
+            >
+              <n-text depth="3" style="font-size: 12px">
+                ✓ {{ configURL.planets?.length }} planets loaded
+              </n-text>
+            </n-alert>
+
+            <!-- CSV loaded success hint -->
+            <n-alert
+              v-if="csvData.isLoaded && !csvData.error"
+              type="success"
+              :title="t('firstLoading.csvLoadedTitle')"
+            >
+              <n-text depth="3" style="font-size: 12px">
+                ✓ {{ csvData.loadedSheetCount }}/{{ csvData.totalSheetCount }} sheets loaded
+              </n-text>
+            </n-alert>
+          </n-space>
         </template>
 
-        <!-- Error State + countdown (dùng fallback, đang đếm trước khi vào) -->
-        <template v-else-if="configURL.error && countdownActive">
+        <!-- Error State + countdown (đang đếm trước khi vào) -->
+        <template v-else-if="hasError && countdownActive">
           <n-result
             status="warning"
             :title="t('firstLoading.warningTitle')"
-            :description="configURL.error"
+            :description="errorText"
           >
             <template #footer>
               <n-space vertical align="center">
@@ -69,7 +129,7 @@
         </template>
 
         <!-- Success State – countdown trước khi chuyển -->
-        <template v-else-if="configURL.isLoaded">
+        <template v-else-if="allLoaded">
           <n-result
             status="success"
             :title="t('firstLoading.successTitle')"
@@ -93,23 +153,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+// import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   NSpace,
   NSpin,
   NText,
   NResult,
-  NButton
+  NButton,
+  NAlert,
+  NSelect
 } from 'naive-ui'
 import { useConfigURLStore } from '../stores/configURL'
 import { useAppSettingsStore } from '../stores/appSettings'
+import { useCsvDataStore } from '../stores/csvData'
+import { LIST_API_NINECMD } from '../utilities/constants'
 
 const { t } = useI18n()
-const router = useRouter()
+// const router = useRouter()
 const configURL = useConfigURLStore()
 const appSettings = useAppSettingsStore()
+const csvData = useCsvDataStore()
 
 /**
  * Overlay nằm trong <n-config-provider> ở App.vue,
@@ -117,6 +182,60 @@ const appSettings = useAppSettingsStore()
  * Chỉ cần đọc appSettings.isDarkMode cho custom CSS của card.
  */
 const isDark = computed(() => appSettings.isDarkMode)
+
+/** Current planet label for switching overlay */
+const currentPlanetLabel = computed(() => {
+  const planet = appSettings.selectedPlanet
+  if (!planet) return ''
+  return planet.charAt(0).toUpperCase() + planet.slice(1)
+})
+
+/** Whether any store is currently loading (initial load only) */
+const isAnyLoading = computed(() => configURL.isLoading || csvData.isLoading)
+
+/** Whether all data is loaded successfully */
+const allLoaded = computed(() => configURL.isLoaded && csvData.isLoaded)
+
+/** Whether any store has an error */
+const hasError = computed(() => !!configURL.error || !!csvData.error)
+
+/** Combined error text from both stores */
+const errorText = computed(() => {
+  const errors: string[] = []
+  if (configURL.error) errors.push(`Planets: ${configURL.error}`)
+  if (csvData.error) errors.push(`CSV: ${csvData.error}`)
+  return errors.join('\n') || 'Unknown error'
+})
+
+/** Loading status text – show the most relevant status */
+const loadingStatusText = computed(() => {
+  if (configURL.isLoading) return configURL.loadingStatus
+  if (csvData.isLoading) return csvData.loadingStatus
+  return ''
+})
+
+// ============================================================
+// API URL Selector cho CSV retry
+// ============================================================
+
+/** Selected API index in csvData store */
+const selectedApiIndex = ref(csvData.currentApiIndex)
+
+/** Options for NSelect – danh sách 9CMD API URLs */
+const apiUrlOptions = computed(() =>
+  LIST_API_NINECMD.map((url, index) => ({
+    label: url.replace('https://', '').replace('http://', ''),
+    value: index
+  }))
+)
+
+/** Watch csvData.currentApiIndex để sync với select */
+watch(
+  () => csvData.currentApiIndex,
+  (newIndex) => {
+    selectedApiIndex.value = newIndex
+  }
+)
 
 /** Countdown seconds before redirect */
 const countdown = ref(3)
@@ -131,13 +250,20 @@ const redirectMessage = computed(() => {
 })
 
 /**
- * Fetch planet data on mount.
- * If successful → countdown 3s → redirect to home.
- * If failed → show error with retry button.
+ * Fetch planet data + CSV data on mount (parallel).
+ * If both successful → countdown 3s → redirect to home.
+ * If any failed → show error with retry buttons.
  */
 onMounted(async () => {
-  const success = await configURL.fetchPlanets()
-  if (success) {
+  const planet = appSettings.selectedPlanet || 'odin'
+
+  // Fetch planets + CSV song song
+  const [planetSuccess, csvSuccess] = await Promise.all([
+    configURL.fetchPlanets(),
+    csvData.fetchAllSheets(planet)
+  ])
+
+  if (planetSuccess && csvSuccess) {
     appSettings.validatePlanetAvailability()
     startCountdown()
   }
@@ -169,14 +295,43 @@ function clearCountdownTimer(): void {
 function goHome(): void {
   clearCountdownTimer()
   countdownActive.value = false
+  // Hide planet switching overlay
+  csvData.isPlanetSwitching = false
 }
 
-async function handleRetry(): Promise<void> {
+/**
+ * Retry chỉ planet data
+ */
+async function handleRetryPlanet(): Promise<void> {
   clearCountdownTimer()
   countdown.value = 3
   countdownActive.value = false
+
   const success = await configURL.retry()
-  if (success) {
+  const csvReady = csvData.isLoaded
+
+  if (success && csvReady) {
+    appSettings.validatePlanetAvailability()
+    startCountdown()
+  }
+}
+
+/**
+ * Retry CSV data với API URL đã chọn
+ */
+async function handleRetryCsv(): Promise<void> {
+  clearCountdownTimer()
+  countdown.value = 3
+  countdownActive.value = false
+
+  // Set API index theo selection
+  csvData.currentApiIndex = selectedApiIndex.value
+
+  const planet = appSettings.selectedPlanet || 'odin'
+  const success = await csvData.fetchAllSheets(planet)
+  const planetReady = configURL.isLoaded
+
+  if (success && planetReady) {
     appSettings.validatePlanetAvailability()
     startCountdown()
   }

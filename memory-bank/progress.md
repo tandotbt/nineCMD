@@ -9,6 +9,7 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 - **Giai đoạn 2b - Block Polling + Pinia Stores + Settings**: ✅ Hoàn thành
 - **Giai đoạn 2c - ConfigURL Store + FirstLoading Overlay + Endpoint Settings**: ✅ Hoàn thành
 - **Giai đoạn 2d - Logger System + Settings Tab + Code Refactor**: ✅ Hoàn thành
+- **Giai đoạn 2e - CSV Data Processing + Per-Planet Caching**: ✅ Hoàn thành
 - **Giai đoạn 3**: Chuyển stores JS → TypeScript (10 stores)
 - **Giai đoạn 4**: Chuyển utilities JS → TypeScript (15+ files)
 - **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/
@@ -71,7 +72,20 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 - [x] Auto-start polling: watch appSettings.isPolling → auto start/stop
 - [x] Tests: appSettings (30) + blockPolling (26) + logger (21)
 
-### Tests: 164/164 Pass ✅
+### Phase 2e: CSV Data Processing + Per-Planet Caching ✅
+- [x] [`types/csvData.ts`](src-ts/types/csvData.ts) - CsvSheetName (21 sheets), CsvRow, CsvSheetData, AllSheetsData, CsvSheetMeta
+- [x] [`utilities/constants.ts`](src-ts/utilities/constants.ts) - + LIST_API_NINECMD, CSV_ENDPOINT_PATH, CSV_SHEET_CONFIG, ALL_CSV_SHEET_NAMES
+- [x] [`utilities/csvParser.ts`](src-ts/utilities/csvParser.ts) - decodeBase64Csv() UTF-8, parseCsvSheet() case-insensitive, getCsvHeaders(), validateCsvData()
+- [x] [`utilities/csvFetcher.ts`](src-ts/utilities/csvFetcher.ts) - buildCsvFetchUrl(), fetchCsvFromApi()
+- [x] [`stores/csvData.ts`](src-ts/stores/csvData.ts) - Full Pinia store: fetch/parse/cache 21 sheets, per-planet cache, planet change watcher
+- [x] [`views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue) - Separate error handling (planet vs CSV), CSV retry with URL selector, planet switching overlay
+- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - CSV data viewer: NDataTable, dynamic columns, pagination, planet indicator + cache status
+- [x] [`router/index.ts`](src-ts/router/index.ts) - + route `/csv-data`
+- [x] [`PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue) - + "CSV Data" menu item
+- [x] [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json) - + switchingPlanet, planetErrorTitle, csvErrorTitle, planetLoadedTitle, csvLoadedTitle
+- [x] Tests: csvParser (23) + csvFetcher (8) + csvData (23, including caching)
+
+### Tests: 187+ Tests ✅
 | Test File | Tests | Status |
 |-----------|-------|--------|
 | i18n.test.ts | 19 | ✅ |
@@ -81,21 +95,32 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 | blockPolling.test.ts | 26 | ✅ |
 | configURL.test.ts | 36 | ✅ |
 | logger.test.ts | 21 | ✅ |
-| **Total** | **164** | **✅** |
+| csvParser.test.ts | 23 | ✅ |
+| csvFetcher.test.ts | 8 | ✅ |
+| csvData.test.ts | 23 | ✅ |
+| **Total** | **218** | **✅** |
 
 ### Known Issues
-- 🔶 Build `vue-tsc --noEmit` chưa verify (task interrupted lần trước)
+- ✅ Tất cả lỗi vue-tsc đã được sửa (0 errors verified bằng `npx vue-tsc --noEmit`)
+- ✅ ĐÃ SỬA: PlaceholderMenuLeft renderTag type, TableChartRound subpath import, CsvDataView row-key getter, App.vue locale/dateLocale type, FooterNodeManager align/justify
+- 🔶 `@ts-expect-error` vẫn cần cho naive-ui NDataTable/NEmpty/NAlert imports dưới bundler moduleResolution
+
+### Phase 2f: Type Cleanup 5 lỗi vue-tsc còn lại ✅
+- [x] [`App.vue`](src-ts/App.vue) - Import `type NLocale, type NDateLocale` từ `naive-ui`, đổi `uiConfig: ref<NLocale | null>(null)` và `uiConfigDate: ref<NDateLocale | null>(null)`. Bỏ cast `as unknown as Record<string, unknown>` ở `applyLang()`, thay bằng `as NLocale` / `as NDateLocale` (không cần `unknown` vì type khớp).
+- [x] [`components/footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Đổi `<n-space justify="baseline">` thành `<n-space align="baseline">` vì `baseline` không hợp lệ với `justify` (chỉ có trong `align` của n-space).
+- [x] `npx vue-tsc --noEmit` → 0 errors
 
 ## File Structure
 ```
 src-ts/
 ├ main.ts + App.vue (entry + FirstLoadingOverlay + watch store theme/lang)
-├ router/index.ts (3 routes, / is home)
+├ router/index.ts (4 routes, / is home, /csv-data)
 ├ layouts/MainLayout.vue
 ├ stores/
 │  ├── appSettings.ts (dark mode, planet, language, poll interval, isPolling, logLevel + logger)
 │  ├── blockPolling.ts (GraphQL block polling + auto-start watch + logger)
-│  └── configURL.ts (fetch planet data, dynamic RPC endpoints + logger)
+│  ├── configURL.ts (fetch planet data, dynamic RPC endpoints + logger)
+│  └── csvData.ts (CSV data fetch/parse + per-planet cache + planet change watcher)
 ├ components/
 │  ├── Placeholder{Header,MenuLeft,Footer,FloatButton}.vue
 │  ├── header/{HeaderAvatar,HeaderProgress,HeaderBanner}.vue
@@ -108,11 +133,11 @@ src-ts/
 │     ├── FooterActions.vue (Tab 4)
 │     ├── FooterStorageInfo.vue (storage info)
 │     └── FooterLogViewer.vue (log viewer)
-├ views/ (FirstLoadingPage, HomePage, LoginPage, NotFoundPage)
-├ types/ (logger.ts, naive-ui.d.ts, ui.d.ts, header.ts, footer.ts)
-├ i18n/ (+ settings.*, logger.* keys)
-├ utilities/ (constants.ts, logger.ts)
-└ __tests__/ (164 tests, 7 files)
+├ views/ (FirstLoadingPage, CsvDataView, HomePage, LoginPage, NotFoundPage)
+├ types/ (csvData.ts, logger.ts, ui.d.ts, header.ts, footer.ts)
+├ i18n/ (+ switchingPlanet, firstLoading.* keys)
+├ utilities/ (constants.ts, csvParser.ts, csvFetcher.ts, logger.ts)
+└ __tests__/ (218 tests, 10 files)
 ```
 
 ## npm Scripts
@@ -121,10 +146,10 @@ src-ts/
 | `npm run dev` | JS version (port 1414) |
 | `npm run dev:ts` | TS version (port 1415) |
 | `npm run build:ts` | Build TS version |
-| `npm run test` | Vitest (164 tests) |
+| `npm run test` | Vitest (218 tests) |
+| `npm run check:ts` | Vue-TSC type check |
 
 ## Kế Hoạch Tương Lai
-1. **Verify build**: Chạy `vue-tsc --noEmit` + fix lỗi
-2. **Giai đoạn 3**: Stores JS → TypeScript (10 stores)
-3. **Giai đoạn 4**: Utilities JS → TypeScript (15+ files)
-4. **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/
+1. **Giai đoạn 3**: Stores JS → TypeScript (10 stores)
+2. **Giai đoạn 4**: Utilities JS → TypeScript (15+ files)
+3. **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/

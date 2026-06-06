@@ -44,12 +44,18 @@
 import { h, ref, inject, onMounted, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NIcon, NMenu, NSpace, NSelect, NSwitch, NText, NDivider, NAvatar } from 'naive-ui'
+import type { SelectOption } from 'naive-ui'
 import {
   HomeRound as HomeIcon,
   LogInRound as LoginIcon,
   DarkModeFilled as DarkIcon,
   LightModeFilled as LightIcon
 } from '@vicons/material'
+// `TableChartRound` is exported from the package root but the installed
+// version of `vue-tsc` in this project does not resolve it through the
+// aggregated barrel; importing the subpath directly guarantees resolution.
+import TableChartRound from '@vicons/material/es/TableChartRound.js'
+const CsvIcon = TableChartRound
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppSettingsStore } from '../stores/appSettings'
@@ -109,10 +115,23 @@ const menuOptions = [
       ),
     key: 'login',
     icon: renderIcon(LoginIcon)
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        { to: { name: 'csv-data' } },
+        { default: () => 'CSV Data' }
+      ),
+    key: 'csv-data',
+    icon: renderIcon(CsvIcon)
   }
 ]
 
-const renderSingleSelectTag = ({ option }: { option: { label: string; value: string } }) => {
+const renderSingleSelectTag = ({ option }: { option: SelectOption }) => {
+  // `label` may be a function or undefined per SelectBaseOption typing;
+  // resolve to a string before rendering as a text child.
+  const labelText = typeof option.label === 'function' ? '' : (option.label ?? '')
   return h(
     'div',
     { style: { display: 'flex', alignItems: 'center' } },
@@ -123,12 +142,13 @@ const renderSingleSelectTag = ({ option }: { option: { label: string; value: str
         size: 24,
         style: { marginRight: '12px' }
       }),
-      option.label
+      labelText
     ]
   )
 }
 
-const renderLabel = (option: { label: string; value: string }) => {
+const renderLabel = (option: SelectOption) => {
+  const labelText = typeof option.label === 'function' ? '' : (option.label ?? '')
   return h(
     'div',
     { style: { display: 'flex', alignItems: 'center' } },
@@ -142,7 +162,7 @@ const renderLabel = (option: { label: string; value: string }) => {
         'div',
         { style: { marginLeft: '12px', padding: '4px 0' } },
         [
-          h('div', null, [option.label]),
+          h('div', null, [labelText]),
           h(
             NText,
             { depth: 3, tag: 'div' },
@@ -160,7 +180,8 @@ const renderLabel = (option: { label: string; value: string }) => {
 // Route name -> menu key mapping
 const routeToMenuKey: Record<string, string> = {
   'home': 'home',
-  'login': 'login'
+  'login': 'login',
+  'csv-data': 'csv-data'
 }
 
 // Sync selectedKey with current route

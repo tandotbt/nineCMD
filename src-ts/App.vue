@@ -27,6 +27,8 @@ import {
   darkTheme,
   type GlobalTheme,
   type GlobalThemeOverrides,
+  type NLocale,
+  type NDateLocale,
   NConfigProvider,
   NLoadingBarProvider,
   NModalProvider,
@@ -52,8 +54,8 @@ const themeBreakpoints = {
 
 const theme = ref<GlobalTheme | null>(null)
 const themeOverrides = ref<GlobalThemeOverrides | null>(null)
-const uiConfig = ref<Record<string, unknown> | null>(null)
-const uiConfigDate = ref<Record<string, unknown> | null>(null)
+const uiConfig = ref<NLocale | null>(null)
+const uiConfigDate = ref<NDateLocale | null>(null)
 
 const lightThemeOverrides: GlobalThemeOverrides = {
   Result: {
@@ -83,8 +85,8 @@ function applyTheme(isDark: boolean): void {
 function applyLang(selectedLang: string): void {
   const langConfig = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedLang)
   if (langConfig) {
-    uiConfig.value = langConfig.uiConfig as unknown as Record<string, unknown>
-    uiConfigDate.value = langConfig.uiConfigDate as unknown as Record<string, unknown>
+    uiConfig.value = langConfig.uiConfig as NLocale
+    uiConfigDate.value = langConfig.uiConfigDate as NDateLocale
   }
   locale.value = selectedLang
 }

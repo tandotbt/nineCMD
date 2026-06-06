@@ -19,6 +19,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/LoginPage.vue')
       },
       {
+        path: 'csv-data',
+        name: 'csv-data',
+        meta: { transition: 'fade' },
+        component: () => import('@/views/CsvDataView.vue')
+      },
+      {
         path: ':pathMatch(.*)*',
         name: 'not-found',
         meta: { transition: 'fade' },

@@ -168,3 +168,62 @@ export const QUERY_GET_BLOCK_NOW = `{
     }
   }
 }`
+
+// ============================================================
+// 9CMD API – CSV Data Constants
+// ============================================================
+
+import type { CsvSheetName, CsvSheetMeta } from '../types/csvData'
+
+/**
+ * Danh sách 9CMD API URLs – random hoặc chọn thủ công
+ * Ref: src/utilities/constants.js LIST_API_NINECMD
+ */
+export const LIST_API_NINECMD: string[] = [
+  // 'https://steep-carolee-9cmd-701971d5.koyeb.app',
+  // 'https://ineapi-tandotbt6668-zt8p2j3s.leapcell.dev',
+  // 'https://api-nf.9cmd.top',
+  'http://127.0.0.1:8000'
+]
+
+/**
+ * Endpoint path for fetching CSV sheet data
+ */
+export const CSV_ENDPOINT_PATH = '/getGraphqlCSV'
+
+/**
+ * Danh sách tất cả CSV sheets cần fetch, kèm metadata
+ * - keyColumn: cột dùng làm key chính
+ * - unique: nếu true → key không unique (dùng ${key}_${rowIndex})
+ * - description: mô tả ngắn
+ *
+ * Ref:
+ * - .REF/vue3-tool/src/components/initializeData.vue: graphQlSheetConfig
+ * - .REF/python-tool/constants.py: CSV_SHEET_NAMES
+ */
+export const CSV_SHEET_CONFIG: Record<CsvSheetName, CsvSheetMeta> = {
+  GameConfigSheet: { keyColumn: 'key', description: 'Game config key-value' },
+  ItemRequirementSheet: { keyColumn: 'item_id', description: 'Level requirement for equipment' },
+  CostumeStatSheet: { keyColumn: 'costume_id', unique: true, description: 'Costume stats' },
+  RuneListSheet: { keyColumn: 'id', description: 'Rune list' },
+  RuneSheet: { keyColumn: 'c', description: 'Rune options (9cmd api)' },
+  CostumeItemSheet: { keyColumn: 'id', description: 'Costume item list' },
+  WorldUnlockSheet: { keyColumn: 'world_id_to_unlock', description: 'World unlock requirements' },
+  WorldSheet: { keyColumn: 'id', description: 'World list' },
+  PatrolRewardSheet: { keyColumn: 'id', description: 'Patrol rewards' },
+  EquipmentItemRecipeSheet: { keyColumn: 'id', description: 'Equipment craft recipes' },
+  SummonSheet: { keyColumn: 'groupID', description: 'Summon list' },
+  ClaimableGiftsSheet: { keyColumn: 'id', description: 'Claimable gifts' },
+  EventScheduleSheet: { keyColumn: 'id', description: 'Event schedule' },
+  WorldBossListSheet: { keyColumn: 'id', description: 'World boss list' },
+  EquipmentItemSubRecipeSheetV2: { keyColumn: 'id', description: 'Equipment sub recipes' },
+  CrystalHammerPointSheet: { keyColumn: 'recipe_ID', description: 'Crystal hammer points' },
+  StageSheet: { keyColumn: 'id', description: 'Stage list' },
+  CharacterLevelSheet: { keyColumn: 'level', description: 'Character level requirements' },
+  CrystalMaterialCostSheet: { keyColumn: 'item_id', description: 'Crystal material costs' },
+  ConsumableItemSheet: { keyColumn: 'id', description: 'Consumable item list' },
+  ConsumableItemRecipeSheet: { keyColumn: 'id', description: 'Consumable craft recipes' }
+}
+
+/** Tất cả sheet names (lấy keys từ CSV_SHEET_CONFIG) */
+export const ALL_CSV_SHEET_NAMES: CsvSheetName[] = Object.keys(CSV_SHEET_CONFIG) as CsvSheetName[]

@@ -6,7 +6,7 @@
   <n-drawer v-model:show="showDrawer" placement="bottom" :height="drawerSize">
     <n-drawer-content :native-scrollbar="false" :default-height="100" closable>
       <template #header>
-        <n-space justify="baseline">
+        <n-space align="baseline">
           <FooterInfoBlock />
           <n-button quaternary size="small" @click="toggleDrawerSize">
             <template #icon>
