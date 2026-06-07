@@ -144,5 +144,40 @@
     "manual": "Tùy chọn",
     "selectUrl": "Chọn URL",
     "currentUrl": "Đang dùng:"
+  },
+  "banner": {
+    "title": "Banner",
+    "loading": "Đang tải banner...",
+    "error": "Lỗi tải banner",
+    "empty": "Không có banner đang hoạt động",
+    "reload": "Tải lại",
+    "lastFetched": "Tải lần cuối:"
+  },
+  "csvData": {
+    "title": "Trình xem dữ liệu CSV",
+    "bannerCardTitle": "Banner (từ Event.json)",
+    "bannerError": "Lỗi banner",
+    "globalCardTitle": "CSV toàn cục (i18n + RemoteCsv)",
+    "source": "Nguồn",
+    "locale": "Ngôn ngữ",
+    "rows": "dòng",
+    "loadFailed": "Tải thất bại (đã bỏ qua)",
+    "loading": "Đang tải CSV toàn cục từ GitHub...",
+    "error": "Lỗi globalCsv",
+    "notLoaded": "Chưa tải CSV toàn cục",
+    "noDataFor": "Không có dữ liệu cho",
+    "options": {
+      "itemName": "ItemNameSheet (i18n tên vật phẩm)",
+      "skillName": "SkillNameSheet (i18n tên kỹ năng)",
+      "remoteCsv": "RemoteCsv (NineChronicles.LiveAssets)"
+    }
+  },
+  "login": {
+    "agentAddress": "Địa chỉ Agent",
+    "agentAddressPlaceholder": "0xabc...",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Đăng nhập",
+    "placeholderNote": "🔐 Trang đăng nhập - Placeholder"
   }
 }

@@ -144,5 +144,40 @@
     "manual": "Manual",
     "selectUrl": "Select URL",
     "currentUrl": "Currently using:"
+  },
+  "banner": {
+    "title": "Banner",
+    "loading": "Loading banners...",
+    "error": "Failed to fetch banners",
+    "empty": "No active banners",
+    "reload": "Reload",
+    "lastFetched": "Last fetched:"
+  },
+  "csvData": {
+    "title": "CSV Data Viewer",
+    "bannerCardTitle": "Banner (from Event.json)",
+    "bannerError": "Banner error",
+    "globalCardTitle": "Global CSV (i18n + RemoteCsv)",
+    "source": "Source",
+    "locale": "Locale",
+    "rows": "rows",
+    "loadFailed": "Load failed (skipped)",
+    "loading": "Loading global CSV from GitHub...",
+    "error": "globalCsv error",
+    "notLoaded": "Global CSV not loaded yet",
+    "noDataFor": "No data for",
+    "options": {
+      "itemName": "ItemNameSheet (i18n items)",
+      "skillName": "SkillNameSheet (i18n skills)",
+      "remoteCsv": "RemoteCsv (NineChronicles.LiveAssets)"
+    }
+  },
+  "login": {
+    "agentAddress": "Agent Address",
+    "agentAddressPlaceholder": "0xabc...",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Login",
+    "placeholderNote": "🔐 Login Page - Placeholder"
   }
 }

@@ -225,5 +225,74 @@ export const CSV_SHEET_CONFIG: Record<CsvSheetName, CsvSheetMeta> = {
   ConsumableItemRecipeSheet: { keyColumn: 'id', description: 'Consumable craft recipes' }
 }
 
+// ============================================================
+// GitHub Constants (cho i18n CSV + Banner)
+// Ref: src/utilities/constants.js V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles
+// ============================================================
+
+/** GitHub branch cho source code NineChronicles (item_name.csv, skill_name.csv) */
+export const V_GITHUB_NINECHRONICLES = 'development'
+
+/** Base URL raw GitHub cho NineChronicles source code */
+export const URL_GITHUB_NineChronicles =
+  `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}`
+
+/** Base URL raw GitHub cho NineChronicles.LiveAssets (banner, image...) */
+export const URL_GITHUB_LIVEASSETS =
+  'https://raw.githubusercontent.com/planetarium/NineChronicles.LiveAssets/main'
+
+/** URL Event.json – danh sách banner */
+export const LINK_BANNER = `${URL_GITHUB_LIVEASSETS}/Assets/Json/Event-test.json`
+
+// ============================================================
+// Localized CSV (i18n names cho item + skill)
+// Ref: src/stores/configURL.js urlItemNameSheet, urlSkillNameSheet
+// ============================================================
+
+import type { LocalizedSheetName } from '../types/i18nCsv'
+
+/** Localized CSV paths (relative to NineChronicles repo) */
+export const LOCALIZED_CSV_PATHS: Record<LocalizedSheetName, string> = {
+  ItemNameSheet: '/nekoyume/Assets/StreamingAssets/Localization/item_name.csv',
+  SkillNameSheet: '/nekoyume/Assets/StreamingAssets/Localization/skill_name.csv'
+}
+
+/** Locale columns có trong localized CSV (theo thứ tự alphabet) */
+export const LOCALIZED_CSV_LOCALES = ['English', 'Vietnamese', 'Korean', 'Japanese'] as const
+
+/** Type guard: kiểm tra 1 string có phải locale column trong CSV không */
+export function isLocalizedCsvLocale(locale: string): locale is typeof LOCALIZED_CSV_LOCALES[number] {
+  return (LOCALIZED_CSV_LOCALES as readonly string[]).includes(locale)
+}
+
+/**
+ * Map app locale (từ appSettings.lang) → tên cột trong CSV
+ * - 'vi' → 'Vietnamese'
+ * - 'en' → 'English'
+ * - 'ko' → 'Korean'
+ * - 'ja' → 'Japanese'
+ * - locale khác → fallback 'English'
+ */
+export const LOCALE_TO_CSV_COLUMN: Record<string, string> = {
+  en: 'English',
+  vi: 'Vietnamese',
+  ko: 'Korean',
+  ja: 'Japanese'
+}
+
+/** Key column cho ItemNameSheet và SkillNameSheet (case-insensitive) */
+export const LOCALIZED_CSV_KEY_COLUMN = 'Key'
+
+// ============================================================
+// RemoteCsv (CSV thứ 3 - không phụ thuộc planet, load 1 lần)
+// Ref: NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv
+// ============================================================
+
+/** URL cho RemoteCsv - CSV chứa config từ xa */
+export const REMOTE_CSV_URL = `${URL_GITHUB_LIVEASSETS}/Assets/Csv/RemoteCsv.csv`
+
+/** Key column cho RemoteCsv (case-insensitive) */
+export const REMOTE_CSV_KEY_COLUMN = 'Key'
+
 /** Tất cả sheet names (lấy keys từ CSV_SHEET_CONFIG) */
 export const ALL_CSV_SHEET_NAMES: CsvSheetName[] = Object.keys(CSV_SHEET_CONFIG) as CsvSheetName[]

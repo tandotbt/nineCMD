@@ -9,10 +9,10 @@
 
     <n-divider style="margin: 4px 0" />
 
-    <!-- Language selector -->
+    <!-- Language selector - bind trực tiếp vào appSettings (reactive với FooterSettings) -->
     <div style="padding: 0 8px">
       <n-select
-        v-model:value="currentLang"
+        :value="appSettings.lang"
         :options="langOptions"
         :render-label="renderLabel"
         :render-tag="renderSingleSelectTag"
@@ -21,12 +21,12 @@
       />
     </div>
 
-    <!-- Dark mode toggle -->
+    <!-- Dark mode toggle - bind trực tiếp vào appSettings (reactive với FooterSettings) -->
     <div style="padding: 0 8px; display: flex; align-items: center; justify-content: space-between">
       <n-text depth="3" style="font-size: 12px">{{ t('@--App.toggleTheme.light') }}</n-text>
       <n-switch
         :round="true"
-        v-model:value="isDarkMode"
+        :value="appSettings.isDarkMode"
         @update:value="onToggleTheme"
       >
         <template #checked>
@@ -62,7 +62,7 @@ import { useAppSettingsStore } from '../stores/appSettings'
 import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
 
 const route = useRoute()
-const { t, locale, availableLocales } = useI18n()
+const { t, availableLocales } = useI18n()
 const appSettings = useAppSettingsStore()
 
 // Inject theme toggle from App.vue
@@ -71,22 +71,21 @@ const changeLangFn = inject<(lang: string) => void>('changeLang', () => {})
 
 const selectedKey = ref<string>('home')
 const menuRef = shallowRef<unknown>(null)
-const isDarkMode = ref<boolean>(appSettings.isDarkMode)
-const currentLang = ref<string>(appSettings.lang || locale.value)
 
+/** Language options - đồng nhất với FooterSettings (dùng CONFIG_i18n_LANGUAGES) */
 const langOptions = availableLocales.map((item: string) => ({
   label: CONFIG_i18n_LANGUAGES.find((data) => data.lang === item)?.label ?? item,
   value: item
 }))
 
+/** Change lang - cập nhật cả store + i18n locale (đồng nhất với FooterSettings) */
 function changeLang(selectedLang: string): void {
-  currentLang.value = selectedLang
   appSettings.setLang(selectedLang)
   changeLangFn(selectedLang)
 }
 
+/** Toggle theme - cập nhật cả store + dark mode class (đồng nhất với FooterSettings) */
 function onToggleTheme(isDark: boolean): void {
-  isDarkMode.value = isDark
   appSettings.setDarkMode(isDark)
   toggleTheme(isDark)
 }

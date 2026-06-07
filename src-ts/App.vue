@@ -25,6 +25,8 @@
 import { ref, provide, watch } from 'vue'
 import {
   darkTheme,
+  enUS,
+  dateEnUS,
   type GlobalTheme,
   type GlobalThemeOverrides,
   type NLocale,
@@ -82,16 +84,34 @@ function applyTheme(isDark: boolean): void {
   themeOverrides.value = isDark ? darkThemeOverrides : lightThemeOverrides
 }
 
+/**
+ * Apply language cho toàn bộ app:
+ * 1. Cập nhật uiConfig + uiConfigDate cho n-config-provider (naive-ui NLocale + NDateLocale)
+ * 2. Cập nhật vue-i18n locale
+ *
+ * Pattern tham khảo từ bản JS (src/App.vue - changeLang):
+ * - Trước tiên tìm config trong CONFIG_i18n_LANGUAGES (lang, uiConfig, uiConfigDate)
+ * - Fallback về enUS + dateEnUS nếu không tìm thấy
+ * - Set cả uiConfig/uiConfigDate lẫn vue-i18n locale cùng lúc
+ *
+ * Khi user đổi ngôn ngữ ở FooterSettings hoặc PlaceholderMenuLeft
+ * → appSettings.setLang() → watcher bên dưới trigger → applyLang() → UI update đồng nhất
+ */
 function applyLang(selectedLang: string): void {
   const langConfig = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedLang)
   if (langConfig) {
-    uiConfig.value = langConfig.uiConfig as NLocale
-    uiConfigDate.value = langConfig.uiConfigDate as NDateLocale
+    uiConfig.value = langConfig.uiConfig
+    uiConfigDate.value = langConfig.uiConfigDate
+  } else {
+    // Fallback: English (giống pattern bản JS)
+    uiConfig.value = enUS
+    uiConfigDate.value = dateEnUS
   }
+  // Cập nhật vue-i18n locale (cùng lúc với naive-ui)
   locale.value = selectedLang
 }
 
-// Provide theme toggle to child components (backward compat)
+// Provide theme toggle + lang change to child components (backward compat với bản JS)
 provide('toggleTheme', (isDark: boolean) => appSettings.setDarkMode(isDark))
 provide('changeLang', (lang: string) => appSettings.setLang(lang))
 
@@ -102,7 +122,7 @@ watch(
   { immediate: true }
 )
 
-// Watch language changes from store
+// Watch language changes from store (key watcher để i18n đồng nhất)
 watch(
   () => appSettings.lang,
   (lang) => applyLang(lang),

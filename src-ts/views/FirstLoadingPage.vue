@@ -168,13 +168,19 @@ import {
 import { useConfigURLStore } from '../stores/configURL'
 import { useAppSettingsStore } from '../stores/appSettings'
 import { useCsvDataStore } from '../stores/csvData'
+import { useGlobalCsvStore } from '../stores/globalCsv'
+import { useBannerStore } from '../stores/banner'
 import { LIST_API_NINECMD } from '../utilities/constants'
+import { createLogger } from '../utilities/logger'
 
 const { t } = useI18n()
 // const router = useRouter()
 const configURL = useConfigURLStore()
 const appSettings = useAppSettingsStore()
 const csvData = useCsvDataStore()
+const globalCsvStore = useGlobalCsvStore()
+const bannerStore = useBannerStore()
+const logger = createLogger({ module: 'firstLoading' })
 
 /**
  * Overlay nằm trong <n-config-provider> ở App.vue,
@@ -253,15 +259,37 @@ const redirectMessage = computed(() => {
  * Fetch planet data + CSV data on mount (parallel).
  * If both successful → countdown 3s → redirect to home.
  * If any failed → show error with retry buttons.
+ *
+ * Bước 3 (global - không bắt buộc):
+ * - Load globalCsv (ItemName + SkillName + RemoteCsv) – nếu fail, log warning, bỏ qua
+ * - Load banner từ Event.json – nếu fail, log warning, bỏ qua
+ * - Dùng Promise.allSettled để 1 cái fail không ảnh hưởng cái kia
+ * - KHÔNG block redirect → nếu chỉ fail global thì vẫn vào home bình thường
  */
 onMounted(async () => {
   const planet = appSettings.selectedPlanet || 'odin'
 
-  // Fetch planets + CSV song song
+  // Fetch planets + CSV chính (game data) song song
   const [planetSuccess, csvSuccess] = await Promise.all([
     configURL.fetchPlanets(),
     csvData.fetchAllSheets(planet)
   ])
+
+  // Bước 3: load global data (CSV i18n + banner) – best-effort, không bắt buộc
+  // Dùng allSettled: nếu 1 cái fail, cái kia vẫn chạy
+  // Quan trọng: KHÔNG await block redirect – chạy ngầm
+  void Promise.allSettled([
+    globalCsvStore.loadAll(),
+    bannerStore.loadBanners()
+  ]).then((results) => {
+    // Log warning nếu có fail, nhưng không block UI
+    results.forEach((r, idx) => {
+      if (r.status === 'rejected') {
+        const source = idx === 0 ? 'globalCsv' : 'banner'
+        logger.warn(`${source} failed (skipped):`, r.reason)
+      }
+    })
+  })
 
   if (planetSuccess && csvSuccess) {
     appSettings.validatePlanetAvailability()

@@ -66,7 +66,7 @@
 npm run dev      # JS version (port 1414)
 npm run dev:ts   # TS version (port 1415)
 npm run build:ts # Build TS version
-npm run test     # Vitest (218 tests)
+npm run test     # Vitest (250+ tests)
 npm run check:ts # Vue-TSC type check
 ```
 
@@ -174,8 +174,113 @@ src-ts/
 - **Overlay for planet switch**: Only shows when cache miss (not cached planet), instant for cached
 - **Subpath imports for @vicons/material**: Với `moduleResolution: "bundler"`, một số icon không resolve được qua barrel → dùng subpath `@vicons/material/es/<IconName>.js`. Áp dụng cho `TableChartRound`. Nếu gặp thêm icon tương tự, dùng cùng pattern.
 - **Use library types, not custom narrow types**: Với `RenderTag`/props của naive-ui, dùng `SelectOption` (type do library export) thay vì custom `{ label: string; value: string }`. Tránh được nhiều lỗi type inference.
+- **Pagination naive-ui**: KHÔNG tự triển khai Prev/Next/PageSize - dùng `<n-pagination>` với `v-model:page` + `v-model:page-size` + `:item-count` + `:page-sizes` + `show-size-picker`. Tách state riêng cho mỗi table (vd `mainCurrentPage` vs `globalCurrentPage`) để không xung đột.
+- **n-config-provider i18n đồng nhất**: Khi đổi ngôn ngữ, PHẢI cập nhật cả naive-ui `NLocale`/`NDateLocale` lẫn vue-i18n `locale` cùng lúc. Dùng `applyLang()` pattern trong App.vue (tham khảo bản JS `changeLang()`): tìm config trong `CONFIG_i18n_LANGUAGES` → set `uiConfig`/`uiConfigDate` + `locale.value` trong cùng 1 function. Fallback `enUS + dateEnUS` nếu không tìm thấy config.
+- **Global CSV pattern (`globalCsv` store)**: 3 nguồn (ItemName + SkillName + RemoteCsv) là GLOBAL, không phụ thuộc planet, load 1 lần lúc preloading. Promise.allSettled - 1 nguồn fail không block các nguồn khác, không retry bắt buộc, vẫn redirect về home nếu fail.
+- **Banner là GLOBAL**: cùng pattern với globalCsv. Click banner mở tab mới với `Url` field từ Event.json, fallback về `#` nếu không có. Ở HomePage: góc trên phải cố định, giống pattern bản JS gốc (`position: absolute, top: 0, right: 0, z-index: 1`).
+- **Đồng nhất FooterSettings + PlaceholderMenuLeft**: cả 2 đều bind trực tiếp vào `appSettings` store (Pinia reactive), KHÔNG dùng local ref. `langOptions` dùng `CONFIG_i18n_LANGUAGES` từ constants, hạn chế hardcode.
+- **i18n ưu tiên cho views chính**: HomePage, CsvDataView, LoginPage, FirstLoadingPage đều dùng `t(...)` cho text. Locale files có sections: page, footer, blockMonitor, settings, actions, firstLoading, endpoints, i18nCsv, banner, csvData, login.
 
 ## Known Issues
 - ✅ Tất cả lỗi vue-tsc đã được sửa (0 errors verified)
 - ✅ ĐÃ SỬA: PlaceholderMenuLeft renderTag type, TableChartRound subpath import, CsvDataView row-key getter, App.vue locale/dateLocale type, FooterNodeManager align/justify
+- ✅ ĐÃ SỬA: Refactor i18nCsv per-planet → globalCsv global, thêm RemoteCsv, integrate Banner vào HomePage, đồng nhất FooterSettings/PlaceholderMenuLeft, i18n CsvDataView/LoginPage
 - 🔶 `@ts-expect-error` vẫn cần cho naive-ui NDataTable/NEmpty/NAlert imports dưới bundler moduleResolution
+
+## Session Mới Nhất - i18n CSV + Banner Global Refactor
+
+### Đã Hoàn Thành
+
+1. **Types** [`types/i18nCsv.ts`](src-ts/types/i18nCsv.ts):
+   - `LocalizedSheetName`, `LocalizedNameRow`, `LocalizedSheetData`, `LocalizedSheetsPair`
+   - `BannerItem` (Url, Priority optional, BannerImageName, BeginDateTime, EndDateTime)
+   - `RemoteCsvRow` (Record<string, string | number>), `RemoteCsvData`
+
+2. **Constants** [`utilities/constants.ts`](src-ts/utilities/constants.ts):
+   - `V_GITHUB_NINECHRONICLES = 'development'`
+   - `URL_GITHUB_NineChronicles`, `URL_GITHUB_LIVEASSETS`, `LINK_BANNER`
+   - `LOCALIZED_CSV_PATHS` (ItemName + SkillName paths)
+   - `LOCALIZED_CSV_KEY_COLUMN = 'Key'`, `LOCALE_TO_CSV_COLUMN` (en/vi/ko/ja)
+   - `REMOTE_CSV_URL`, `REMOTE_CSV_KEY_COLUMN`
+
+3. **Services**:
+   - [`utilities/csvFetcher.ts`](src-ts/utilities/csvFetcher.ts): + `fetchGitHubCsv(url)`
+   - [`utilities/nameService.ts`](src-ts/utilities/nameService.ts): `buildLocalizedCsvUrl`, `fetchLocalizedSheet`, `fetchAllLocalizedSheets`, `fetchRemoteCsv`, `getLocalizedName` (fallback: localeColumn → English → Key)
+   - [`utilities/bannerService.ts`](src-ts/utilities/bannerService.ts): `buildBannerImageUrl`, `isBannerActive`, `filterActiveBanners`, `transformBannerItem`, `fetchBanners`
+   - [`utilities/placeholder.ts`](src-ts/utilities/placeholder.ts): Stubs cho DCC/Guild/Portrait/Equipment/getImageBase64
+
+4. **Global Stores**:
+   - [`stores/globalCsv.ts`](src-ts/stores/globalCsv.ts): 3 nguồn (ItemName + SkillName + RemoteCsv) load song song với `Promise.allSettled`. `localeColumn` computed react với `appSettings.lang`. KHÔNG watch planet, KHÔNG retry bắt buộc, KHÔNG throw. Pattern: "kiểu thứ 3 cần loading" - lỗi thì bỏ qua, vẫn redirect.
+   - [`stores/banner.ts`](src-ts/stores/banner.ts): Global banner store, `loadBanners()`, `retry()`, `clearData()`. Comment "GLOBAL" rõ ràng.
+
+5. **Views**:
+   - [`views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue): + bước 3 - `Promise.allSettled([globalCsvStore.loadAll(), bannerStore.loadBanners()])` chạy ngầm, KHÔNG block redirect, log warning nếu fail.
+   - [`views/HomePage.vue`](src-ts/views/HomePage.vue): + Banner carousel ở **góc trên phải cố định** (giống bản JS gốc) với `n-grid` cols=12, span 8/4, `position: absolute, top: 0, right: 0, z-index: 1`. Click banner mở tab mới với `Url` field, `Priority` làm key.
+   - [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue): Refactor - **3 sections i18n/RemoteCsv riêng → 1 section dùng chung** với dropdown chọn source (ItemName/SkillName/RemoteCsv) + 1 table duy nhất. i18n tất cả hardcoded text.
+   - [`views/LoginPage.vue`](src-ts/views/LoginPage.vue): i18n Agent Address, Password, button, placeholder.
+
+6. **i18n Locale Updates**:
+   - [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json): + `csvData.*` (title, bannerCardTitle, globalCardTitle, source, locale, rows, loadFailed, loading, error, notLoaded, noDataFor, options.itemName/skillName/remoteCsv), + `login.*` (agentAddress, password, submit, placeholderNote)
+
+7. **Tests**:
+   - [`__tests__/globalCsv.test.ts`](src-ts/__tests__/globalCsv.test.ts): 50+ tests (initial state, localeColumn, loadAll Promise.allSettled pattern - success/partial fail/all fail, getters, retry, clearData, GLOBAL verification - không có switchPlanet/isPlanetCached, không watch planet)
+   - [`__tests__/banner.test.ts`](src-ts/__tests__/banner.test.ts): 23 tests (verified global pattern - không có per-planet logic)
+   - **Xóa**: [`__tests__/i18nCsv.test.ts`](src-ts/__tests__/i18nCsv.test.ts) (replaced by globalCsv.test.ts)
+   - **Xóa**: [`stores/i18nCsv.ts`](src-ts/stores/i18nCsv.ts) (replaced by stores/globalCsv.ts)
+
+8. **FooterSettings + PlaceholderMenuLeft Đồng Nhất**:
+   - [`components/footer/FooterSettings.vue`](src-ts/components/footer/FooterSettings.vue): Bỏ hardcode `langOptions = [{vi, en}]` → dùng `CONFIG_i18n_LANGUAGES.map(...)`. Bind `:value="appSettings.lang"` (đã reactive sẵn).
+   - [`components/PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue): Bỏ local ref `currentLang`, `isDarkMode` → bind trực tiếp `:value="appSettings.lang"` và `:value="appSettings.isDarkMode"`. Bỏ watch sync không cần thiết. Khi đổi ở 1 chỗ, chỗ kia tự update qua Pinia reactivity.
+   - **Pattern**: Với Pinia store, KHÔNG cần local ref + watch sync. Luôn bind thẳng `:value="store.field"` + `@update:value="store.action"`.
+
+## Session Mới Nhất - Code Review + Cleanup Rác
+
+### Rà Soát Diff Và Sửa Chữa
+
+Đã kiểm tra toàn bộ diff thay đổi (12 files modified + 9 untracked). Phát hiện và sửa 5 vấn đề/rác:
+
+1. **[`App.vue`](src-ts/App.vue) - Bỏ import thừa `viVN, dateViVN`**
+   - Root cause: Sau khi refactor pattern ngôn ngữ dùng `CONFIG_i18n_LANGUAGES[].uiConfig` thì App.vue không cần import trực tiếp `viVN, dateViVN` nữa - chỉ dùng `enUS + dateEnUS` cho fallback. Các locale khác được resolve qua constants.
+   - Fix: Xóa 2 dòng import `viVN, dateViVN` khỏi App.vue.
+   - **Pattern tổng quát**: Sau khi refactor sang dùng config object tổng hợp (vd `CONFIG_i18n_LANGUAGES`), rà soát lại imports trực tiếp trong component cha. Chỉ giữ những gì thực sự dùng ngoài config.
+
+2. **[`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Bỏ import thừa `useAppSettingsStore`**
+   - Root cause: Sau khi refactor sang load trực tiếp trong `onMounted` (không qua `selectedPlanet`), không cần inject appSettings nữa.
+   - Fix: Xóa import + destructuring `const appSettings = useAppSettingsStore()`.
+   - **Pattern tổng quát**: Sau khi thay đổi flow control, rà soát lại imports của store. Bỏ imports không sử dụng để tránh lỗi `no-unused-vars` ESM trong tương lai.
+
+3. **[`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Fix bug pagination Global CSV: bỏ `.slice(0, 100)` hard-coded**
+   - Root cause: Code cũ `globalSourceSampleRows = ...slice(0, 100)` chỉ lấy 100 rows đầu tiên, nhưng `globalSourceRowCount` lại đếm full data → user thấy "1000 rows" nhưng chỉ xem được 100, pagination cũng chỉ paging trong 100 rows (max 5 trang @ 20/page). Mâu thuẫn UX.
+   - Fix:
+     - Đổi tên `globalSourceSampleRows` → `globalSourceAllRows` (không slice)
+     - `globalSourcePagedRows` giờ slice từ all rows
+     - `n-pagination` dùng `:item-count="globalSourceRowCount"` (full count) → pagination thật
+     - Bỏ điều kiện `v-if="globalSourceRowCount > globalCurrentPageSize"` ở pagination (vì naive-ui n-pagination tự handle khi `item-count <= page-size`)
+     - Bọc table + pagination trong `<template v-else-if="globalSourceRowCount > 0">` để giữ v-else/v-else-if chain
+   - **Pattern tổng quát**: Tách rõ "data source" (all rows) và "display rows" (paged). Pagination component nhận `:item-count` = full count, slice ở computed. KHÔNG hard-code slice limit trong computed data source.
+
+4. **[`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Fix bug watch sai table**
+   - Root cause: `watch(() => globalCsvStore.isLoaded, () => { mainCurrentPage.value = 1 })` - watch `globalCsv.isLoaded` nhưng reset `mainCurrentPage` (main CSV table). Logic sai: khi global data reload → reset page của MAIN table, không phải global table.
+   - Fix: Đổi `mainCurrentPage` → `globalCurrentPage` trong watch body.
+   - **Pattern tổng quát**: Khi có 2+ pagination state tách biệt (vd `mainCurrentPage` vs `globalCurrentPage`), watch effect PHẢI reset đúng state tương ứng với data source trigger. Tránh nhầm lẫn copy-paste.
+
+5. **[`views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue) - Dùng logger thay `console.warn`**
+   - Root cause: Code cũ dùng `console.warn` + `// eslint-disable-next-line no-console` cho warning khi globalCsv/banner fail. Toàn bộ project dùng `createLogger` (xem [`utilities/logger.ts`](src-ts/utilities/logger.ts)) - inconsistent.
+   - Fix:
+     - Import `createLogger` + tạo `const logger = createLogger({ module: 'firstLoading' })`
+     - Thay `console.warn(...)` → `logger.warn(...)`
+     - Bỏ comment `// eslint-disable-next-line no-console`
+   - **Pattern tổng quát**: KHÔNG dùng `console.*` trong src-ts/. Luôn dùng `createLogger({ module: '<moduleName>' })` để warning có module prefix, level filter, history tracking. `console.*` chỉ dùng trong test files hoặc logger utility itself.
+
+### Đã Rà Soát Nhưng KHÔNG Sửa (False Positive / Theo Intent)
+
+Các issue khác phát hiện nhưng giữ nguyên:
+- **`@ts-expect-error` cho naive-ui imports** - Đã có sẵn ở các file khác, đã document trong known issues
+- **`HomePage.vue` dùng n-grid 12 cols + class width 33.33%** - Pattern dùng class override lưới từ bản JS gốc, intentional
+- **Hard-coded `pageSizeOptions` ở CsvDataView** - Chỉ dùng local, không cần abstract
+
+### Kết Quả
+- ✅ vue-tsc: 0 errors
+- ✅ vitest: 250+ tests pass
+- ✅ Đã commit 5 sửa đổi cleanup rác
+- ✅ Memory bank updated

@@ -103,3 +103,35 @@ export async function fetchCsvFromApi(
 
   return result
 }
+
+/**
+ * Fetch raw CSV text từ GitHub raw URL.
+ * Dùng cho ItemNameSheet, SkillNameSheet (từ repo planetarium/NineChronicles).
+ *
+ * Lưu ý: URL có thể chứa hash `#${planet}` ở cuối để bust cache browser
+ * khi chuyển planet. Hash không ảnh hưởng đến request network,
+ * browser sẽ coi đó là fragment identifier và KHÔNG cache chéo planet.
+ *
+ * @param url Full URL đến file .csv trên raw.githubusercontent.com
+ * @returns Raw CSV string (UTF-8)
+ * @throws Error nếu HTTP không ok
+ *
+ * @example
+ *   const csv = await fetchGitHubCsv(
+ *     'https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/StreamingAssets/Localization/item_name.csv#odin'
+ *   )
+ */
+export async function fetchGitHubCsv(url: string): Promise<string> {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Accept: 'text/csv; charset=utf-8'
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`GitHub CSV HTTP ${response.status}: ${response.statusText}`)
+  }
+
+  return response.text()
+}

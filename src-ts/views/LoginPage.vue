@@ -3,19 +3,19 @@
     <n-card :title="t('page.login')" style="max-width: 400px; width: 100%">
       <n-space vertical>
         <n-form label-placement="left" label-width="100">
-          <n-form-item label="Agent Address">
-            <n-input placeholder="0xabc..." clearable />
+          <n-form-item :label="t('login.agentAddress')">
+            <n-input :placeholder="t('login.agentAddressPlaceholder')" clearable />
           </n-form-item>
-          <n-form-item label="Password">
-            <n-input type="password" show-password-on="click" placeholder="••••••••" />
+          <n-form-item :label="t('login.password')">
+            <n-input type="password" show-password-on="click" :placeholder="t('login.passwordPlaceholder')" />
           </n-form-item>
         </n-form>
         <n-button type="primary" block>
-          {{ t('page.login') }}
+          {{ t('login.submit') }}
         </n-button>
         <n-divider />
         <n-text depth="3" style="font-size: 12px; text-align: center; display: block">
-          🔐 Login Page - Placeholder
+          {{ t('login.placeholderNote') }}
         </n-text>
       </n-space>
     </n-card>
