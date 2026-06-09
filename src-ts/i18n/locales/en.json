@@ -173,11 +173,35 @@
     }
   },
   "login": {
+    "title": "Login",
     "agentAddress": "Agent Address",
     "agentAddressPlaceholder": "0xabc...",
+    "avatarAddress": "Avatar Address",
+    "avatarAddressPlaceholder": "Select or type avatar address",
     "password": "Password",
     "passwordPlaceholder": "••••••••",
     "submit": "Login",
-    "placeholderNote": "🔐 Login Page - Placeholder"
+    "placeholderNote": "🔐 Login Page - TypeScript",
+    "goToLookup": "Open Arena Lookup",
+    "helper": {
+      "leaderboardHint": "Suggestions from Arena Leaderboard (most recent completed)"
+    },
+    "rules": {
+      "agent": {
+        "required": "Please enter agent address",
+        "invalidFormat": "Invalid address format (0x + 40 hex)"
+      },
+      "avatar": {
+        "required": "Please select an avatar"
+      }
+    }
+  },
+  "arenaLookup": {
+    "title": "Arena Lookup: Agent ↔ Avatar",
+    "placeholder": "Search by name, agent or avatar...",
+    "refresh": "Refresh",
+    "useForLogin": "Use for login",
+    "seasonInfo": "Data from season",
+    "emptySeason": "(no season available)"
   }
 }

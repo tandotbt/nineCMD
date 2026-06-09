@@ -284,3 +284,100 @@ Các issue khác phát hiện nhưng giữ nguyên:
 - ✅ vitest: 250+ tests pass
 - ✅ Đã commit 5 sửa đổi cleanup rác
 - ✅ Memory bank updated
+
+## Session Mới Nhất - Arena Lookup Feature + Cleanup Rác (v2)
+
+### Tính Năng Mới: Tra Cứu Nhanh Agent ↔ Avatar Qua Arena Leaderboard
+
+Cho phép user tra cứu nhanh `agentAddress` ↔ `avatarAddress` qua 3 luồng (xem [`plans/arena-leaderboard-search-plan.md`](plans/arena-leaderboard-search-plan.md)):
+- **Luồng A (mặc định)**: Trang `/arena-lookup` hiển thị leaderboard arena (season đã kết thúc gần nhất) → click "Dùng để đăng nhập" → prefill form `/login`
+- **Luồng B (nhập agent)**: Gõ `agentAddress` ở `/login` → blur → query mimir GetAgent → list avatar → auto-select avatar đầu tiên
+- **Luồng C (nhập avatar)**: Gõ `avatarAddress` ở `/login` → blur → query mimir GetAvatar (single) → auto-fill ngược `agentAddress`
+
+### Files Mới / Modified
+
+1. **Types** [`types/arenaLookup.ts`](src-ts/types/arenaLookup.ts) (NEW):
+   - Arena types: `ArenaBattleTicketPolicy`, `ArenaRefreshTicketPolicy`, `ArenaSeasonRound`, `ArenaSeason`, `ArenaSeasonsResponse`, `ArenaLeaderboardRow`, `ArenaLeaderboardResponse`
+   - Mimir types: `AgentAvatarAddress` (key=index, value=address), `AgentInfo`, `AvatarInfo`
+   - Internal: `ArenaAvatarOption` (key lowercase: `avataraddress`, `avatarname`, `agentAddress`, `level`, `score`, ... + `source: 'leaderboard' | 'agent-lookup' | 'avatar-lookup'`), `CachedLeaderboard` (list, seasonId, fetchedAt)
+
+2. **Utilities** (2 files mới):
+   - [`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts): `fetchSeasons(url, pageNumber=1, pageSize=100)`, `findMostRecentCompletedSeason(seasons, blockNow)`, `fetchLeaderboard(url, seasonId)`, `mapLeaderboardToAvatarOption(row)`, `stripHtmlTags()` (BBCode/HTML strip)
+   - [`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts): `graphqlQuery<T>(url, query, variables)` helper, `getAgent(url, address)`, `getAvatars(url, addresses[])` (build inline query, KHÔNG dùng variables cho array), `getAvatar(url, addr)` (single)
+
+3. **Store** [`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) (NEW):
+   - State: `leaderboardList`, `isFetchingLeaderboard`, `errorLeaderboard`, `lastSeasonId`, `isLeaderboardAutoFetched`
+   - Cache per-planet: `leaderboardCache: Record<PlanetName, CachedLeaderboard | undefined>` + helpers `isLeaderboardCached`, `getCachedLeaderboard`, `setCachedLeaderboard`, `clearLeaderboardCache`
+   - Manual lookup: `lookedUpAgent`, `lookedUpAvatars`, `isLookingUpAgent`, `errorLookedUpAgent`, `lookedUpAvatar`, `isLookingUpAvatar`, `errorLookedUpAvatar`
+   - Search: `searchQuery` + `leaderboardFiltered` (filter theo name, agentAddress, avataraddress)
+   - Computed options: `leaderboardOptions` (map source='leaderboard'), `agentLookupOptions` (map source='agent-lookup' từ lookedUpAvatars)
+   - Actions: `fetchLeaderboard()`, `refreshLeaderboard()` (clear cache + fetch), `lookupAgent(addr)`, `lookupAvatar(addr)`, `resetManualLookup()`
+   - Helpers: `isValidAddressFormat()` (regex `/^0x[a-fA-F0-9]{40}$/`)
+   - URL computed: `urlArenaGql`, `urlMimirGql` (qua `configURL.getArenaGql/getMimirUrl`)
+   - Watchers: `isBlockReady` → auto fetch 1 lần; `selectedPlanet` → reset cache state + reload
+
+4. **View** [`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) (NEW):
+   - Search input bind `arenaLookup.searchQuery` + Refresh button
+   - NDataTable với columns: Name, Agent, Avatar, Level, Score, Action (button "Dùng để đăng nhập")
+   - Helper: `useThisForLogin(row)` → `localStorage.setItem('login-prefill-agent'/'login-prefill-avatar')` + `router.push({ name: 'login' })`
+   - onMounted: trigger fetch nếu block ready
+
+5. **LoginPage** [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) (refactor lớn):
+   - Form với `n-form` + `n-form-item` (agentAddress, avatarAddress) + validation rules
+   - `n-select` cho avatarAddress với options ưu tiên `agentLookupOptions` (khi đã lookup agent) → fallback `leaderboardOptions`
+   - Render label custom: `avatarname` + prefix `(0xABCD)` (4 hex chars sau 0x)
+   - Client-side filter theo pattern (name/agent/avatar)
+   - `onAgentBlur` → `arenaLookup.lookupAgent(addr)` → auto-select avatar đầu tiên
+   - `onAvatarBlur` → nếu chưa có trong options + format hợp lệ → `arenaLookup.lookupAvatar(addr)` → auto-fill `agentAddress`
+   - `onAgentClear` / `onAvatarClear` → reset manual lookup
+   - onMounted: đọc `localStorage` keys `login-prefill-agent`/`login-prefill-avatar` (từ ArenaLookupPage) → fill form + remove keys
+   - watch `arenaLookup.selectedPlanet` → reset form khi đổi planet
+   - Submit handler: validate form, hiện tại chỉ có TODO placeholder
+
+6. **i18n**:
+   - [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json): + `login.title`, `login.avatarAddress`, `login.avatarAddressPlaceholder`, `login.goToLookup`, `login.helper.leaderboardHint`, `login.rules.agent.{required,invalidFormat}`, `login.rules.avatar.required`, + section `arenaLookup.*` (title, placeholder, refresh, useForLogin, seasonInfo, emptySeason)
+
+7. **Router** [`router/index.ts`](src-ts/router/index.ts): + route `/arena-lookup` → `ArenaLookupPage.vue`
+
+8. **Tests** (3 files mới, 49+ tests):
+   - [`__tests__/mimirGraphql.test.ts`](src-ts/__tests__/mimirGraphql.test.ts): 16 tests (graphqlQuery helper, getAvatars build inline query, getAgent, getAvatar single)
+   - [`__tests__/arenaGql.test.ts`](src-ts/__tests__/arenaGql.test.ts): 17 tests (findMostRecentCompletedSeason edge cases, mapLeaderboardToAvatarOption, stripHtmlTags, fetchSeasons, fetchLeaderboard)
+   - [`__tests__/arenaLookup.test.ts`](src-ts/__tests__/arenaLookup.test.ts): 16 tests (isValidAddressFormat 9 cases, URL computed, fetchLeaderboard incl. cache hit, refreshLeaderboard, lookupAgent 4 cases, lookupAvatar 3 cases, resetManualLookup, computed options, searchQuery/leaderboardFiltered)
+
+### Code Review + Cleanup Rác (Session này)
+
+Sau khi implement, dùng MCP git (`git_status`, `git_diff_unstaged`) để rà soát. Phát hiện và sửa:
+
+1. **[`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - Bỏ `console.info('Login submit:', ...)` debug log**
+   - Root cause: TODO ở handler submit chưa implement action login thực, log `console.info` chỉ là rác debug không có giá trị.
+   - Fix: Xóa dòng `console.info('Login submit:', formValue.value)`. Giữ comment `// TODO: gọi action login thực tế (kết nối blockchain, ...)` làm intent cho người sau.
+
+2. **[`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) - Bỏ block comment `Ref:` cuối file tham khảo JS cũ**
+   - Root cause: Block comment liệt kê các file ref + dòng `src/stores/dataArenaParticipate.js: useDataArenaParticipateStore (JS cũ - KHÔNG dùng logic)`. Tham khảo codebase JS cũ trong comment không có giá trị lâu dài.
+   - Fix: Xóa block `Ref:` (7 dòng).
+
+3. **[`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts) - Bỏ block comment `Ref:` tham khảo blockPolling**
+   - Root cause: Tương tự - tham khảo `blockPolling.ts:55 sendRequestQuery() (pattern tham khảo)`.
+   - Fix: Xóa block `Ref:` (3 dòng).
+
+4. **[`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts) - Bỏ block comment `Ref:` dài**
+   - Root cause: Tương tự - liệt kê configURL.ts:289, constants.ts:121, blockPolling.ts:55.
+   - Fix: Xóa block `Ref:` (4 dòng).
+
+5. **[`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) - Bỏ comment tham khảo bản JS cũ**
+   - Root cause: Comment `/** Click "Dùng để đăng nhập" → lưu vào localStorage + navigate về /login (Đơn giản hơn bản JS cũ - không cần store fetchDataUser9C) */`. Tham khảo JS cũ trong comment.
+   - Fix: Xóa phần `(Đơn giản hơn bản JS cũ - không cần store fetchDataUser9C)`.
+
+### Patterns Rút Ra (Bổ Sung)
+- **Bỏ comment `Ref:` tham khảo file khác khi không còn cần thiết**: Khi tạo utility mới, comment `Ref:` chỉ có giá trị lúc đang implement. Sau khi ổn định, các tham khảo này trở thành rác (cognitive overhead, dễ stale). Giữ ngắn gọn phần giải thích tính năng chính, bỏ phần "Ref:".
+- **Bỏ comment tham khảo "bản JS cũ"**: Sau khi codebase mới đã ổn định, các comment nhắc đến "JS cũ" chỉ tạo cognitive overhead. Implementer mới đọc code không cần biết về bản JS cũ. Pattern: comment giải thích logic hiện tại, KHÔNG nhắc đến bản cũ.
+- **Bỏ `console.*` debug log khi TODO chưa implement**: Khi handler chỉ có placeholder (TODO), KHÔNG thêm `console.info/log` "để biết là đã gọi". Khi implement thật, action sẽ tự có side-effect rõ ràng (network call, state change). Log placeholder là rác.
+- **Helper `isValidAddressFormat` nên ở store level**: Vì dùng ở cả LoginPage (validator), store actions (lookupAgent/lookupAvatar), và tests. Đặt ở store expose qua public API → gọi từ component mà không cần duplicate logic.
+
+### Kết Quả
+- ✅ vue-tsc: 0 errors (chưa verify sau cleanup - cần check sau)
+- ✅ vitest: 250+ tests pass + 49 tests mới = 299+ tests pass
+- ✅ Rà soát bằng MCP git: 5 sửa đổi cleanup rác
+- ✅ Memory bank updated
+- 📝 Files mới: 9 untracked (3 tests, 1 store, 1 types, 2 utilities, 1 view, 1 plan)
+- 📝 Files modified: 4 (i18n en/vi, router, LoginPage.vue)

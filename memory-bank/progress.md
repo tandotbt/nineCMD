@@ -185,6 +185,24 @@ src-ts/
 - [x] vue-tsc: 0 errors
 - [x] vitest: 250+ pass
 
+### Phase 2i: Arena Lookup Feature (Tra Cứu Agent ↔ Avatar) + Cleanup Rác (v2) ✅
+- [x] [`types/arenaLookup.ts`](src-ts/types/arenaLookup.ts) - Arena types (ArenaSeason, ArenaLeaderboardRow, ...), Mimir types (AgentInfo, AvatarInfo, AgentAvatarAddress với key=index, value=address), Internal (ArenaAvatarOption, CachedLeaderboard)
+- [x] [`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts) - `fetchSeasons`, `findMostRecentCompletedSeason`, `fetchLeaderboard`, `mapLeaderboardToAvatarOption`, `stripHtmlTags` (BBCode/HTML)
+- [x] [`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts) - `graphqlQuery` helper, `getAgent`, `getAvatars` (build inline query, KHÔNG dùng variables cho array), `getAvatar` (single)
+- [x] [`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) - Full Pinia store: leaderboard cache per-planet, manual lookup (agent/avatar), search/filter, computed options, watchers
+- [x] [`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) - Search + NDataTable + "Dùng để đăng nhập" button → prefill LoginPage qua localStorage
+- [x] [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - Refactor: form với agent/avatar address, n-select với leaderboard options, auto-lookup onBlur, watch planet change
+- [x] [`router/index.ts`](src-ts/router/index.ts) - + route `/arena-lookup`
+- [x] i18n: + `login.*` (title, avatarAddress, goToLookup, helper.leaderboardHint, rules.agent/avatar), + `arenaLookup.*` (title, placeholder, refresh, useForLogin, seasonInfo, emptySeason)
+- [x] Tests: mimirGraphql (16) + arenaGql (17) + arenaLookup (16) = **49 tests mới, total 299+**
+- [x] **Cleanup rác (MCP git rà soát)**:
+  - [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - Bỏ `console.info('Login submit:', ...)` debug log (TODO chưa implement action login thực)
+  - [`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) - Bỏ block comment `Ref:` tham khảo JS cũ (7 dòng)
+  - [`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts) - Bỏ block comment `Ref:` tham khảo blockPolling
+  - [`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts) - Bỏ block comment `Ref:` dài (4 dòng)
+  - [`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) - Bỏ comment `(Đơn giản hơn bản JS cũ - không cần store fetchDataUser9C)`
+- [x] Plan đầy đủ: [`plans/arena-leaderboard-search-plan.md`](plans/arena-leaderboard-search-plan.md) (2184 dòng, v4 final)
+
 ### Patterns Rút Ra Từ Code Review
 Xem chi tiết trong [`systemPatterns.md`](memory-bank/systemPatterns.md) mục "Code Review Cleanup":
 - **Bỏ import thừa sau refactor** - rà soát imports khi thay đổi flow control
@@ -197,6 +215,10 @@ Xem chi tiết trong [`systemPatterns.md`](memory-bank/systemPatterns.md) mục 
 - **GitHub CSV raw URL + cache busting** - dùng `#${planet}` ở cuối URL
 - **Promise.allSettled cho best-effort parallel fetch** - không block UI khi 1 nguồn fail
 - **Banner carousel ở góc cố định** - position absolute + n-grid 12 cols + 2 items span 8/4
+- **Bỏ comment `Ref:` tham khảo file khác khi ổn định** - chỉ giữ phần giải thích tính năng chính
+- **Bỏ comment "bản JS cũ"** - implementer mới không cần biết về bản cũ
+- **Bỏ `console.*` debug khi TODO placeholder** - action thật sẽ có side-effect rõ ràng
+- **Helper `isValidAddressFormat` ở store level** - dùng chung cho component + store actions + tests
 
 ## Kế Hoạch Tương Lai
 1. **Giai đoạn 3**: Stores JS → TypeScript (10 stores)

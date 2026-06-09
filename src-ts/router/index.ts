@@ -19,6 +19,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/LoginPage.vue')
       },
       {
+        path: 'arena-lookup',
+        name: 'arena-lookup',
+        meta: { transition: 'fade' },
+        component: () => import('@/views/ArenaLookupPage.vue')
+      },
+      {
         path: 'csv-data',
         name: 'csv-data',
         meta: { transition: 'fade' },

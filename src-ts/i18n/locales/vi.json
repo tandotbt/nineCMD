@@ -173,11 +173,35 @@
     }
   },
   "login": {
+    "title": "Đăng nhập",
     "agentAddress": "Địa chỉ Agent",
     "agentAddressPlaceholder": "0xabc...",
+    "avatarAddress": "Địa chỉ Avatar",
+    "avatarAddressPlaceholder": "Chọn hoặc nhập địa chỉ avatar",
     "password": "Mật khẩu",
     "passwordPlaceholder": "••••••••",
     "submit": "Đăng nhập",
-    "placeholderNote": "🔐 Trang đăng nhập - Placeholder"
+    "placeholderNote": "🔐 Trang đăng nhập - TypeScript",
+    "goToLookup": "Mở trang Arena Lookup",
+    "helper": {
+      "leaderboardHint": "Gợi ý từ Arena Leaderboard (đã qua gần nhất)"
+    },
+    "rules": {
+      "agent": {
+        "required": "Vui lòng nhập địa chỉ agent",
+        "invalidFormat": "Địa chỉ không đúng format (0x + 40 hex)"
+      },
+      "avatar": {
+        "required": "Vui lòng chọn avatar"
+      }
+    }
+  },
+  "arenaLookup": {
+    "title": "Tra cứu Agent ↔ Avatar",
+    "placeholder": "Tìm theo tên, agent hoặc avatar...",
+    "refresh": "Tải lại",
+    "useForLogin": "Dùng để đăng nhập",
+    "seasonInfo": "Dữ liệu từ season",
+    "emptySeason": "(chưa có season nào)"
   }
 }
