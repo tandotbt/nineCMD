@@ -1,7 +1,7 @@
 /**
- * CSV Fetcher Utility – Fetch CSV data từ 9CMD API
+ * CSV Fetcher Utility – Fetch CSV data from 9CMD API
  *
- * Xây URL, fetch response, decode base64 → raw CSV strings per sheet
+ * Build URL, fetch response, decode base64 → raw CSV strings per sheet
  *
  * Ref:
  * - src/utilities/constants.js: LIST_API_NINECMD, API_URL_PROXY
@@ -16,7 +16,7 @@ import { CSV_ENDPOINT_PATH } from './constants'
 // Types
 // ============================================================
 
-/** Response từ 9CMD API getGraphqlCSV */
+/** Response from 9CMD API getGraphqlCSV */
 interface CsvApiResponse {
   status: string
   message?: string
@@ -28,7 +28,7 @@ interface CsvApiResponse {
 // ============================================================
 
 /**
- * Xây URL cho getGraphqlCSV endpoint
+ * Build URL for getGraphqlCSV endpoint
  *
  * Ref: .REF/python-tool/constants.py: build_csv_url()
  *   return f"{base_url}/getGraphqlCSV?network={network}&{csv_params}&encodeAsBase64={base64_param}"
@@ -48,16 +48,16 @@ export function buildCsvFetchUrl(
 }
 
 /**
- * Fetch raw CSV base64 strings từ 1 API URL
+ * Fetch raw CSV base64 strings from an API URL
  *
  * Ref: .REF/vue3-tool/src/stores/initializeData.js: fetchSheetDataFrom9CMDAPI()
  * - GET request to /getGraphqlCSV
  * - Response: { status: "success", data: { sheetName: base64String, ... } }
  *
- * @param apiUrl Full API URL (đã build sẵn)
- * @param sheetNames Danh sách sheet names (để validate response)
+ * @param apiUrl Full API URL (already built)
+ * @param sheetNames List of sheet names (for response validation)
  * @returns Record<sheetName, base64CsvString>
- * @throws Error nếu fetch fail hoặc status !== "success"
+ * @throws Error if fetch fails or status !== "success"
  */
 export async function fetchCsvFromApi(
   apiUrl: string,
@@ -105,16 +105,16 @@ export async function fetchCsvFromApi(
 }
 
 /**
- * Fetch raw CSV text từ GitHub raw URL.
- * Dùng cho ItemNameSheet, SkillNameSheet (từ repo planetarium/NineChronicles).
+ * Fetch raw CSV text from GitHub raw URL.
+ * Used for ItemNameSheet, SkillNameSheet (from repo planetarium/NineChronicles).
  *
- * Lưu ý: URL có thể chứa hash `#${planet}` ở cuối để bust cache browser
- * khi chuyển planet. Hash không ảnh hưởng đến request network,
- * browser sẽ coi đó là fragment identifier và KHÔNG cache chéo planet.
+ * Note: URL may contain hash `#${planet}` at the end for browser cache busting
+ * when switching planets. Hash does not affect network requests,
+ * browser treats it as a fragment identifier and won't cross-cache planets.
  *
- * @param url Full URL đến file .csv trên raw.githubusercontent.com
+ * @param url Full URL to .csv file on raw.githubusercontent.com
  * @returns Raw CSV string (UTF-8)
- * @throws Error nếu HTTP không ok
+ * @throws Error if HTTP not ok
  *
  * @example
  *   const csv = await fetchGitHubCsv(

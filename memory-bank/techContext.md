@@ -41,6 +41,22 @@
 - **TypeScript Strict Mode**: `strict: true` enforced
 - **CSV Data Size**: 21 sheets, dữ liệu lớn → cache trong memory, KHÔNG localStorage
 
+## Codebase Cleanup (Phase 2f)
+
+### Changes Made
+- **All src-ts/ files**: Vietnamese comments → English (50+ files)
+- **constants.ts**: Added THEME_BREAKPOINTS, LIGHT_THEME_OVERRIDES, DARK_THEME_OVERRIDES, HEADER_HEIGHT, FOOTER_HEIGHT, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH, DRAWER_SIZE, DRAWER_SIZE_MAX, STORAGE_KEY_APP_SETTINGS, STORAGE_KEY_ENDPOINTS, LOGIN_PREFILL_AGENT, LOGIN_PREFILL_AVATAR
+- **App.vue**: Uses THEME_BREAKPOINTS, LIGHT_THEME_OVERRIDES, DARK_THEME_OVERRIDES from constants
+- **stores/appSettings.ts**: Uses STORAGE_KEY_APP_SETTINGS from constants
+- **stores/configURL.ts**: Uses STORAGE_KEY_ENDPOINTS from constants
+- **ArenaLookupPage.vue**: Uses LOGIN_PREFILL_AGENT, LOGIN_PREFILL_AVATAR from constants
+- **LoginPage.vue**: Uses LOGIN_PREFILL_AGENT, LOGIN_PREFILL_AVATAR from constants
+- **FooterStorageInfo.vue**: Uses STORAGE_KEY_APP_SETTINGS, STORAGE_KEY_ENDPOINTS from constants
+- **types/footer.ts**: Removed unused BlockInfo, NodeConfig, BlockPollEntry, BlockAverages
+- **types/header.ts**: Removed unused HeaderAvatarProps, HeaderSettings
+- **FirstLoadingPage.vue**: Removed commented useRouter import
+- **PlaceholderMenuLeft.vue**: Removed empty onMounted hook
+
 ## Dependencies
 ### Runtime
 - `vue` 3.5.34, `vue-router` 5.0.7, `vue-i18n` ^11.4.4

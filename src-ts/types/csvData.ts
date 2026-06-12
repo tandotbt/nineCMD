@@ -1,5 +1,5 @@
 /**
- * CSV Data Types – Kiểu dữ liệu cho việc nhận và xử lý CSV từ 9CMD API
+ * CSV Data Types – Type definitions for receiving and processing CSV from 9CMD API
  *
  * Ref:
  * - .REF/vue3-tool/src/stores/initializeData.js: parseCsvSheet()
@@ -38,17 +38,17 @@ export type CsvSheetName =
 // Row & Sheet Data Types
 // ============================================================
 
-/** Một dòng dữ liệu CSV – values có thể là string hoặc number (sau khi parse) */
+/** A single CSV row – values can be string or number (after parsing) */
 export type CsvRow = Record<string, string | number>
 
 /** Dữ liệu 1 sheet – keyed by keyColumn value */
 export type CsvSheetData = Record<string | number, CsvRow>
 
-/** Metadata cho 1 sheet: key column, unique flag, description */
+/** Metadata for a sheet: key column, unique flag, description */
 export interface CsvSheetMeta {
-  /** Tên cột dùng làm key chính */
+  /** Column name used as primary key */
   keyColumn: string
-  /** Nếu true, key không unique → dùng `${key}_${rowIndex}` */
+  /** If true, key is not unique → use `${key}_${rowIndex}` */
   unique?: boolean
   /** Mô tả ngắn */
   description?: string
@@ -61,9 +61,9 @@ export interface CsvSheetMeta {
 /** All sheets data keyed by sheet name */
 export type AllSheetsData = Partial<Record<CsvSheetName, CsvSheetData>>
 
-/** Persisted data trong localStorage */
+/** Persisted data in localStorage */
 export interface CsvPersistedData {
-  /** Planet name khi data được fetch */
+  /** Planet name when data was fetched */
   planet?: string
   /** Timestamp fetch cuối */
   lastFetchTime?: number

@@ -1,12 +1,12 @@
 /**
- * arenaGql Utility – Helper functions gọi arena.gql REST API
+ * arenaGql Utility – Helper functions for arena.gql REST API
  *
- * Arena.gql cung cấp:
- * - GET /seasons → danh sách season
- * - GET /leaderboard/completed?seasonId=<id> → leaderboard của season đã kết thúc
+ * Arena.gql provides:
+ * - GET /seasons → list of seasons
+ * - GET /leaderboard/completed?seasonId=<id> → leaderboard of completed season
  *
- * URL lấy qua useConfigURLStore.getArenaGql(planet) - ưu tiên dynamic từ API,
- * fallback về PLANET_CONFIGS hardcode.
+ * URL from useConfigURLStore.getArenaGql(planet) - prefer dynamic from API,
+ * fallback to PLANET_CONFIGS hardcode.
  */
 
 import { createLogger } from './logger'
@@ -25,10 +25,10 @@ const logger = createLogger({ module: 'arenaGql' })
 // ============================================================
 
 /**
- * Lấy danh sách season từ arena.gql
+ * Fetch season list from arena.gql
  * GET <arenaGqlBase>/seasons?pageNumber=1&pageSize=100
  *
- * @throws Error nếu HTTP lỗi
+ * @throws Error if HTTP error
  */
 export async function fetchSeasons(
   arenaGqlBase: string,
@@ -49,10 +49,10 @@ export async function fetchSeasons(
 }
 
 /**
- * Tìm season đã kết thúc gần nhất với blockNow
- * - Filter: endBlockIndex < blockNow (đã kết thúc)
+ * Find most recently completed season relative to blockNow
+ * - Filter: endBlockIndex < blockNow (completed)
  * - Sort: endBlockIndex descending
- * - Trả về null nếu không có
+ * - Returns null if none found
  */
 export function findMostRecentCompletedSeason(
   seasons: ArenaSeason[] | undefined | null,
@@ -67,10 +67,10 @@ export function findMostRecentCompletedSeason(
 }
 
 /**
- * Lấy leaderboard của 1 season đã hoàn thành
+ * Fetch leaderboard for a completed season
  * GET <arenaGqlBase>/leaderboard/completed?seasonId=<id>
  *
- * @throws Error nếu HTTP lỗi
+ * @throws Error if HTTP error
  */
 export async function fetchLeaderboard(
   arenaGqlBase: string,
@@ -94,8 +94,8 @@ export async function fetchLeaderboard(
 // ============================================================
 
 /**
- * Map 1 leaderboard row → ArenaAvatarOption cho <n-select>
- * Tự động strip HTML/BBCode từ nameWithHash (VD: "<size=80%><color=...>...</color></size>")
+ * Map a leaderboard row → ArenaAvatarOption for <n-select>
+ * Auto-strip HTML/BBCode from nameWithHash (e.g. "<size=80%><color=...>...</color></size>")
  */
 export function mapLeaderboardToAvatarOption(
   row: ArenaLeaderboardRow
@@ -113,7 +113,7 @@ export function mapLeaderboardToAvatarOption(
 }
 
 /**
- * Strip HTML/BBCode tags từ nameWithHash
+ * Strip HTML/BBCode tags from nameWithHash
  * Input:  "Yuga <size=80%><color=#A68F7E>#321C</color></size>"
  * Output: "Yuga #321C"
  *
@@ -124,7 +124,7 @@ export function mapLeaderboardToAvatarOption(
 export function stripHtmlTags(input: string | null | undefined): string {
   if (!input) return ''
   return input
-    .replace(/<[^>]+>/g, '') // bỏ tất cả <...>
-    .replace(/\s+/g, ' ') // gộp nhiều space
+    .replace(/<[^>]+>/g, '') // remove all <...>
+    .replace(/\s+/g, ' ') // collapse multiple spaces
     .trim()
 }

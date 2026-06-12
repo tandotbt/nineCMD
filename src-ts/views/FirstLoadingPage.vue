@@ -1,8 +1,8 @@
 <template>
   <!--
-    Overlay: che phủ hoàn toàn trang web, chỉ hiện khi dữ liệu chưa load xong.
-    KHÔNG dùng Teleport to="body" – giữ trong component tree
-    để naive-ui dark theme từ n-config-provider hoạt động đúng.
+    Overlay: covers the entire page, only shown when data hasn't loaded yet.
+    Does NOT use Teleport to="body" – kept in component tree
+    so naive-ui dark theme from n-config-provider works correctly.
   -->
   <Transition name="fade-overlay">
     <div v-if="!allLoaded || csvData.isPlanetSwitching" class="first-loading-overlay">
@@ -41,7 +41,7 @@
           </n-text>
         </template>
 
-        <!-- Error State (chưa countdown) – hiển thị lỗi riêng cho planet và CSV -->
+        <!-- Error State (no countdown yet) – show errors for planet and CSV separately -->
         <template v-else-if="hasError && !countdownActive">
           <n-space vertical style="width: 100%">
             <!-- Planet Error -->
@@ -108,7 +108,7 @@
           </n-space>
         </template>
 
-        <!-- Error State + countdown (đang đếm trước khi vào) -->
+        <!-- Error State + countdown (counting down before entering) -->
         <template v-else-if="hasError && countdownActive">
           <n-result
             status="warning"
@@ -128,7 +128,7 @@
           </n-result>
         </template>
 
-        <!-- Success State – countdown trước khi chuyển -->
+        <!-- Success State – countdown before redirect -->
         <template v-else-if="allLoaded">
           <n-result
             status="success"
@@ -154,7 +154,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-// import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   NSpace,
@@ -170,11 +169,10 @@ import { useAppSettingsStore } from '../stores/appSettings'
 import { useCsvDataStore } from '../stores/csvData'
 import { useGlobalCsvStore } from '../stores/globalCsv'
 import { useBannerStore } from '../stores/banner'
-import { LIST_API_NINECMD } from '../utilities/constants'
+import { LIST_API_NINECMD } from '@/utilities/constants'
 import { createLogger } from '../utilities/logger'
 
 const { t } = useI18n()
-// const router = useRouter()
 const configURL = useConfigURLStore()
 const appSettings = useAppSettingsStore()
 const csvData = useCsvDataStore()
@@ -183,9 +181,9 @@ const bannerStore = useBannerStore()
 const logger = createLogger({ module: 'firstLoading' })
 
 /**
- * Overlay nằm trong <n-config-provider> ở App.vue,
- * nên naive-ui components tự động nhận dark theme.
- * Chỉ cần đọc appSettings.isDarkMode cho custom CSS của card.
+ * Overlay is inside <n-config-provider> in App.vue,
+ * so naive-ui components automatically receive dark theme.
+ * Only need to read appSettings.isDarkMode for custom card CSS.
  */
 const isDark = computed(() => appSettings.isDarkMode)
 
@@ -227,7 +225,7 @@ const loadingStatusText = computed(() => {
 /** Selected API index in csvData store */
 const selectedApiIndex = ref(csvData.currentApiIndex)
 
-/** Options for NSelect – danh sách 9CMD API URLs */
+/** Options for NSelect – list of 9CMD API URLs */
 const apiUrlOptions = computed(() =>
   LIST_API_NINECMD.map((url, index) => ({
     label: url.replace('https://', '').replace('http://', ''),
@@ -235,7 +233,7 @@ const apiUrlOptions = computed(() =>
   }))
 )
 
-/** Watch csvData.currentApiIndex để sync với select */
+/** Watch csvData.currentApiIndex to sync with select */
 watch(
   () => csvData.currentApiIndex,
   (newIndex) => {
@@ -260,29 +258,29 @@ const redirectMessage = computed(() => {
  * If both successful → countdown 3s → redirect to home.
  * If any failed → show error with retry buttons.
  *
- * Bước 3 (global - không bắt buộc):
- * - Load globalCsv (ItemName + SkillName + RemoteCsv) – nếu fail, log warning, bỏ qua
- * - Load banner từ Event.json – nếu fail, log warning, bỏ qua
- * - Dùng Promise.allSettled để 1 cái fail không ảnh hưởng cái kia
- * - KHÔNG block redirect → nếu chỉ fail global thì vẫn vào home bình thường
+ * Step 3 (global - not required):
+ * - Load globalCsv (ItemName + SkillName + RemoteCsv) – if fail, log warning, skip
+ * - Load banner from Event.json – if fail, log warning, skip
+ * - Use Promise.allSettled so 1 failure doesn't affect the other
+ * - Does NOT block redirect → if only global fails, still enters home normally
  */
 onMounted(async () => {
   const planet = appSettings.selectedPlanet || 'odin'
 
-  // Fetch planets + CSV chính (game data) song song
+  // Fetch planets + main CSV (game data) in parallel
   const [planetSuccess, csvSuccess] = await Promise.all([
     configURL.fetchPlanets(),
     csvData.fetchAllSheets(planet)
   ])
 
-  // Bước 3: load global data (CSV i18n + banner) – best-effort, không bắt buộc
-  // Dùng allSettled: nếu 1 cái fail, cái kia vẫn chạy
-  // Quan trọng: KHÔNG await block redirect – chạy ngầm
+  // Step 3: load global data (CSV i18n + banner) – best-effort, not required
+  // Use allSettled: if 1 fails, the other still runs
+  // Important: does NOT await block redirect – runs in background
   void Promise.allSettled([
     globalCsvStore.loadAll(),
     bannerStore.loadBanners()
   ]).then((results) => {
-    // Log warning nếu có fail, nhưng không block UI
+    // Log warning if any fail, but don't block UI
     results.forEach((r, idx) => {
       if (r.status === 'rejected') {
         const source = idx === 0 ? 'globalCsv' : 'banner'
@@ -345,7 +343,7 @@ async function handleRetryPlanet(): Promise<void> {
 }
 
 /**
- * Retry CSV data với API URL đã chọn
+ * Retry CSV data with selected API URL
  */
 async function handleRetryCsv(): Promise<void> {
   clearCountdownTimer()
@@ -371,7 +369,7 @@ async function handleRetryCsv(): Promise<void> {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  /* Semi-transparent backdrop – che phủ hoàn toàn, làm mờ web đằng sau */
+  /* Semi-transparent backdrop – covers entirely, blurs the page behind */
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

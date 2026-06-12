@@ -1,14 +1,14 @@
 /**
- * CSV Parser Utility – Parse CSV data từ 9CMD API
+ * CSV Parser Utility – Parse CSV data from 9CMD API
  *
- * Sử dụng PapaParse thay custom parser để xử lý CSV tốt hơn:
- * - Xử lý đúng quoted fields, escape characters
- * - Xử lý multi-line fields
- * - Type detection tự động
+ * Uses PapaParse instead of custom parser for better CSV handling:
+ * - Correct quoted fields, escape characters
+ * - Multi-line fields
+ * - Automatic type detection
  *
  * Ref:
  * - .REF/vue3-tool/src/stores/initializeData.js: parseCsvSheet() (line 60-150)
- * - PapaParse 5.5.3 (đã có trong dependencies)
+ * - PapaParse 5.5.3 (already in dependencies)
  */
 
 import Papa from 'papaparse'
@@ -20,15 +20,15 @@ import type { CsvRow, CsvSheetData } from '../types/csvData'
 
 /**
  * Decode base64 string → UTF-8 string
- * Dùng cho response từ 9CMD API với encodeAsBase64=true
+ * Used for 9CMD API response with encodeAsBase64=true
  *
  * Ref: .REF/vue3-tool/src/stores/initializeData.js line 370
  *   const decodedCsvString = atob(base64CsvString)
  */
 export function decodeBase64Csv(base64String: string): string {
   try {
-    // atob() chỉ xử lý Latin-1, không hỗ trợ UTF-8 trực tiếp
-    // Cần dùng TextDecoder để decode UTF-8 sau khi atob
+    // atob() only handles Latin-1, no direct UTF-8 support
+    // Need TextDecoder to decode UTF-8 after atob
     if (typeof atob === 'function') {
       const binaryString = atob(base64String)
       const bytes = new Uint8Array(binaryString.length)
@@ -48,13 +48,13 @@ export function decodeBase64Csv(base64String: string): string {
  * Parse CSV string thành CsvSheetData (keyed by keyColumn)
  *
  * Ref: .REF/vue3-tool/src/stores/initializeData.js: parseCsvSheet()
- * - Bỏ dòng trống và dòng bắt đầu bằng '_'
- * - Parse number nếu có thể
- * - Nếu unique=true → key = `${value}_${rowIndex}`
+ * - Skip empty lines and lines starting with '_'
+ * - Parse numbers if possible
+ * - If unique=true → key = `${value}_${rowIndex}`
  *
- * @param csvString Raw CSV string (đã decode base64)
- * @param keyColumn Tên cột dùng làm key chính
- * @param options { unique: boolean } – nếu true, key không unique
+ * @param csvString Raw CSV string (decoded from base64)
+ * @param keyColumn Column name used as primary key
+ * @param options { unique: boolean } – if true, key is not unique
  * @returns CsvSheetData – object keyed by keyColumn value
  */
 export function parseCsvSheet(
@@ -65,7 +65,7 @@ export function parseCsvSheet(
   const unique = options?.unique ?? false
 
   // Pre-process: filter out empty lines and lines starting with '_'
-  // (giống behavior của parseCsvSheet gốc)
+  // (same behavior as original parseCsvSheet)
   const lines = csvString
     .trim()
     .split('\n')

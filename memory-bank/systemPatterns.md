@@ -34,6 +34,8 @@ NineCMD sử dụng kiến trúc client-side với Vue.js 3 + TypeScript. Ứng 
 - **CSV Cache Pattern**: `cacheByPlanet: Record<PlanetName, AllSheetsData>` → check cache trước khi fetch
 - **Planet Change Watcher**: csvData watch `appSettings.selectedPlanet` → auto switchPlanet() (pattern giống blockPolling)
 - **Case-Insensitive Header Matching**: CSV parser matching key columns với toLowerCase()
+- **Centralized Constants Pattern**: All hard-coded values (theme breakpoints, colors, localStorage keys, layout sizes) extracted to `constants.ts` and imported where needed
+- **English-Only Comments**: All code comments in src-ts/ are in English for consistency and international collaboration
 
 ## Key Technical Decisions
 - **Overlay thay Router Loading**: Dùng overlay component trong App.vue thay route riêng, giữ `/` là home

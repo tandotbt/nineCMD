@@ -16,7 +16,7 @@ import {
   transformBannerItem
 } from '../utilities/bannerService'
 import { useBannerStore } from '../stores/banner'
-import { LINK_BANNER, URL_GITHUB_LIVEASSETS } from '../utilities/constants'
+import { LINK_BANNER, URL_GITHUB_LIVEASSETS } from '@/utilities/constants'
 import type { BannerItem } from '../types/i18nCsv'
 
 // ============================================================

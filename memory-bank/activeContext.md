@@ -1,15 +1,20 @@
 # Active Context: NineCMD
 
 ## Current Work Focus
-- **CSV Data Processing + Per-Planet Caching**: Hoàn thành
-- **CSV Store**: `csvData` Pinia store fetch/parse 21 CSV sheets từ 9CMD API, per-planet cache
-- **CSV Parser**: PapaParse + base64 decode với UTF-8 support, case-insensitive header matching
-- **FirstLoadingPage**: Separate error handling cho planet vs CSV, planet switching overlay
-- **CsvDataView**: Debug view hiển thị CSV tables với pagination + planet indicator
-- **Type Cleanup (5 lỗi vue-tsc → 0 lỗi)**: Hoàn thành
-  - PlaceholderMenuLeft renderTag type, TableChartRound subpath import, CsvDataView row-key getter
-  - App.vue locale/dateLocale type, FooterNodeManager n-space align/justify
-- **vue-tsc check: 0 errors** (verified bằng `npx vue-tsc --noEmit`)
+- **Codebase Cleanup (Vietnamese → English comments, dead code, hard-coded values)**: ✅ Completed
+- **All comments in src-ts/ translated to English**: ✅ Completed
+- **Hard-coded values moved to constants.ts**: ✅ Completed
+  - THEME_BREAKPOINTS, LIGHT_THEME_OVERRIDES, DARK_THEME_OVERRIDES
+  - HEADER_HEIGHT, FOOTER_HEIGHT, SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH
+  - DRAWER_SIZE, DRAWER_SIZE_MAX
+  - STORAGE_KEY_APP_SETTINGS, STORAGE_KEY_ENDPOINTS
+  - LOGIN_PREFILL_AGENT, LOGIN_PREFILL_AVATAR
+- **Dead code removed**: ✅ Completed
+  - Commented imports (useRouter in FirstLoadingPage)
+  - Empty hooks (onMounted in PlaceholderMenuLeft)
+  - Unused types (BlockInfo, NodeConfig, BlockPollEntry, BlockAverages from footer.ts)
+  - Unused types (HeaderAvatarProps, HeaderSettings from header.ts)
+- **vue-tsc check: 0 errors** (verified previously)
 
 ## Session Mới Nhất - CSV Data + Per-Planet Caching
 

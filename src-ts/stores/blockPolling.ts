@@ -1,20 +1,20 @@
 /**
- * blockPolling Store – Pinia store poll block theo chu kỳ bằng GraphQL
+ * blockPolling Store – Pinia store for periodic block polling via GraphQL
  *
- * Thay thế WebSocket (đã ngưng hoạt động) bằng cách gọi GraphQL endpoint
- * Python get_block_now() trong .REF/python-tool/utils.py
+ * Replaces WebSocket (deprecated) by calling GraphQL endpoint
+ * Python get_block_now() from .REF/python-tool/utils.py
  *
- * Tính năng:
- * - Poll block index từ Mimir GraphQL endpoint
- * - Tính avg block time từ sự khác biệt block index giữa các lần poll
- * - Tự động poll theo chu kỳ (cấu hình từ appSettings store)
- * - Hỗ trợ chuyển đổi planet
- * - Cung cấp dữ liệu cho Block Monitor tab
+ * Features:
+ * - Poll block index from Mimir GraphQL endpoint
+ * - Calculate avg block time from block index differences between polls
+ * - Auto poll at configurable interval (from appSettings store)
+ * - Support planet switching
+ * - Provide data for Block Monitor tab
  *
  * Ref:
  * - .REF/python-tool/utils.py: get_block_now()
  * - .REF/python-tool/constants.py: LIST_URL_PLANET, URL_MIMIR
- * - src/stores/webSocketBlock.js: calculateAVG logic (cũ)
+ * - src/stores/webSocketBlock.js: calculateAVG logic (legacy)
  */
 
 import { defineStore } from 'pinia'
@@ -24,7 +24,7 @@ import {
   PLANET_CONFIGS,
   AVG_BLOCK_FALLBACK,
   QUERY_GET_BLOCK_NOW
-} from '../utilities/constants'
+} from '@/utilities/constants'
 import { useAppSettingsStore } from './appSettings'
 import { useConfigURLStore } from './configURL'
 import { createLogger } from '../utilities/logger'
@@ -133,8 +133,8 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
   // ============================================================
 
   /**
-   * Get mimir URL –优先使用 dynamic URL từ configURL store,
-   * fallback về PLANET_CONFIGS static.
+   * Get mimir URL – prefer dynamic URL from configURL store,
+   * fallback to PLANET_CONFIGS static.
    * Ref: .REF/python-tool/constants.py link_planet() – URL_MIMIR
    */
   function getMimirUrl(planet: PlanetName): string {
@@ -151,7 +151,7 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
   async function fetchCurrentBlock(planet: PlanetName): Promise<number> {
     const mimirUrl = getMimirUrl(planet)
     if (!mimirUrl) {
-      throw new Error(`Planet "${planet}" không có Mimir endpoint`)
+      throw new Error(`Planet "${planet}" has no Mimir endpoint`)
     }
 
     const response = await sendRequestQuery(mimirUrl, QUERY_GET_BLOCK_NOW)
@@ -162,7 +162,7 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
     const items = blocks?.['items'] as Array<{ object: { index: number } }> | undefined
 
     if (!items || items.length === 0 || !items[0]?.object) {
-      throw new Error('Không nhận được block data từ Mimir')
+      throw new Error('No block data received from Mimir')
     }
 
     return items[0].object.index
@@ -181,7 +181,7 @@ export const useBlockPollingStore = defineStore('blockPolling', () => {
       const blockIndex = await fetchCurrentBlock(selectedPlanet.value)
 
       if (blockIndex <= 0) {
-        error.value = 'Block index không hợp lệ'
+        error.value = 'Invalid block index'
         failCount.value++
         logger.warn('Invalid block index received:', blockIndex)
         return

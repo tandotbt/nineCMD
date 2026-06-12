@@ -4,7 +4,7 @@ import { useArenaLookupStore } from '../stores/arenaLookup'
 import { useBlockPollingStore } from '../stores/blockPolling'
 // import { useAppSettingsStore } from '../stores/appSettings'
 import { useConfigURLStore } from '../stores/configURL'
-import type { PlanetData } from '../utilities/constants'
+import type { PlanetData } from '@/utilities/constants'
 
 // ============================================================
 // Mock localStorage

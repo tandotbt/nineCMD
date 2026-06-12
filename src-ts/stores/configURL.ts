@@ -1,8 +1,8 @@
 /**
- * configURL Store – Pinia store quản lý dữ liệu URL planet từ Nine Chronicles API
+ * configURL Store – Pinia store for managing planet URL data from Nine Chronicles API
  *
- * Fetch dữ liệu planet từ URL_ALL_PLANET khi app khởi động.
- * Dữ liệu شامل: danh sách planet khả dụng, RPC endpoints, genesis hash...
+ * Fetches planet data from URL_ALL_PLANET on app startup.
+ * Data includes: available planets, RPC endpoints, genesis hash...
  *
  * Ref:
  * - .REF/python-tool/constants.py: URL_ALL_PLANET, link_planet(), LIST_URL_PLANET
@@ -16,12 +16,13 @@ import {
   type PlanetName,
   type PlanetData,
   type PlanetRpcEndpoints,
-  PLANET_CONFIGS
-} from '../utilities/constants'
+  PLANET_CONFIGS,
+  STORAGE_KEY_ENDPOINTS
+} from '@/utilities/constants'
 import { createLogger } from '../utilities/logger'
 
 // ============================================================
-// Fallback data (khi API không khả dụng)
+// Fallback data (when API is unavailable)
 // Ref: src/utilities/constants.js CONFIG_URL_ALL_PLANET
 // ============================================================
 const FALLBACK_PLANETS: PlanetData[] = [
@@ -101,7 +102,7 @@ function randomChoice<T>(arr: T[] | undefined, fallback: T): T {
 // Helper: pick endpoint (random or manual)
 // ============================================================
 type EndpointMode = 'random' | 'manual'
-const STORAGE_KEY = 'configURL-endpoints'
+const STORAGE_KEY = STORAGE_KEY_ENDPOINTS
 
 interface PersistedEndpoints {
   /** Map of "planet:endpointKey" → selected URL */
@@ -389,7 +390,7 @@ export const useConfigURLStore = defineStore('configURL', () => {
       const data: PlanetData[] = await response.json()
 
       if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('Dữ liệu planet trả về không hợp lệ')
+        throw new Error('Invalid planet data returned from API')
       }
 
       planets.value = data

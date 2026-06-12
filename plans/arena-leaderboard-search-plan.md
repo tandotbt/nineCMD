@@ -641,7 +641,7 @@ export async function getAvatar(
 
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import type { PlanetName } from '../utilities/constants'
+import type { PlanetName } from '@/utilities/constants'
 import { useAppSettingsStore } from './appSettings'
 import { useBlockPollingStore } from './blockPolling'
 import { useConfigURLStore } from './configURL'

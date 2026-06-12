@@ -1,13 +1,13 @@
 /**
- * mimirGraphql Utility – Helper functions gọi Mimir GraphQL API
+ * mimirGraphql Utility – Helper functions for Mimir GraphQL API
  *
- * Mimir cung cấp:
- * - query GetAgent($address) → thông tin agent + danh sách avatar addresses
- * - query GetAvatar($addresses) → thông tin NHIỀU avatar (build query động)
- * - query GetAvatar($addr) → thông tin 1 avatar
+ * Mimir provides:
+ * - query GetAgent($address) → agent info + avatar address list
+ * - query GetAvatar($addresses) → info for MULTIPLE avatars (dynamic query build)
+ * - query GetAvatar($addr) → info for 1 avatar
  *
- * URL lấy qua useConfigURLStore.getMimirUrl(planet) - ưu tiên dynamic từ API,
- * fallback về PLANET_CONFIGS[planet].mimirUrl (https://${planet}-mimir.9c.gg/graphql).
+ * URL from useConfigURLStore.getMimirUrl(planet) - prefer dynamic from API,
+ * fallback to PLANET_CONFIGS[planet].mimirUrl (https://${planet}-mimir.9c.gg/graphql).
  */
 
 import { createLogger } from './logger'
@@ -20,8 +20,8 @@ const logger = createLogger({ module: 'mimirGraphql' })
 // ============================================================
 
 /**
- * Helper chung để POST GraphQL query tới mimir
- * @throws Error nếu HTTP lỗi hoặc response có errors
+ * General helper to POST GraphQL query to mimir
+ * @throws Error if HTTP error or response has errors
  */
 export async function graphqlQuery<T = Record<string, unknown>>(
   url: string,
@@ -53,8 +53,8 @@ export async function graphqlQuery<T = Record<string, unknown>>(
 // ============================================================
 
 /**
- * Query GetAgent — lấy thông tin agent + danh sách avatar addresses
- * @returns AgentInfo hoặc null nếu không tồn tại
+ * Query GetAgent — get agent info + avatar address list
+ * @returns AgentInfo or null if not found
  */
 export async function getAgent(
   mimirUrl: string,
@@ -79,16 +79,16 @@ export async function getAgent(
 }
 
 // ============================================================
-// GetAvatar (multi - inline address thẳng vào query)
+// GetAvatar (multi - inline address directly into query)
 // ============================================================
 
 /**
  * Query GetAvatar — lấy thông tin NHIỀU avatar
  *
- * Lưu ý: KHÔNG dùng GraphQL variables, mà inline trực tiếp address vào query.
- * Lý do: Mimir có thể không hỗ trợ truyền Address![] qua variables cho query này,
- * hoặc response alias bị lệch khi dùng variable array. Inline address đảm bảo
- * alias `avatar_<index>` luôn map đúng tới address tại index đó.
+ * Note: Does NOT use GraphQL variables, instead inlines addresses directly into query.
+ * Reason: Mimir may not support passing Address![] via variables for this query,
+ * or response aliases may be misaligned with variable arrays. Inline addresses ensure
+ * alias `avatar_<index>` always maps correctly to the address at that index.
  *
  * Cú pháp: mỗi avatar thêm 1 field alias
  *   avatar_0: avatar(address: "0xAAA") { ... }
@@ -103,7 +103,7 @@ export async function getAvatars(
 ): Promise<AvatarInfo[]> {
   if (!avatarAddresses || avatarAddresses.length === 0) return []
 
-  // Build query: inline trực tiếp address vào template
+  // Build query: inline addresses directly into template
   const aliases = avatarAddresses
     .map(
       (addr, i) =>
@@ -131,7 +131,7 @@ export async function getAvatars(
 // ============================================================
 
 /**
- * Query GetAvatar cho 1 avatar đơn lẻ
+ * Query GetAvatar for a single avatar
  */
 export async function getAvatar(
   mimirUrl: string,

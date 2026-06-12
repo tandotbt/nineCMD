@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCsvDataStore } from '../stores/csvData'
-import { ALL_CSV_SHEET_NAMES, LIST_API_NINECMD } from '../utilities/constants'
+import { ALL_CSV_SHEET_NAMES, LIST_API_NINECMD } from '@/utilities/constants'
 
 describe('csvData Store', () => {
   beforeEach(() => {

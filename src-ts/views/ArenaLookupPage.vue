@@ -102,12 +102,12 @@ function rowKey(row: ArenaAvatarOption): string {
 }
 
 /**
- * Click "Dùng để đăng nhập" → lưu vào localStorage + navigate về /login
+ * Click "Use for Login" → save to localStorage + navigate to /login
  */
 function useThisForLogin(row: ArenaAvatarOption): void {
   try {
-    localStorage.setItem('login-prefill-agent', row.agentAddress)
-    localStorage.setItem('login-prefill-avatar', row.avataraddress)
+    localStorage.setItem(LOGIN_PREFILL_AGENT, row.agentAddress)
+    localStorage.setItem(LOGIN_PREFILL_AVATAR, row.avataraddress)
   } catch {
     // ignore (private mode / quota)
   }
@@ -115,7 +115,7 @@ function useThisForLogin(row: ArenaAvatarOption): void {
 }
 
 onMounted(() => {
-  // Trigger fetch nếu block ready, watch trong store cũng sẽ handle
+  // Trigger fetch if block ready, watcher in store will also handle
   if (
     arenaLookup.isBlockReady &&
     arenaLookup.leaderboardList.length === 0 &&

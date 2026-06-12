@@ -10,6 +10,10 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 - **Giai đoạn 2c - ConfigURL Store + FirstLoading Overlay + Endpoint Settings**: ✅ Hoàn thành
 - **Giai đoạn 2d - Logger System + Settings Tab + Code Refactor**: ✅ Hoàn thành
 - **Giai đoạn 2e - CSV Data Processing + Per-Planet Caching**: ✅ Hoàn thành
+- **Giai đoạn 2f - Codebase Cleanup**: ✅ Hoàn thành
+  - All Vietnamese comments translated to English
+  - Hard-coded values moved to constants.ts
+  - Dead code removed (unused types, commented imports, empty hooks)
 - **Giai đoạn 3**: Chuyển stores JS → TypeScript (10 stores)
 - **Giai đoạn 4**: Chuyển utilities JS → TypeScript (15+ files)
 - **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/

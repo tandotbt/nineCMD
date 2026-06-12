@@ -1,15 +1,8 @@
 /**
- * Types cho Header components
+ * Types for Header components
  */
 
-/** Props cho HeaderAvatar */
-export interface HeaderAvatarProps {
-  avatarAddress?: string
-  portraitId?: number
-  level?: number
-}
-
-/** Props cho HeaderProgress */
+/** Props for HeaderProgress */
 export interface HeaderProgressItem {
   label: string
   percentage: number
@@ -18,17 +11,9 @@ export interface HeaderProgressItem {
   processing?: boolean
 }
 
-/** Props cho HeaderBanner */
+/** Props for HeaderBanner */
 export interface HeaderBannerItem {
   imageUrl: string
   link: string
   priority: number
-}
-
-/** Settings từ localStorage */
-export interface HeaderSettings {
-  isDarkMode: boolean
-  lang: string
-  lastPlanet?: string
-  selectedNode?: string
 }

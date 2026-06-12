@@ -1,19 +1,19 @@
 /**
- * globalCsv Store – Pinia store quản lý dữ liệu CSV global (không phụ thuộc planet)
+ * globalCsv Store – Pinia store for managing global CSV data (planet-independent)
  *
- * Mục đích: Load 1 lần lúc preloading 3 loại CSV:
- * - ItemNameSheet (i18n tên vật phẩm)
- * - SkillNameSheet (i18n tên skill)
- * - RemoteCsv (config từ xa, schema chuẩn)
+ * Purpose: Load once during preloading, 3 types of CSV:
+ * - ItemNameSheet (i18n item names)
+ * - SkillNameSheet (i18n skill names)
+ * - RemoteCsv (remote config, standard schema)
  *
- * Pattern GLOBAL (khác với csvData là per-planet):
- * - Load 1 lần, không watch planet
- * - KHÔNG retry khi lỗi (lỗi thì bỏ qua, vẫn redirect về home)
- * - Watch appSettings.lang → chỉ re-render (localeColumn thay đổi), KHÔNG fetch lại
+ * GLOBAL pattern (unlike csvData which is per-planet):
+ * - Load once, no planet watcher
+ * - NO retry on error (skip errors, still redirect to home)
+ * - Watch appSettings.lang → re-render only (localeColumn changes), NO re-fetch
  *
  * Ref:
- * - src/stores/configURL.js: ItemNameSheet/SkillNameSheet (logic cũ, per-planet)
- * - NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv (URL mới)
+ * - src/stores/configURL.js: ItemNameSheet/SkillNameSheet (legacy logic, per-planet)
+ * - NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv (new URL)
  */
 
 import { defineStore } from 'pinia'
@@ -22,7 +22,7 @@ import type {
   LocalizedSheetData,
   RemoteCsvData
 } from '../types/i18nCsv'
-import { LOCALE_TO_CSV_COLUMN } from '../utilities/constants'
+import { LOCALE_TO_CSV_COLUMN } from '@/utilities/constants'
 import { useAppSettingsStore } from './appSettings'
 import {
   fetchAllLocalizedSheets,
@@ -72,7 +72,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   /** Timestamp of last successful fetch */
   const lastFetchTime = ref<number>(0)
 
-  /** Per-source error tracking (cho hiển thị warning) */
+  /** Per-source error tracking (for warning display) */
   const sourceErrors = ref<{
     localized: string | null
     remote: string | null
@@ -83,7 +83,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   // ============================================================
 
   /**
-   * Locale column name trong CSV tương ứng với appSettings.lang hiện tại
+   * Locale column name in CSV corresponding to current appSettings.lang
    */
   const localeColumn = computed<string>(() => {
     return LOCALE_TO_CSV_COLUMN[appSettings.lang] ?? 'English'
@@ -98,14 +98,14 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   /** Number of entries in RemoteCsv */
   const remoteCsvCount = computed<number>(() => Object.keys(remoteCsv.value).length)
 
-  /** True nếu có ít nhất 1 nguồn load thành công */
+  /** True if at least 1 source loaded successfully */
   const hasAnyData = computed<boolean>(() => {
     return itemNameCount.value > 0 ||
       skillNameCount.value > 0 ||
       remoteCsvCount.value > 0
   })
 
-  /** True nếu tất cả nguồn đều load thất bại */
+  /** True if all sources failed to load */
   const allSourcesFailed = computed<boolean>(() => {
     return sourceErrors.value.localized !== null && sourceErrors.value.remote !== null
   })
@@ -115,7 +115,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   // ============================================================
 
   /**
-   * Lấy tên vật phẩm theo locale hiện tại.
+   * Get item name for current locale.
    * Fallback chain: localeColumn → English → Key
    */
   function getItemName(key: string | number): string {
@@ -124,7 +124,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   }
 
   /**
-   * Lấy tên skill theo locale hiện tại.
+   * Get skill name for current locale.
    * Fallback chain: localeColumn → English → Key
    */
   function getSkillName(key: string | number): string {
@@ -133,21 +133,21 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   }
 
   /**
-   * Lấy 1 row từ RemoteCsv theo key
+   * Get a row from RemoteCsv by key
    */
   function getRemoteCsvRow(key: string | number): RemoteCsvData[string] | null {
     return remoteCsv.value[key] ?? null
   }
 
   /**
-   * Lấy 1 row từ ItemNameSheet theo key
+   * Get a row from ItemNameSheet by key
    */
   function getItemNameRow(key: string | number): LocalizedSheetData[string] | null {
     return itemNameSheet.value[key] ?? null
   }
 
   /**
-   * Lấy 1 row từ SkillNameSheet theo key
+   * Get a row from SkillNameSheet by key
    */
   function getSkillNameRow(key: string | number): LocalizedSheetData[string] | null {
     return skillNameSheet.value[key] ?? null
@@ -158,16 +158,16 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   // ============================================================
 
   /**
-   * Load tất cả 3 loại CSV song song (ItemName + SkillName + RemoteCsv).
+   * Load all 3 CSV types in parallel (ItemName + SkillName + RemoteCsv).
    *
-   * Pattern: Promise.allSettled - lỗi 1 nguồn KHÔNG ảnh hưởng các nguồn khác.
-   * Khi gặp lỗi: log warning, lưu vào sourceErrors, tiếp tục.
-   * KHÔNG throw, KHÔNG retry - vì đây là "kiểu thứ 3 cần loading".
+   * Pattern: Promise.allSettled - 1 source error does NOT affect other sources.
+   * On error: log warning, save to sourceErrors, continue.
+   * NO throw, NO retry - this is the "3rd loading type".
    *
-   * @returns true nếu ít nhất 1 nguồn load thành công
+   * @returns true if at least 1 source loaded successfully
    */
   async function loadAll(): Promise<boolean> {
-    // Đã load rồi thì skip
+    // Already loaded, skip
     if (isLoaded.value) {
       logger.info('globalCsv already loaded, skipping')
       return true
@@ -181,15 +181,15 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
     try {
       loadingStatus.value = 'firstLoading.step.fetching'
 
-      // Chạy 2 promise song song (ItemName+SkillName gộp, RemoteCsv riêng)
+      // Run 2 promises in parallel (ItemName+SkillName combined, RemoteCsv separate)
       const [localizedResult, remoteResult] = await Promise.allSettled([
-        fetchAllLocalizedSheets('odin'), // planet 'odin' cho URL cache busting, data giống nhau giữa các planet
+        fetchAllLocalizedSheets('odin'), // planet 'odin' for URL cache busting, data is same across planets
         fetchRemoteCsv()
       ])
 
       loadingStatus.value = 'firstLoading.step.parsing'
 
-      // Xử lý kết quả localized
+      // Process localized results
       if (localizedResult.status === 'fulfilled') {
         itemNameSheet.value = localizedResult.value.ItemNameSheet
         skillNameSheet.value = localizedResult.value.SkillNameSheet
@@ -203,7 +203,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
         logger.warn('globalCsv localized failed (skipping):', message)
       }
 
-      // Xử lý kết quả remote
+      // Process remote results
       if (remoteResult.status === 'fulfilled') {
         remoteCsv.value = remoteResult.value
         sourceErrors.value.remote = null
@@ -216,13 +216,13 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
         logger.warn('globalCsv remote failed (skipping):', message)
       }
 
-      // Có ít nhất 1 nguồn thành công → coi như loaded
+      // At least 1 source succeeded → consider loaded
       if (hasAnyData.value) {
         isLoaded.value = true
         lastFetchTime.value = Date.now()
       }
 
-      // Nếu tất cả đều fail → vẫn set error để log
+      // If all failed → still set error for logging
       if (allSourcesFailed.value) {
         error.value = 'All global CSV sources failed'
       }
@@ -232,7 +232,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
 
       return hasAnyData.value
     } catch (e) {
-      // Catch unexpected error (rất hiếm, vì allSettled không throw)
+      // Catch unexpected error (very rare, since allSettled doesn't throw)
       const message = e instanceof Error ? e.message : String(e)
       error.value = message
       isLoading.value = false
@@ -257,7 +257,7 @@ export const useGlobalCsvStore = defineStore('globalCsv', () => {
   }
 
   /**
-   * Retry loading (giống loadAll nhưng force reload)
+   * Retry loading (same as loadAll but force reload)
    */
   async function retry(): Promise<boolean> {
     clearData()

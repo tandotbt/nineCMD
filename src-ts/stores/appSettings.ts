@@ -1,7 +1,7 @@
 /**
- * appSettings Store – Pinia store quản lý settings chung của app
+ * appSettings Store – Pinia store for global app settings
  *
- * Bao gồm:
+ * Includes:
  * - Dark mode state
  * - Planet selection (odin / heimdall / thor)
  * - Poll interval for block polling
@@ -9,21 +9,21 @@
  * - Polling enabled state (isPolling)
  * - Logger level (logLevel)
  *
- * Tất cả settings được persist vào localStorage.
+ * All settings are persisted to localStorage.
  *
  * Ref:
- * - src-ts/App.vue: toggleTheme, changeLang logic (cũ)
+ * - src-ts/App.vue: toggleTheme, changeLang logic
  * - src/components/other/tabSettingNinecmd.vue
  */
 
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import { type PlanetName, DEFAULT_POLL_INTERVAL_MS, PLANET_CONFIGS } from '../utilities/constants'
+import { type PlanetName, DEFAULT_POLL_INTERVAL_MS, PLANET_CONFIGS, STORAGE_KEY_APP_SETTINGS } from '@/utilities/constants'
 import { useConfigURLStore } from './configURL'
 import { createLogger, type LogLevel } from '../utilities/logger'
 
 /** localStorage key */
-const STORAGE_KEY = 'setting-nine-cmd'
+const STORAGE_KEY = STORAGE_KEY_APP_SETTINGS
 
 /** Persisted settings shape */
 interface PersistedSettings {

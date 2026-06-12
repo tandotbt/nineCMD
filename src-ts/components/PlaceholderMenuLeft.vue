@@ -9,7 +9,7 @@
 
     <n-divider style="margin: 4px 0" />
 
-    <!-- Language selector - bind trực tiếp vào appSettings (reactive với FooterSettings) -->
+    <!-- Language selector - bound directly to appSettings (reactive with FooterSettings) -->
     <div style="padding: 0 8px">
       <n-select
         :value="appSettings.lang"
@@ -21,7 +21,7 @@
       />
     </div>
 
-    <!-- Dark mode toggle - bind trực tiếp vào appSettings (reactive với FooterSettings) -->
+    <!-- Dark mode toggle - bound directly to appSettings (reactive with FooterSettings) -->
     <div style="padding: 0 8px; display: flex; align-items: center; justify-content: space-between">
       <n-text depth="3" style="font-size: 12px">{{ t('@--App.toggleTheme.light') }}</n-text>
       <n-switch
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, inject, onMounted, shallowRef, watch } from 'vue'
+import { h, ref, inject, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NIcon, NMenu, NSpace, NSelect, NSwitch, NText, NDivider, NAvatar } from 'naive-ui'
 import type { SelectOption } from 'naive-ui'
@@ -72,19 +72,19 @@ const changeLangFn = inject<(lang: string) => void>('changeLang', () => {})
 const selectedKey = ref<string>('home')
 const menuRef = shallowRef<unknown>(null)
 
-/** Language options - đồng nhất với FooterSettings (dùng CONFIG_i18n_LANGUAGES) */
+/** Language options - synced with FooterSettings (uses CONFIG_i18n_LANGUAGES) */
 const langOptions = availableLocales.map((item: string) => ({
   label: CONFIG_i18n_LANGUAGES.find((data) => data.lang === item)?.label ?? item,
   value: item
 }))
 
-/** Change lang - cập nhật cả store + i18n locale (đồng nhất với FooterSettings) */
+/** Change lang - updates both store + i18n locale (synced with FooterSettings) */
 function changeLang(selectedLang: string): void {
   appSettings.setLang(selectedLang)
   changeLangFn(selectedLang)
 }
 
-/** Toggle theme - cập nhật cả store + dark mode class (đồng nhất với FooterSettings) */
+/** Toggle theme - updates both store + dark mode class (synced with FooterSettings) */
 function onToggleTheme(isDark: boolean): void {
   appSettings.setDarkMode(isDark)
   toggleTheme(isDark)
@@ -195,7 +195,4 @@ watch(
   { immediate: true }
 )
 
-onMounted(() => {
-  // Menu initialized
-})
 </script>

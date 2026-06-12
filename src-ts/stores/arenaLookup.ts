@@ -1,22 +1,21 @@
 /**
- * arenaLookup Store – Pinia store tra cứu nhanh Agent ↔ Avatar Address
+ * arenaLookup Store – Pinia store for quick Agent ↔ Avatar Address lookup
  *
- * Chức năng:
- * - Auto fetch leaderboard arena (gần nhất đã kết thúc) từ arena.gql REST
- * - Manual lookup agent → lấy danh sách avatar thuộc agent (mimir GraphQL)
- * - Manual lookup avatar → lấy agent address tương ứng (mimir GraphQL)
- * - Cache leaderboard per-planet (không TTL, manual refresh)
- * - Search/filter trong leaderboard
+ * Features:
+ * - Auto fetch leaderboard arena (most recent completed) from arena.gql REST
+ * - Manual lookup agent → get avatar list belonging to agent (mimir GraphQL)
+ * - Manual lookup avatar → get corresponding agent address (mimir GraphQL)
+ * - Cache leaderboard per-planet (no TTL, manual refresh)
+ * - Search/filter within leaderboard
  *
- * URL động qua useConfigURLStore (ưu tiên API, fallback PLANET_CONFIGS).
- * Block qua useBlockPollingStore (currentBlockIndex).
- * Planet qua useAppSettingsStore (single source of truth).
- *
+ * URLs from useConfigURLStore (API priority, fallback PLANET_CONFIGS).
+ * Block from useBlockPollingStore (currentBlockIndex).
+ * Planet from useAppSettingsStore (single source of truth).
  */
 
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import type { PlanetName } from '../utilities/constants'
+import type { PlanetName } from '@/utilities/constants'
 import { useAppSettingsStore } from './appSettings'
 import { useBlockPollingStore } from './blockPolling'
 import { useConfigURLStore } from './configURL'
@@ -46,32 +45,32 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   const configURL = useConfigURLStore()
 
   // ============================================================
-  // Computed: URL cơ sở (lấy từ configURL store - dynamic + fallback)
+  // Computed: Base URLs (from configURL store - dynamic + fallback)
   // ============================================================
 
-  /** Planet hiện tại (single source of truth: appSettings) */
+  /** Current planet (single source of truth: appSettings) */
   const selectedPlanet = computed<PlanetName>(
     () => appSettings.selectedPlanet
   )
 
-  /** URL arena.gql REST cho planet hiện tại (dynamic + fallback) */
+  /** URL arena.gql REST for current planet (dynamic + fallback) */
   const urlArenaGql = computed<string>(() =>
     configURL.getArenaGql(selectedPlanet.value)
   )
 
-  /** URL mimir GraphQL cho planet hiện tại (dynamic + fallback) */
+  /** URL mimir GraphQL for current planet (dynamic + fallback) */
   const urlMimirGql = computed<string>(() =>
     configURL.getMimirUrl(selectedPlanet.value)
   )
 
-  /** Block hiện tại (từ blockPolling) */
+  /** Current block (from blockPolling) */
   const blockNow = computed<number>(() => blockPolling.currentBlockIndex)
 
   /** Block ready (= blockNow > 0) */
   const isBlockReady = computed<boolean>(() => blockNow.value > 0)
 
   // ============================================================
-  // Cache per-planet (cho leaderboard)
+  // Cache per-planet (for leaderboard)
   // ============================================================
   const leaderboardCache = ref<Record<string, CachedLeaderboard | undefined>>({})
 
@@ -95,7 +94,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   }
 
   // ============================================================
-  // State cho leaderboard hiện tại
+  // State for current leaderboard
   // ============================================================
   const leaderboardList = ref<ArenaAvatarOption[]>([])
   const isFetchingLeaderboard = ref<boolean>(false)
@@ -104,7 +103,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   const isLeaderboardAutoFetched = ref<boolean>(false)
 
   // ============================================================
-  // State cho manual lookup - agent
+  // State for manual lookup - agent
   // ============================================================
   const lookedUpAgent = ref<AgentInfo | null>(null)
   const lookedUpAvatars = ref<AvatarInfo[]>([])
@@ -112,14 +111,14 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   const errorLookedUpAgent = ref<Error | null>(null)
 
   // ============================================================
-  // State cho manual lookup - avatar
+  // State for manual lookup - avatar
   // ============================================================
   const lookedUpAvatar = ref<AvatarInfo | null>(null)
   const isLookingUpAvatar = ref<boolean>(false)
   const errorLookedUpAvatar = ref<Error | null>(null)
 
   // ============================================================
-  // Search trong leaderboard
+  // Search within leaderboard
   // ============================================================
   const searchQuery = ref<string>('')
 
@@ -156,7 +155,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
 
     const planet = selectedPlanet.value
 
-    // Cache hit → dùng cache
+    // Cache hit → use cache
     if (isLeaderboardCached(planet)) {
       const cached = getCachedLeaderboard(planet)!
       leaderboardList.value = cached.list
@@ -213,13 +212,13 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   ): Promise<AvatarInfo[] | null> {
     if (!isValidAddressFormat(agentAddress)) {
       errorLookedUpAgent.value = new Error(
-        'Địa chỉ agent không đúng format (0x + 40 hex)'
+        'Invalid agent address format (0x + 40 hex)'
       )
       return null
     }
     if (!urlMimirGql.value) {
       errorLookedUpAgent.value = new Error(
-        `Planet "${selectedPlanet.value}" không có mimir endpoint`
+        `Planet "${selectedPlanet.value}" has no mimir endpoint`
       )
       return null
     }
@@ -231,24 +230,24 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
       if (!agent) {
         lookedUpAgent.value = null
         lookedUpAvatars.value = []
-        errorLookedUpAgent.value = new Error('Agent không tồn tại')
+        errorLookedUpAgent.value = new Error('Agent does not exist')
         return null
       }
       lookedUpAgent.value = agent
 
-      // Lưu ý: response thực tế trả về { key: index, value: address }
-      // → lấy address qua a.value (KHÔNG phải a.key)
+      // Note: actual response returns { key: index, value: address }
+      // → get address via a.value (NOT a.key)
       const avatarAddrs = (agent.avatarAddresses || []).map((a) => a.value)
       if (avatarAddrs.length === 0) {
         lookedUpAvatars.value = []
-        logger.info('lookupAgent OK: agent có 0 avatar')
+        logger.info('lookupAgent OK: agent has 0 avatars')
         return lookedUpAvatars.value
       }
 
       const avatars = await getAvatars(urlMimirGql.value, avatarAddrs)
       lookedUpAvatars.value = avatars
       logger.info(
-        `lookupAgent OK: ${avatars.length}/${avatarAddrs.length} avatars cho ${agentAddress}`
+        `lookupAgent OK: ${avatars.length}/${avatarAddrs.length} avatars for ${agentAddress}`
       )
       return avatars
     } catch (err) {
@@ -269,13 +268,13 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   ): Promise<AvatarInfo | null> {
     if (!isValidAddressFormat(avatarAddress)) {
       errorLookedUpAvatar.value = new Error(
-        'Địa chỉ avatar không đúng format (0x + 40 hex)'
+        'Invalid avatar address format (0x + 40 hex)'
       )
       return null
     }
     if (!urlMimirGql.value) {
       errorLookedUpAvatar.value = new Error(
-        `Planet "${selectedPlanet.value}" không có mimir endpoint`
+        `Planet "${selectedPlanet.value}" has no mimir endpoint`
       )
       return null
     }
@@ -286,7 +285,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
       const avatar = await getAvatar(urlMimirGql.value, avatarAddress)
       if (!avatar) {
         lookedUpAvatar.value = null
-        errorLookedUpAvatar.value = new Error('Avatar không tồn tại')
+        errorLookedUpAvatar.value = new Error('Avatar does not exist')
         return null
       }
       lookedUpAvatar.value = avatar
@@ -303,7 +302,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
     }
   }
 
-  /** Reset tất cả manual lookup state */
+  /** Reset all manual lookup state */
   function resetManualLookup(): void {
     lookedUpAgent.value = null
     lookedUpAvatars.value = []
@@ -313,10 +312,10 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   }
 
   // ============================================================
-  // Computed: ArenaAvatarOption[] cho <n-select>
+  // Computed: ArenaAvatarOption[] for <n-select>
   // ============================================================
 
-  /** Options từ leaderboard (search/filter đã apply) */
+  /** Options from leaderboard (search/filter applied) */
   const leaderboardOptions = computed<ArenaAvatarOption[]>(() =>
     leaderboardFiltered.value.map((item) => ({
       ...item,
@@ -324,7 +323,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
     }))
   )
 
-  /** Options từ agent lookup (lookedUpAvatars) */
+  /** Options from agent lookup (lookedUpAvatars) */
   const agentLookupOptions = computed<ArenaAvatarOption[]>(() =>
     lookedUpAvatars.value.map((a) => ({
       avataraddress: a.address,
@@ -337,7 +336,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   )
 
   // ============================================================
-  // Watch: auto fetch leaderboard khi có block (1 lần)
+  // Watch: auto fetch leaderboard when block is ready (once)
   // ============================================================
   watch(
     isBlockReady,
@@ -351,7 +350,7 @@ export const useArenaLookupStore = defineStore('arenaLookup', () => {
   )
 
   // ============================================================
-  // Watch: reset khi đổi planet
+  // Watch: reset when planet changes
   // ============================================================
   watch(selectedPlanet, (newPlanet, oldPlanet) => {
     if (newPlanet === oldPlanet) return

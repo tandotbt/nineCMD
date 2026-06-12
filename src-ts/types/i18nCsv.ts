@@ -1,15 +1,15 @@
 /**
- * i18n CSV Types – Kiểu dữ liệu cho việc hiển thị tên vật phẩm / skill đa ngôn ngữ + Banner
+ * i18n CSV Types – Type definitions for displaying multilingual item/skill names + Banner
  *
- * Mục đích: Khi user chuyển ngôn ngữ (vi/en/ko/ja), các component sẽ dùng 2 CSV
- * (item_name.csv, skill_name.csv) từ GitHub `planetarium/NineChronicles` để hiển thị
- * tên vật phẩm và skill theo ngôn ngữ tương ứng.
+ * Purpose: When user switches language (vi/en/ko/ja), components use 2 CSV files
+ * (item_name.csv, skill_name.csv) from GitHub `planetarium/NineChronicles` to display
+ * item and skill names in the corresponding language.
  *
- * File này CHỈ chứa TYPE DEFINITIONS, không có store. Store đã được refactor:
- * - CŨ: `stores/i18nCsv.ts` (per-planet cache, watch planet) — ĐÃ XÓA
- * - MỚI: `stores/globalCsv.ts` (GLOBAL pattern, Promise.allSettled, 3 nguồn)
+ * This file contains ONLY TYPE DEFINITIONS, no store. Store has been refactored:
+ * - OLD: `stores/i18nCsv.ts` (per-planet cache, watch planet) — REMOVED
+ * - NEW: `stores/globalCsv.ts` (GLOBAL pattern, Promise.allSettled, 3 sources)
  *
- * Banner types (`BannerItem`) cũng ở đây vì liên quan đến Event.json từ NineChronicles.LiveAssets.
+ * Banner types (`BannerItem`) are also here since they relate to Event.json from NineChronicles.LiveAssets.
  *
  * Ref:
  * - src/utilities/constants.js: V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles
@@ -19,23 +19,23 @@
  */
 
 /**
- * Tên 2 localized sheets từ GitHub NineChronicles repo
- * - ItemNameSheet: chứa tên vật phẩm (item_name.csv)
+ * Names of 2 localized sheets from GitHub NineChronicles repo
+ * - ItemNameSheet: item names (item_name.csv)
  * - SkillNameSheet: chứa tên skill (skill_name.csv)
  */
 export type LocalizedSheetName = 'ItemNameSheet' | 'SkillNameSheet'
 
 /**
- * Một dòng trong item_name.csv / skill_name.csv
+ * A single row in item_name.csv / skill_name.csv
  *
  * Cấu trúc file gốc (theo repo NineChronicles):
  * Key,English,Vietnamese,Korean,Japanese,...
  *
- * Key là ID của vật phẩm / skill (string hoặc number tuỳ theo ID).
- * Các cột locale chứa tên đã dịch.
+ * Key is the item/skill ID (string or number depending on the ID).
+ * Locale columns contain translated names.
  */
 export interface LocalizedNameRow {
-  /** Key ID (string hoặc number) */
+  /** Key ID (string or number) */
   Key: string | number
   /** Tên Tiếng Anh (mặc định fallback) */
   English: string
@@ -45,30 +45,30 @@ export interface LocalizedNameRow {
   Korean: string
   /** Tên Tiếng Nhật */
   Japanese: string
-  /** Cho phép thêm locale khác nếu CSV mở rộng */
+  /** Allows additional locales if CSV is extended */
   [locale: string]: string | number
 }
 
 /**
- * Dữ liệu 1 localized sheet – được index theo Key column
- * Có thể dùng string key (cho ID kiểu '1001') hoặc number key (cho ID kiểu 10110000)
+ * Localized sheet data – indexed by Key column
+ * Can use string key (for ID like '1001') or number key (for ID like 10110000)
  */
 export type LocalizedSheetData = Record<string | number, LocalizedNameRow>
 
 /**
- * Cache theo planet – lưu data của cả 2 sheet (ItemName + SkillName) cho 1 planet
+ * Per-planet cache – stores data for both sheets (ItemName + SkillName) for 1 planet
  */
 export interface LocalizedSheetsPair {
   ItemNameSheet: LocalizedSheetData
   SkillNameSheet: LocalizedSheetData
 }
 
-/** Planet name type — re-export từ utilities/constants để tiện dùng */
-import type { PlanetName } from '../utilities/constants'
+/** Planet name type — re-exported from utilities/constants for convenience */
+import type { PlanetName } from '@/utilities/constants'
 export type { PlanetName }
 
 /**
- * Banner data từ Event.json (NineChronicles.LiveAssets)
+ * Banner data from Event.json (NineChronicles.LiveAssets)
  *
  * Cấu trúc file gốc:
  * {
@@ -78,26 +78,26 @@ export type { PlanetName }
  * }
  */
 export interface BannerItem {
-  /** Tên file ảnh (không có extension) – dùng để build URL */
+  /** Image file name (without extension) – used to build URL */
   BannerImageName: string
-  /** Thời gian bắt đầu hiển thị (ISO 8601 string), null = không giới hạn */
+  /** Display start time (ISO 8601 string), null = no limit */
   BeginDateTime: string | null
-  /** Thời gian kết thúc hiển thị (ISO 8601 string), null = không giới hạn */
+  /** Display end time (ISO 8601 string), null = no limit */
   EndDateTime: string | null
-  /** URL gốc từ GitHub (đã resolve từ BannerImageName) */
+  /** Original URL from GitHub (resolved from BannerImageName) */
   BannerImageUrl: string
   /** Mô tả banner (optional, tuỳ theo Event.json) */
   Description?: string
-  /** URL click target - mở tab mới khi click banner (optional) */
+  /** URL click target - opens new tab when banner is clicked (optional) */
   Url?: string
-  /** Thứ tự ưu tiên trong carousel (optional) */
+  /** Priority order in carousel (optional) */
   Priority?: number
   /** Cho phép thêm field khác tuỳ theo Event.json */
   [key: string]: unknown
 }
 
 /**
- * RemoteCsv row - schema chuẩn CSV, không phải i18n
+ * RemoteCsv row - standard CSV schema, not i18n
  * Dùng cho NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv
  */
 export type RemoteCsvRow = Record<string, string | number>

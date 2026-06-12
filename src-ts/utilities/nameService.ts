@@ -1,10 +1,10 @@
 /**
- * Name Service – Fetch + parse localized CSV (ItemName + SkillName) từ GitHub
+ * Name Service – Fetch + parse localized CSV (ItemName + SkillName) from GitHub
  *
- * Mục đích: Lấy dữ liệu tên vật phẩm + skill đa ngôn ngữ từ repo
+ * Purpose: Get multilingual item + skill name data from repo
  * `planetarium/NineChronicles` (file item_name.csv, skill_name.csv).
  *
- * Pattern tương tự csvFetcher (9CMD API) nhưng source là GitHub raw URL.
+ * Pattern similar to csvFetcher (9CMD API) but source is GitHub raw URL.
  *
  * Ref:
  * - src/utilities/constants.js: V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles
@@ -29,12 +29,12 @@ import {
 // ============================================================
 
 /**
- * Build URL cho 1 localized CSV sheet, có cache busting hash theo planet.
+ * Build URL for a localized CSV sheet, with cache busting hash per planet.
  *
  * Pattern: `{base}{path}#{planet}`
  * - base: `https://raw.githubusercontent.com/planetarium/NineChronicles/development`
  * - path: `/nekoyume/Assets/StreamingAssets/Localization/item_name.csv`
- * - hash: `#${planet}` → bust cache khi switch planet
+ * - hash: `#${planet}` → bust cache when switching planet
  *
  * @param sheetName 'ItemNameSheet' | 'SkillNameSheet'
  * @param planet Planet name: 'odin' | 'heimdall' | 'thor'
@@ -62,7 +62,7 @@ export function buildLocalizedCsvUrl(
  * @param sheetName 'ItemNameSheet' | 'SkillNameSheet'
  * @param planet Planet name
  * @returns LocalizedSheetData (keyed by Key column)
- * @throws Error nếu fetch fail hoặc parse fail
+ * @throws Error if fetch or parse fails
  */
 export async function fetchLocalizedSheet(
   sheetName: LocalizedSheetName,
@@ -71,18 +71,18 @@ export async function fetchLocalizedSheet(
   const url = buildLocalizedCsvUrl(sheetName, planet)
   const csvText = await fetchGitHubCsv(url)
 
-  // parseCsvSheet đã hỗ trợ case-insensitive key column matching
-  // (CSV có 'Key' viết hoa nhưng config dùng 'Key' → khớp)
+  // parseCsvSheet supports case-insensitive key column matching
+  // (CSV has 'Key' capitalized, config uses 'Key' → matches)
   return parseCsvSheet(csvText, LOCALIZED_CSV_KEY_COLUMN) as LocalizedSheetData
 }
 
 /**
- * Fetch cả 2 localized sheets song song (ItemName + SkillName) cho 1 planet.
- * Dùng Promise.all để parallel fetch → nhanh hơn sequential.
+ * Fetch both localized sheets in parallel (ItemName + SkillName) for a planet.
+ * Uses Promise.all for parallel fetch → faster than sequential.
  *
  * @param planet Planet name
- * @returns Object chứa 2 sheet data
- * @throws Error nếu 1 trong 2 fail (Promise.all reject ngay khi gặp lỗi đầu tiên)
+ * @returns Object containing both sheet data
+ * @throws Error if either fails (Promise.all rejects on first error)
  */
 export async function fetchAllLocalizedSheets(
   planet: PlanetName
@@ -98,15 +98,15 @@ export async function fetchAllLocalizedSheets(
 }
 
 // ============================================================
-// RemoteCsv (global - không phụ thuộc planet)
+// RemoteCsv (global - planet-independent)
 // ============================================================
 
 /**
  * Fetch + parse RemoteCsv (NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv).
- * Đây là CSV global, không phụ thuộc planet - load 1 lần là đủ.
+ * This is a global CSV, planet-independent - load once is sufficient.
  *
  * @returns RemoteCsvData (keyed by Key column)
- * @throws Error nếu fetch fail
+ * @throws Error if fetch fails
  */
 export async function fetchRemoteCsv(): Promise<RemoteCsvData> {
   const csvText = await fetchGitHubCsv(REMOTE_CSV_URL)
@@ -114,17 +114,17 @@ export async function fetchRemoteCsv(): Promise<RemoteCsvData> {
 }
 
 // ============================================================
-// Getters (helper cho store / component)
+// Getters (helper for store / component)
 // ============================================================
 
 /**
- * Lấy tên theo locale từ 1 row đã parse.
- * Có fallback chain: localeColumn → English → Key
+ * Get localized name from a parsed row.
+ * Fallback chain: localeColumn → English → Key
  *
- * @param row LocalizedNameRow (hoặc undefined nếu key không tồn tại)
- * @param localeColumn Tên cột locale: 'English' | 'Vietnamese' | 'Korean' | 'Japanese'
- * @param fallbackKey Key để fallback nếu row không có giá trị locale
- * @returns Tên đã localize, hoặc fallbackKey nếu không tìm thấy
+ * @param row LocalizedNameRow (or undefined if key doesn't exist)
+ * @param localeColumn Locale column name: 'English' | 'Vietnamese' | 'Korean' | 'Japanese'
+ * @param fallbackKey Key to fallback to if row has no locale value
+ * @returns Localized name, or fallbackKey if not found
  */
 export function getLocalizedName(
   row: LocalizedSheetData[string] | undefined,
@@ -133,18 +133,18 @@ export function getLocalizedName(
 ): string {
   if (!row) return String(fallbackKey)
 
-  // Ưu tiên locale column được yêu cầu
+  // Prefer the requested locale column
   const value = row[localeColumn]
   if (value !== undefined && value !== null && value !== '') {
     return String(value)
   }
 
-  // Fallback về English
+  // Fallback to English
   const english = row['English']
   if (english !== undefined && english !== null && english !== '') {
     return String(english)
   }
 
-  // Cuối cùng mới trả về key
+  // Finally, return the key
   return String(fallbackKey)
 }

@@ -1,18 +1,18 @@
 /**
- * csvData Store – Pinia store quản lý dữ liệu CSV từ 9CMD API
+ * csvData Store – Pinia store for managing CSV data from 9CMD API
  *
- * Fetch, parse, và lưu trữ dữ liệu CSV game (items, skills, recipes...)
- * Dữ liệu được dùng để hiển thị, tìm kiếm, lọc trong ứng dụng.
+ * Fetch, parse, and store game CSV data (items, skills, recipes...).
+ * Data is used for display, search, and filtering in the app.
  *
- * Pattern tương tự configURL store:
+ * Pattern similar to configURL store:
  * - isLoading, error, isLoaded, loadingStatus
  * - fetchAllSheets(planet) → Promise<boolean>
- * - retry() → thử API URL tiếp theo
+ * - retry() → try next API URL
  *
  * Ref:
  * - .REF/vue3-tool/src/stores/initializeData.js: useInitializeDataStore
  * - .REF/vue3-tool/src/components/initializeData.vue: config.graphQlSheetConfig
- * - src-ts/stores/configURL.ts: pattern cho retry mechanism
+ * - src-ts/stores/configURL.ts: retry mechanism pattern
  */
 
 import { defineStore } from 'pinia'
@@ -23,13 +23,13 @@ import type {
   CsvSheetData,
   AllSheetsData
 } from '../types/csvData'
-import { type PlanetName } from '../utilities/constants'
+import { type PlanetName } from '@/utilities/constants'
 import { useAppSettingsStore } from './appSettings'
 import {
   LIST_API_NINECMD,
   CSV_SHEET_CONFIG,
   ALL_CSV_SHEET_NAMES
-} from '../utilities/constants'
+} from '@/utilities/constants'
 import { decodeBase64Csv, parseCsvSheet, validateCsvData, getCsvHeaders } from '../utilities/csvParser'
 import { buildCsvFetchUrl, fetchCsvFromApi } from '../utilities/csvFetcher'
 import { createLogger } from '../utilities/logger'
@@ -78,9 +78,9 @@ export const useCsvDataStore = defineStore('csvData', () => {
   const fetchPlanet = ref<PlanetName | null>(null)
 
   /**
-   * Per-planet cache: lưu dữ liệu CSV đã fetch theo từng planet.
-   * Khi chuyển planet, kiểm tra cache trước → nếu có thì dùng lại,
-   * không cần fetch lại từ API.
+   * Per-planet cache: stores fetched CSV data per planet.
+   * When switching planet, check cache first → reuse if available,
+   * no need to re-fetch from API.
    *
    * Key: PlanetName ("odin" | "heimdall" | "thor")
    * Value: AllSheetsData (parsed CSV data)
@@ -210,17 +210,17 @@ export const useCsvDataStore = defineStore('csvData', () => {
   // ============================================================
 
   /**
-   * Fetch all CSV sheets từ 9CMD API
+   * Fetch all CSV sheets from 9CMD API
    *
    * Flow:
-   * 1. Chọn API URL từ LIST_API_NINECMD[currentApiIndex]
-   * 2. Build URL với danh sách sheets
+   * 1. Select API URL from LIST_API_NINECMD[currentApiIndex]
+   * 2. Build URL with sheet list
    * 3. Fetch JSON response
-   * 4. Decode base64 → parse CSV từng sheet
-   * 5. Lưu vào store
+   * 4. Decode base64 → parse CSV per sheet
+   * 5. Save to store
    *
    * @param planet Planet name: "odin" | "heimdall" | "thor"
-   * @returns true nếu thành công, false nếu lỗi
+   * @returns true if successful, false if error
    */
   async function fetchAllSheets(planet: PlanetName): Promise<boolean> {
     // ============================================================
@@ -306,7 +306,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
   }
 
   /**
-   * Retry fetching – thử API URL tiếp theo trong LIST_API_NINECMD
+   * Retry fetching – try next API URL in LIST_API_NINECMD
    */
   async function retry(): Promise<boolean> {
     // Rotate to next API URL
@@ -317,11 +317,11 @@ export const useCsvDataStore = defineStore('csvData', () => {
 
   /**
    * Switch planet – load CSV data for new planet.
-   * Nếu đã cache → load từ cache (instant).
-   * Nếu chưa cache → fetch từ API.
+   * If cached → load from cache (instant).
+   * If not cached → fetch from API.
    *
-   * @param planet Planet name mới
-   * @returns true nếu thành công
+   * @param planet New planet name
+   * @returns true if successful
    */
   async function switchPlanet(planet: PlanetName): Promise<boolean> {
     if (fetchPlanet.value === planet && isLoaded.value && !error.value) {
@@ -332,7 +332,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
     logger.info(`Switching CSV to planet "${planet}"`)
 
     if (isPlanetCached(planet)) {
-      // Cache hit → load instant, không cần loading indicator
+      // Cache hit → load instant, no loading indicator needed
       logger.info(`Cache hit for "${planet}", loading instantly`)
       sheets.value = cacheByPlanet.value[planet]
       isLoaded.value = true
@@ -341,7 +341,7 @@ export const useCsvDataStore = defineStore('csvData', () => {
       return true
     }
 
-    // Cache miss → fetch từ API với loading indicator
+    // Cache miss → fetch from API with loading indicator
     isPlanetSwitching.value = true
     try {
       return await fetchAllSheets(planet)

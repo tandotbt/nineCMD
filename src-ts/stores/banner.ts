@@ -1,20 +1,20 @@
 /**
- * banner Store – Pinia store quản lý danh sách banner từ Event.json
+ * banner Store – Pinia store for managing banner list from Event.json
  *
- * Mục đích: Fetch + filter danh sách banner đang active từ GitHub
+ * Purpose: Fetch + filter active banners from GitHub
  * `planetarium/NineChronicles.LiveAssets/main/Assets/Json/Event.json`.
  *
- * Pattern: GLOBAL (cùng với globalCsv) - load 1 lần lúc preloading
- * - Banner là global, không phụ thuộc planet
- * - Fetch 1 lần khi cần, cache trong memory
- * - Filter theo BeginDateTime/EndDateTime mỗi lần fetch
- * - Lỗi → vẫn set error nhưng KHÔNG retry bắt buộc (kiểu thứ 3 cần loading)
- * - Click banner → mở tab mới với `Url` field
+ * Pattern: GLOBAL (same as globalCsv) - loaded once during preloading
+ * - Banners are global, planet-independent
+ * - Fetch once when needed, cached in memory
+ * - Filter by BeginDateTime/EndDateTime on each fetch
+ * - Error → set error but NO forced retry (3rd loading type)
+ * - Click banner → open new tab with `Url` field
  *
  * Ref:
  * - src/utilities/constants.js: LINK_BANNER
  * - src/stores/configURL.js: getBanner()
- * - src/views/HomeMain.vue: Banner carousel clickable với `Url` field
+ * - src/views/HomeMain.vue: Banner carousel clickable with `Url` field
  * - src-ts/utilities/bannerService.ts: fetchBanners
  */
 
@@ -38,7 +38,7 @@ export const useBannerStore = defineStore('banner', () => {
   // State
   // ============================================================
 
-  /** Danh sách banner đang active (sau khi filter theo date) */
+  /** List of active banners (after date filtering) */
   const banners = ref<BannerItem[]>([])
 
   /** Loading state */
@@ -60,10 +60,10 @@ export const useBannerStore = defineStore('banner', () => {
   // Computed
   // ============================================================
 
-  /** Số lượng banner đang active */
+  /** Number of active banners */
   const bannerCount = computed<number>(() => banners.value.length)
 
-  /** Có banner nào không? */
+  /** Whether there are any banners */
   const hasBanners = computed<boolean>(() => banners.value.length > 0)
 
   // ============================================================
@@ -71,9 +71,9 @@ export const useBannerStore = defineStore('banner', () => {
   // ============================================================
 
   /**
-   * Fetch + parse + filter banner list từ GitHub Event.json.
+   * Fetch + parse + filter banner list from GitHub Event.json.
    *
-   * @returns true nếu thành công
+   * @returns true if successful
    */
   async function loadBanners(): Promise<boolean> {
     isLoading.value = true

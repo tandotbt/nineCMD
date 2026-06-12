@@ -29,7 +29,7 @@ import {
   URL_GITHUB_NineChronicles,
   URL_GITHUB_LIVEASSETS,
   REMOTE_CSV_URL
-} from '../utilities/constants'
+} from '@/utilities/constants'
 import type { LocalizedSheetData, RemoteCsvData } from '../types/i18nCsv'
 
 // ============================================================

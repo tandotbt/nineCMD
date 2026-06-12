@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useConfigURLStore } from '../stores/configURL'
-import { URL_ALL_PLANET, type PlanetData } from '../utilities/constants'
+import { URL_ALL_PLANET, type PlanetData } from '@/utilities/constants'
 
 // ============================================================
 // Mock localStorage

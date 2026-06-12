@@ -147,7 +147,7 @@ import {
 } from 'naive-ui'
 import { useAppSettingsStore } from '../../stores/appSettings'
 import { useConfigURLStore } from '../../stores/configURL'
-import { POLL_INTERVAL_OPTIONS, CONFIG_i18n_LANGUAGES, type PlanetName } from '../../utilities/constants'
+import { POLL_INTERVAL_OPTIONS, CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
 import type { LogLevel } from '../../types/logger'
 import FooterStorageInfo from './FooterStorageInfo.vue'
 import FooterLogViewer from './FooterLogViewer.vue'
@@ -157,7 +157,7 @@ const { t } = useI18n()
 const appSettings = useAppSettingsStore()
 const configURL = useConfigURLStore()
 
-/** Language options - đồng nhất với PlaceholderMenuLeft (dùng CONFIG_i18n_LANGUAGES) */
+/** Language options - synced with PlaceholderMenuLeft (uses CONFIG_i18n_LANGUAGES) */
 const langOptions = CONFIG_i18n_LANGUAGES.map((lang) => ({
   label: lang.label,
   value: lang.lang

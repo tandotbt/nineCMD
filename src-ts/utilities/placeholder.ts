@@ -1,10 +1,10 @@
 /**
- * Placeholder Utilities – Stub cho các hàm JS cũ chưa được refactor
+ * Placeholder Utilities – Stubs for legacy JS functions not yet refactored
  *
- * Mục đích: Giữ chỗ (placeholder) cho các hàm liên quan URL `/planetarium/`
- * mà CHƯA được implement trong giai đoạn này. Khi nào cần dùng sẽ refactor sau.
+ * Purpose: Placeholder for functions related to `/planetarium/` URLs
+ * that have NOT been implemented in this phase. Will be refactored later.
  *
- * Các hàm này CHỈ trả về giá trị mặc định + log warning, KHÔNG fetch / parse.
+ * These functions only return default values + log warning, NO fetch / parse.
  *
  * Ref:
  * - src/utilities/getListDCCFromCacheOrFetch.js
@@ -23,13 +23,13 @@ const logger = createLogger({ module: 'placeholder' })
 // ============================================================
 
 /**
- * STUB – Lấy DCC ID từ avatar address.
+ * STUB – Get DCC ID from avatar address.
  *
- * Trong code cũ: fetch từ 9CMD API + cache localStorage.
- * Hiện tại: trả về 0 (placeholder).
+ * Legacy code: fetch from 9CMD API + localStorage cache.
+ * Currently: returns 0 (placeholder).
  *
- * @param _avatarAddress Avatar address (chưa dùng)
- * @returns DCC ID (luôn là 0)
+ * @param _avatarAddress Avatar address (unused)
+ * @returns DCC ID (always 0)
  */
 export function getListDCCFromCacheOrFetch(_avatarAddress: string): number {
   logger.warn('[placeholder] getListDCCFromCacheOrFetch – not implemented, returning 0')
@@ -41,13 +41,13 @@ export function getListDCCFromCacheOrFetch(_avatarAddress: string): number {
 // ============================================================
 
 /**
- * STUB – Lấy tên guild từ avatar address.
+ * STUB – Get guild name from avatar address.
  *
- * Trong code cũ: fetch từ Guild API qua 9CMD proxy + cache.
- * Hiện tại: trả về chuỗi rỗng (placeholder).
+ * Legacy code: fetch from Guild API via 9CMD proxy + cache.
+ * Currently: returns empty string (placeholder).
  *
- * @param _avatarAddress Avatar address (chưa dùng)
- * @returns Tên guild (luôn là '')
+ * @param _avatarAddress Avatar address (unused)
+ * @returns Guild name (always '')
  */
 export function getListGuildFromCacheOrFetch(_avatarAddress: string): string {
   logger.warn('[placeholder] getListGuildFromCacheOrFetch – not implemented, returning ""')
@@ -59,10 +59,10 @@ export function getListGuildFromCacheOrFetch(_avatarAddress: string): string {
 // ============================================================
 
 /**
- * STUB – Lấy portrait ID cho avatar.
+ * STUB – Get portrait ID for avatar.
  *
- * Trong code cũ: lookup trong dataPortraitId (merge arena) + fallback dataFromRest9cscan.
- * Hiện tại: trả về default 10200000.
+ * Legacy code: lookup in dataPortraitId (merge arena) + fallback dataFromRest9cscan.
+ * Currently: returns default 10200000.
  *
  * @returns Portrait ID mặc định (10200000)
  */
@@ -76,12 +76,12 @@ export function getPortraitId(): number {
 // ============================================================
 
 /**
- * STUB – Lấy danh sách equipment + rune từ 9cscan cho avatar.
+ * STUB – Get equipment + rune list from 9cscan for avatar.
  *
- * Trong code cũ: fetch từ 9cscan REST API.
- * Hiện tại: trả về mảng rỗng (placeholder).
+ * Legacy code: fetch from 9cscan REST API.
+ * Currently: returns empty array (placeholder).
  *
- * @returns Mảng rỗng (luôn là [])
+ * @returns Empty array (always [])
  */
 export async function getEquipmentsAndRuneFrom9cscan(): Promise<[]> {
   logger.warn('[placeholder] getEquipmentsAndRuneFrom9cscan – not implemented, returning []')
@@ -93,13 +93,13 @@ export async function getEquipmentsAndRuneFrom9cscan(): Promise<[]> {
 // ============================================================
 
 /**
- * STUB – Cache ảnh base64 từ URL (banner, item icon...).
+ * STUB – Cache base64 image from URL (banner, item icon...).
  *
- * Trong code cũ: dùng useFetch + useBase64 + sessionStorage.
- * Hiện tại: trả về URL gốc (không cache).
+ * Legacy code: used useFetch + useBase64 + sessionStorage.
+ * Currently: returns original URL (no caching).
  *
- * @param imageUrl URL ảnh gốc
- * @returns imageUrl (không transform)
+ * @param imageUrl Original image URL
+ * @returns imageUrl (no transform)
  */
 export function getImageBase64FromCacheOrFetch(imageUrl: string): string {
   logger.warn('[placeholder] getImageBase64FromCacheOrFetch – not implemented, returning URL as-is')

@@ -130,7 +130,7 @@ export const PLANET_CONFIGS: Record<PlanetName, PlanetConfig> = {
   thor: {
     id: 'thor',
     label: 'Thor',
-    mimirUrl: '', // thor không có mimir endpoint
+    mimirUrl: '', // thor has no mimir endpoint
     headlessGql: 'https://thor-rpc-1.nine-chronicles.com/graphql'
   }
 }
@@ -176,7 +176,7 @@ export const QUERY_GET_BLOCK_NOW = `{
 import type { CsvSheetName, CsvSheetMeta } from '../types/csvData'
 
 /**
- * Danh sách 9CMD API URLs – random hoặc chọn thủ công
+ * List of 9CMD API URLs – random or manually selected
  * Ref: src/utilities/constants.js LIST_API_NINECMD
  */
 export const LIST_API_NINECMD: string[] = [
@@ -192,10 +192,10 @@ export const LIST_API_NINECMD: string[] = [
 export const CSV_ENDPOINT_PATH = '/getGraphqlCSV'
 
 /**
- * Danh sách tất cả CSV sheets cần fetch, kèm metadata
- * - keyColumn: cột dùng làm key chính
- * - unique: nếu true → key không unique (dùng ${key}_${rowIndex})
- * - description: mô tả ngắn
+ * List of all CSV sheets to fetch, with metadata
+ * - keyColumn: column used as primary key
+ * - unique: if true → key is not unique (use ${key}_${rowIndex})
+ * - description: short description
  *
  * Ref:
  * - .REF/vue3-tool/src/components/initializeData.vue: graphQlSheetConfig
@@ -226,26 +226,26 @@ export const CSV_SHEET_CONFIG: Record<CsvSheetName, CsvSheetMeta> = {
 }
 
 // ============================================================
-// GitHub Constants (cho i18n CSV + Banner)
+// GitHub Constants (for i18n CSV + Banner)
 // Ref: src/utilities/constants.js V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles
 // ============================================================
 
-/** GitHub branch cho source code NineChronicles (item_name.csv, skill_name.csv) */
+/** GitHub branch for NineChronicles source code (item_name.csv, skill_name.csv) */
 export const V_GITHUB_NINECHRONICLES = 'development'
 
-/** Base URL raw GitHub cho NineChronicles source code */
+/** Base raw GitHub URL for NineChronicles source code */
 export const URL_GITHUB_NineChronicles =
   `https://raw.githubusercontent.com/planetarium/NineChronicles/${V_GITHUB_NINECHRONICLES}`
 
-/** Base URL raw GitHub cho NineChronicles.LiveAssets (banner, image...) */
+/** Base raw GitHub URL for NineChronicles.LiveAssets (banner, image...) */
 export const URL_GITHUB_LIVEASSETS =
   'https://raw.githubusercontent.com/planetarium/NineChronicles.LiveAssets/main'
 
-/** URL Event.json – danh sách banner */
+/** URL for Event.json – banner list */
 export const LINK_BANNER = `${URL_GITHUB_LIVEASSETS}/Assets/Json/Event-test.json`
 
 // ============================================================
-// Localized CSV (i18n names cho item + skill)
+// Localized CSV (i18n names for item + skill)
 // Ref: src/stores/configURL.js urlItemNameSheet, urlSkillNameSheet
 // ============================================================
 
@@ -257,21 +257,21 @@ export const LOCALIZED_CSV_PATHS: Record<LocalizedSheetName, string> = {
   SkillNameSheet: '/nekoyume/Assets/StreamingAssets/Localization/skill_name.csv'
 }
 
-/** Locale columns có trong localized CSV (theo thứ tự alphabet) */
+/** Locale columns in localized CSV (alphabetical order) */
 export const LOCALIZED_CSV_LOCALES = ['English', 'Vietnamese', 'Korean', 'Japanese'] as const
 
-/** Type guard: kiểm tra 1 string có phải locale column trong CSV không */
+/** Type guard: check if a string is a locale column in CSV */
 export function isLocalizedCsvLocale(locale: string): locale is typeof LOCALIZED_CSV_LOCALES[number] {
   return (LOCALIZED_CSV_LOCALES as readonly string[]).includes(locale)
 }
 
 /**
- * Map app locale (từ appSettings.lang) → tên cột trong CSV
+ * Map app locale (from appSettings.lang) → column name in CSV
  * - 'vi' → 'Vietnamese'
  * - 'en' → 'English'
  * - 'ko' → 'Korean'
  * - 'ja' → 'Japanese'
- * - locale khác → fallback 'English'
+ * - other locale → fallback 'English'
  */
 export const LOCALE_TO_CSV_COLUMN: Record<string, string> = {
   en: 'English',
@@ -280,19 +280,104 @@ export const LOCALE_TO_CSV_COLUMN: Record<string, string> = {
   ja: 'Japanese'
 }
 
-/** Key column cho ItemNameSheet và SkillNameSheet (case-insensitive) */
+/** Key column for ItemNameSheet and SkillNameSheet (case-insensitive) */
 export const LOCALIZED_CSV_KEY_COLUMN = 'Key'
 
 // ============================================================
-// RemoteCsv (CSV thứ 3 - không phụ thuộc planet, load 1 lần)
+// RemoteCsv (3rd CSV - planet-independent, loaded once)
 // Ref: NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv
 // ============================================================
 
-/** URL cho RemoteCsv - CSV chứa config từ xa */
+/** URL for RemoteCsv - remote config CSV */
 export const REMOTE_CSV_URL = `${URL_GITHUB_LIVEASSETS}/Assets/Csv/RemoteCsv.csv`
 
-/** Key column cho RemoteCsv (case-insensitive) */
+/** Key column for RemoteCsv (case-insensitive) */
 export const REMOTE_CSV_KEY_COLUMN = 'Key'
 
-/** Tất cả sheet names (lấy keys từ CSV_SHEET_CONFIG) */
+/** All sheet names (keys from CSV_SHEET_CONFIG) */
 export const ALL_CSV_SHEET_NAMES: CsvSheetName[] = Object.keys(CSV_SHEET_CONFIG) as CsvSheetName[]
+
+// ============================================================
+// Theme / UI Constants
+// ============================================================
+
+/** Naive UI responsive breakpoints */
+export const THEME_BREAKPOINTS = {
+  xs: 320,
+  s: 470,
+  m: 660,
+  l: 1280,
+  xl: 1536,
+  xxl: 1920
+} as const
+
+/** Theme overrides for light mode */
+export const LIGHT_THEME_OVERRIDES = {
+  Result: {
+    titleTextColor: 'rgba(203, 203, 33, 1)',
+    textColor: 'rgba(203, 203, 23, 1)'
+  },
+  LoadingBar: {
+    height: '4px'
+  }
+} as const
+
+/** Theme overrides for dark mode */
+export const DARK_THEME_OVERRIDES = {
+  Result: {
+    titleTextColor: 'rgba(60, 160, 0, 1)',
+    textColor: 'rgba(40, 140, 0, 1)'
+  },
+  LoadingBar: {
+    height: '4px'
+  }
+} as const
+
+// ============================================================
+// Layout Constants
+// ============================================================
+
+/** Header height (CSS) */
+export const HEADER_HEIGHT = '10vh'
+
+/** Footer height (CSS) */
+export const FOOTER_HEIGHT = '10vh'
+
+/** Sidebar collapsed width (px) */
+export const SIDEBAR_COLLAPSED_WIDTH = 0
+
+/** Sidebar expanded width (px) */
+export const SIDEBAR_EXPANDED_WIDTH = 300
+
+/** Drawer default size */
+export const DRAWER_SIZE = '70%'
+
+/** Drawer full size */
+export const DRAWER_SIZE_MAX = '100%'
+
+// ============================================================
+// localStorage Keys
+// ============================================================
+
+/** localStorage key for app settings */
+export const STORAGE_KEY_APP_SETTINGS = 'setting-nine-cmd'
+
+/** localStorage key for configURL endpoints */
+export const STORAGE_KEY_ENDPOINTS = 'configURL-endpoints'
+
+// ============================================================
+// API Defaults
+// ============================================================
+
+/** Default 9CMD API URL for local development */
+export const DEFAULT_API_URL = 'http://127.0.0.1:8000'
+
+// ============================================================
+// Login Prefill Keys (for arena lookup → login flow)
+// ============================================================
+
+/** localStorage key for login prefill agent address */
+export const LOGIN_PREFILL_AGENT = 'login-prefill-agent'
+
+/** localStorage key for login prefill avatar address */
+export const LOGIN_PREFILL_AVATAR = 'login-prefill-avatar'

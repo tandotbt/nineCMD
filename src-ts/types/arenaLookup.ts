@@ -1,10 +1,10 @@
 /**
- * arenaLookup Types – Type definitions cho Arena Leaderboard lookup feature
+ * arenaLookup Types – Type definitions for Arena Leaderboard lookup feature
  *
- * Bao gồm:
+ * Includes:
  * - arena.gql REST response types (seasons + leaderboard)
  * - Mimir GraphQL response types (agent + avatar)
- * - Internal types cho Pinia store arenaLookup
+ * - Internal types for Pinia store arenaLookup
  *
  * Ref:
  * - .REF/python-tool/constants.py link_planet() – arena.gql + mimir URLs
@@ -16,28 +16,28 @@
 // arena.gql REST response types
 // ============================================================
 
-/** Battle ticket policy trong season */
+/** Battle ticket policy in season */
 export interface ArenaBattleTicketPolicy {
   defaultTicketsPerRound: number
   maxPurchasableTicketsPerRound: number
   purchasePrices: Array<unknown>
 }
 
-/** Refresh ticket policy trong season */
+/** Refresh ticket policy in season */
 export interface ArenaRefreshTicketPolicy {
   defaultTicketsPerRound: number
   maxPurchasableTicketsPerRound: number
   purchasePrices: Array<unknown>
 }
 
-/** 1 round trong season */
+/** 1 round in season */
 export interface ArenaSeasonRound {
   id: number
   startBlockIndex: number
   endBlockIndex: number
 }
 
-/** 1 season từ arena.gql */
+/** 1 season from arena.gql */
 export interface ArenaSeason {
   id: number
   seasonGroupId: number
@@ -51,7 +51,7 @@ export interface ArenaSeason {
   refreshTicketPolicy: ArenaRefreshTicketPolicy
 }
 
-/** Response từ GET /seasons */
+/** Response from GET /seasons */
 export interface ArenaSeasonsResponse {
   pageNumber: number
   pageSize: number
@@ -60,7 +60,7 @@ export interface ArenaSeasonsResponse {
   seasons: ArenaSeason[]
 }
 
-/** 1 row trong leaderboard */
+/** 1 row in leaderboard */
 export interface ArenaLeaderboardRow {
   rank: number
   agentAddress: string
@@ -72,7 +72,7 @@ export interface ArenaLeaderboardRow {
   totalLose: number
 }
 
-/** Response từ GET /leaderboard/completed */
+/** Response from GET /leaderboard/completed */
 export interface ArenaLeaderboardResponse {
   leaderboard: ArenaLeaderboardRow[]
 }
@@ -82,9 +82,9 @@ export interface ArenaLeaderboardResponse {
 // ============================================================
 
 /**
- * 1 entry trong agent.avatarAddresses
+ * 1 entry in agent.avatarAddresses
  *
- * Lưu ý (sau khi verify response thực tế từ Mimir):
+ * Note (after verifying actual response from Mimir):
  * - `key` = **index** dạng number (0, 1, 2, ...)
  * - `value` = **address** dạng string (0x...)
  *
@@ -96,7 +96,7 @@ export interface AgentAvatarAddress {
   value: string
 }
 
-/** Response từ query GetAgent */
+/** Response from query GetAgent */
 export interface AgentInfo {
   address: string
   monsterCollectionRound: number
@@ -104,7 +104,7 @@ export interface AgentInfo {
   avatarAddresses: AgentAvatarAddress[]
 }
 
-/** Response từ query GetAvatar (cho 1 avatar) */
+/** Response from query GetAvatar (for 1 avatar) */
 export interface AvatarInfo {
   address: string
   agentAddress: string
@@ -115,12 +115,12 @@ export interface AvatarInfo {
 }
 
 // ============================================================
-// Internal types cho arenaLookup store
+// Internal types for arenaLookup store
 // ============================================================
 
 /**
- * Item hiển thị trong <n-select> (dùng chung cho cả leaderboard + agent lookup + avatar lookup)
- * Convention key giống bản JS cũ để không phải sửa <n-select> binding
+ * Item displayed in <n-select> (shared for leaderboard + agent lookup + avatar lookup)
+ * Key convention matches legacy JS to avoid <n-select> binding changes
  */
 export interface ArenaAvatarOption {
   avataraddress: string
@@ -131,11 +131,11 @@ export interface ArenaAvatarOption {
   totalWin?: number
   totalLose?: number
   characterId?: number | null
-  /** Nguồn của option - dùng để debug + filter */
+  /** Source of option - used for debug + filter */
   source: 'leaderboard' | 'agent-lookup' | 'avatar-lookup'
 }
 
-/** Cache entry cho leaderboard per planet */
+/** Cache entry for leaderboard per planet */
 export interface CachedLeaderboard {
   list: ArenaAvatarOption[]
   seasonId: number | null

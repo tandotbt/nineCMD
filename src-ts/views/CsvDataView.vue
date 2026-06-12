@@ -71,7 +71,7 @@
         />
       </template>
 
-      <!-- ====== BANNER SECTION (từ Event.json) ====== -->
+      <!-- ====== BANNER SECTION (from Event.json) ====== -->
       <n-card :title="t('csvData.bannerCardTitle')" size="small" style="margin-top: 16px">
         <n-space align="center" size="small" style="margin-bottom: 8px">
           <n-tag v-if="bannerStore.lastFetchTime" :bordered="false" type="info" size="small">
@@ -106,7 +106,7 @@
         </n-grid>
       </n-card>
 
-      <!-- ====== GLOBAL CSV SECTION (i18n + RemoteCsv - dùng chung 1 table) ====== -->
+      <!-- ====== GLOBAL CSV SECTION (i18n + RemoteCsv - shared table) ====== -->
       <n-card :title="t('csvData.globalCardTitle')" size="small" style="margin-top: 16px">
         <n-space align="center" size="small" style="margin-bottom: 8px" wrap>
           <n-text>{{ t('csvData.source') }}:</n-text>
@@ -183,7 +183,7 @@ import {
 import { useCsvDataStore } from '../stores/csvData'
 import { useGlobalCsvStore } from '../stores/globalCsv'
 import { useBannerStore } from '../stores/banner'
-import { ALL_CSV_SHEET_NAMES, CSV_SHEET_CONFIG } from '../utilities/constants'
+import { ALL_CSV_SHEET_NAMES, CSV_SHEET_CONFIG } from '@/utilities/constants'
 import type { CsvSheetName } from '../types/csvData'
 
 const { t } = useI18n()
@@ -199,7 +199,7 @@ function formatBannerTime(ts: number): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
 }
 
-// Auto-load khi mount (best-effort, không block UI nếu fail)
+// Auto-load on mount (best-effort, doesn't block UI on failure)
 onMounted(() => {
   if (!bannerStore.isLoaded && !bannerStore.isLoading) {
     bannerStore.loadBanners()
@@ -210,10 +210,10 @@ onMounted(() => {
 })
 
 // ============================================================
-// Global CSV Section (ItemName + SkillName + RemoteCsv - dùng chung 1 table)
+// Global CSV Section (ItemName + SkillName + RemoteCsv - shared table)
 // ============================================================
 
-/** 3 nguồn global CSV: ItemName (i18n tên vật phẩm), SkillName (i18n tên skill), RemoteCsv (config từ xa) */
+/** 3 global CSV sources: ItemName (i18n item names), SkillName (i18n skill names), RemoteCsv (remote config) */
 type GlobalSource = 'ItemNameSheet' | 'SkillNameSheet' | 'RemoteCsv'
 
 /** Selected source trong Global CSV section */
@@ -226,7 +226,7 @@ const globalSourceOptions = computed(() => [
   { label: t('csvData.options.remoteCsv'), value: 'RemoteCsv' as const }
 ])
 
-/** Tất cả rows cho source hiện tại (không slice – pagination lo phần hiển thị) */
+/** All rows for current source (no slice – pagination handles display) */
 const globalSourceAllRows = computed<Record<string, unknown>[]>(() => {
   let sheet: Record<string | number, unknown> = {}
   if (globalSource.value === 'ItemNameSheet') {
@@ -240,14 +240,14 @@ const globalSourceAllRows = computed<Record<string, unknown>[]>(() => {
   return Object.values(sheet) as Record<string, unknown>[]
 })
 
-/** Row count cho source hiện tại (full, không slice) */
+/** Row count for current source (full, no slice) */
 const globalSourceRowCount = computed<number>(() => {
   if (globalSource.value === 'ItemNameSheet') return globalCsvStore.itemNameCount
   if (globalSource.value === 'SkillNameSheet') return globalCsvStore.skillNameCount
   return globalCsvStore.remoteCsvCount
 })
 
-/** Error message cho source hiện tại (nếu có) */
+/** Error message for current source (if any) */
 const currentGlobalSourceError = computed<string | null>(() => {
   if (globalSource.value === 'RemoteCsv') {
     return globalCsvStore.sourceErrors.remote
@@ -256,7 +256,7 @@ const currentGlobalSourceError = computed<string | null>(() => {
   return globalCsvStore.sourceErrors.localized
 })
 
-/** Paged rows cho table (slice từ all rows) */
+/** Paged rows for table (sliced from all rows) */
 const globalSourcePagedRows = computed(() => {
   const start = (globalCurrentPage.value - 1) * globalCurrentPageSize.value
   const end = start + globalCurrentPageSize.value
@@ -266,7 +266,7 @@ const globalSourcePagedRows = computed(() => {
   }))
 })
 
-/** Columns cho table (dynamic từ first row keys) */
+/** Columns for table (dynamic from first row keys) */
 const globalSourceColumns = computed<DataTableColumns>(() => {
   if (globalSourceAllRows.value.length === 0) return []
   const first = globalSourceAllRows.value[0]
@@ -300,7 +300,7 @@ const selectedSheet = ref<CsvSheetName>(ALL_CSV_SHEET_NAMES[0])
 const mainCurrentPage = ref(1)
 const mainCurrentPageSize = ref(20)
 
-/** Pagination state - global CSV table (tách riêng để không ảnh hưởng nhau) */
+/** Pagination state - global CSV table (separate to avoid interference) */
 const globalCurrentPage = ref(1)
 const globalCurrentPageSize = ref(20)
 
@@ -337,14 +337,14 @@ const tableData = computed(() => {
 /** Strongly-typed row-key getter matching naive-ui's `CreateRowKey` signature
  *  (`RowKey` is not re-exported from the package's main entry, so we use its
  *  structural equivalent: `string | number`.)
- *  Tách thành named function (không inline arrow) để tránh IDE warning
+ *  Extracted as named function (not inline arrow) to avoid IDE warning
  *  "Filters are deprecated" do Volar cache cũ cho CreateRowKey inline. */
 const rowKeyGetter = (row: Record<string, unknown>): string | number => {
   const idx = row._idx
   return typeof idx === 'number' ? idx : String(idx ?? '')
 }
 
-/** Row-key getter cho Global CSV table (cùng signature với rowKeyGetter) */
+/** Row-key getter for Global CSV table (same signature as rowKeyGetter) */
 const globalRowKeyGetter = (row: Record<string, unknown>): string | number => {
   const idx = row._idx
   return typeof idx === 'number' ? idx : String(idx ?? '')
@@ -378,6 +378,6 @@ watch(globalCurrentPageSize, () => { globalCurrentPage.value = 1 })
 
 /** Reset to page 1 when planet changes (data refreshes) */
 watch(() => csvData.fetchPlanet, () => { mainCurrentPage.value = 1 })
-/** Reset to page 1 when Global CSV data reloads (reset GLOBAL table, không phải main) */
+/** Reset to page 1 when Global CSV data reloads (reset GLOBAL table, not main) */
 watch(() => globalCsvStore.isLoaded, () => { globalCurrentPage.value = 1 })
 </script>

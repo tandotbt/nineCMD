@@ -1,12 +1,12 @@
 /**
- * Logger Utility – Hệ thống logging thống nhất cho NineCMD
+ * Logger Utility – Unified logging system for NineCMD
  *
- * Thay thế console.log/warn/error trực tiếp bằng logger có cấu trúc.
+ * Replaces direct console.log/warn/error with structured logger.
  *
- * Tính năng:
+ * Features:
  * - Module prefix: [appSettings], [configURL], [blockPolling], ...
  * - Log level filtering: debug < info < warn < error
- * - Log history lưu trong ref (max 200 entries) – hiển thị trong Settings tab
+ * - Log history stored in ref (max 200 entries) – displayed in Settings tab
  * - Format: [HH:MM:SS] [module] LEVEL: message
  * - Dev mode: all levels; Prod mode: warn + error only
  *

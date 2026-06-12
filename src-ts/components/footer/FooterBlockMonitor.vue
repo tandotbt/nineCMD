@@ -106,7 +106,7 @@ import {
 import { useBlockPollingStore } from '../../stores/blockPolling'
 import { useAppSettingsStore } from '../../stores/appSettings'
 import { useConfigURLStore } from '../../stores/configURL'
-import { PLANET_OPTIONS, POLL_INTERVAL_OPTIONS, type PlanetName } from '../../utilities/constants'
+import { PLANET_OPTIONS, POLL_INTERVAL_OPTIONS, type PlanetName } from '@/utilities/constants'
 
 const { t } = useI18n()
 

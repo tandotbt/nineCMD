@@ -16,7 +16,7 @@
 
     <n-global-style />
 
-    <!-- First Loading Overlay – hiện khi dữ liệu URL planet chưa load -->
+    <!-- First Loading Overlay – shown when planet URL data hasn't loaded yet -->
     <FirstLoadingOverlay />
   </n-config-provider>
 </template>
@@ -38,46 +38,28 @@ import {
   NGlobalStyle
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
+import {
+  CONFIG_i18n_LANGUAGES,
+  THEME_BREAKPOINTS,
+  LIGHT_THEME_OVERRIDES,
+  DARK_THEME_OVERRIDES
+} from '@/utilities/constants'
 import { useAppSettingsStore } from './stores/appSettings'
 import FirstLoadingOverlay from './views/FirstLoadingPage.vue'
 
 const { locale } = useI18n()
 const appSettings = useAppSettingsStore()
 
-const themeBreakpoints = {
-  xs: 320,
-  s: 470,
-  m: 660,
-  l: 1280,
-  xl: 1536,
-  xxl: 1920
-}
+const themeBreakpoints = THEME_BREAKPOINTS
 
 const theme = ref<GlobalTheme | null>(null)
 const themeOverrides = ref<GlobalThemeOverrides | null>(null)
 const uiConfig = ref<NLocale | null>(null)
 const uiConfigDate = ref<NDateLocale | null>(null)
 
-const lightThemeOverrides: GlobalThemeOverrides = {
-  Result: {
-    titleTextColor: 'rgba(203, 203, 33, 1)',
-    textColor: 'rgba(203, 203, 23, 1)'
-  },
-  LoadingBar: {
-    height: '4px'
-  }
-}
+const lightThemeOverrides: GlobalThemeOverrides = LIGHT_THEME_OVERRIDES as unknown as GlobalThemeOverrides
 
-const darkThemeOverrides: GlobalThemeOverrides = {
-  Result: {
-    titleTextColor: 'rgba(60, 160, 0, 1)',
-    textColor: 'rgba(40, 140, 0, 1)'
-  },
-  LoadingBar: {
-    height: '4px'
-  }
-}
+const darkThemeOverrides: GlobalThemeOverrides = DARK_THEME_OVERRIDES as unknown as GlobalThemeOverrides
 
 function applyTheme(isDark: boolean): void {
   theme.value = isDark ? darkTheme : null
@@ -85,17 +67,17 @@ function applyTheme(isDark: boolean): void {
 }
 
 /**
- * Apply language cho toàn bộ app:
- * 1. Cập nhật uiConfig + uiConfigDate cho n-config-provider (naive-ui NLocale + NDateLocale)
- * 2. Cập nhật vue-i18n locale
+ * Apply language for the entire app:
+ * 1. Update uiConfig + uiConfigDate for n-config-provider (naive-ui NLocale + NDateLocale)
+ * 2. Update vue-i18n locale
  *
- * Pattern tham khảo từ bản JS (src/App.vue - changeLang):
- * - Trước tiên tìm config trong CONFIG_i18n_LANGUAGES (lang, uiConfig, uiConfigDate)
- * - Fallback về enUS + dateEnUS nếu không tìm thấy
- * - Set cả uiConfig/uiConfigDate lẫn vue-i18n locale cùng lúc
+ * Pattern reference from JS version (src/App.vue - changeLang):
+ * - First find config in CONFIG_i18n_LANGUAGES (lang, uiConfig, uiConfigDate)
+ * - Fallback to enUS + dateEnUS if not found
+ * - Set both uiConfig/uiConfigDate and vue-i18n locale simultaneously
  *
- * Khi user đổi ngôn ngữ ở FooterSettings hoặc PlaceholderMenuLeft
- * → appSettings.setLang() → watcher bên dưới trigger → applyLang() → UI update đồng nhất
+ * When user changes language in FooterSettings or PlaceholderMenuLeft
+ * → appSettings.setLang() → watcher below triggers → applyLang() → UI updates in sync
  */
 function applyLang(selectedLang: string): void {
   const langConfig = CONFIG_i18n_LANGUAGES.find((item) => item.lang === selectedLang)
@@ -103,15 +85,15 @@ function applyLang(selectedLang: string): void {
     uiConfig.value = langConfig.uiConfig
     uiConfigDate.value = langConfig.uiConfigDate
   } else {
-    // Fallback: English (giống pattern bản JS)
+    // Fallback: English (same pattern as JS version)
     uiConfig.value = enUS
     uiConfigDate.value = dateEnUS
   }
-  // Cập nhật vue-i18n locale (cùng lúc với naive-ui)
+  // Update vue-i18n locale (simultaneous with naive-ui)
   locale.value = selectedLang
 }
 
-// Provide theme toggle + lang change to child components (backward compat với bản JS)
+// Provide theme toggle + lang change to child components (backward compat with JS version)
 provide('toggleTheme', (isDark: boolean) => appSettings.setDarkMode(isDark))
 provide('changeLang', (lang: string) => appSettings.setLang(lang))
 
@@ -122,7 +104,7 @@ watch(
   { immediate: true }
 )
 
-// Watch language changes from store (key watcher để i18n đồng nhất)
+// Watch language changes from store (key watcher for i18n sync)
 watch(
   () => appSettings.lang,
   (lang) => applyLang(lang),

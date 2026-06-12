@@ -57,7 +57,7 @@
           />
         </n-form-item>
 
-        <!-- ====== HELPER TEXT (nguồn leaderboard) ====== -->
+        <!-- ====== HELPER TEXT (leaderboard source) ====== -->
         <n-text
           v-if="showLeaderboardHint"
           :depth="3"
@@ -114,6 +114,7 @@ import {
   type FormRules
 } from 'naive-ui'
 import { useArenaLookupStore } from '../stores/arenaLookup'
+import { LOGIN_PREFILL_AGENT, LOGIN_PREFILL_AVATAR } from '@/utilities/constants'
 import type { ArenaAvatarOption } from '../types/arenaLookup'
 
 const { t } = useI18n()
@@ -135,9 +136,9 @@ const formValue = ref<{
 })
 
 // ============================================================
-// Options cho <n-select>
-// Ưu tiên: agentLookupOptions nếu đã lookup agent
-// Ngược lại: leaderboardOptions
+// Options for <n-select>
+// Priority: agentLookupOptions if agent has been looked up
+// Otherwise: leaderboardOptions
 // ============================================================
 const selectOptions = computed<SelectOption[]>(() => {
   const options =
@@ -216,28 +217,28 @@ const formRules = computed<FormRules>(() => ({
 }))
 
 // ============================================================
-// Khi user rời khỏi ô agent → gọi lookupAgent
+// When user leaves agent field → call lookupAgent
 // ============================================================
 async function onAgentBlur(): Promise<void> {
   const addr = formValue.value.agentAddress.trim()
   if (!addr) {
-    // Nếu rỗng → reset manual lookup để selectOptions quay về leaderboard
+    // If empty → reset manual lookup so selectOptions revert to leaderboard
     arenaLookup.resetManualLookup()
     return
   }
-  if (!arenaLookup.isValidAddressFormat(addr)) return // validator sẽ show lỗi
+  if (!arenaLookup.isValidAddressFormat(addr)) return // validator will show error
 
   await arenaLookup.lookupAgent(addr)
-  // Auto-select avatar đầu tiên nếu có
+  // Auto-select first avatar if available
   if (arenaLookup.lookedUpAvatars.length > 0) {
     formValue.value.avatarAddress = arenaLookup.lookedUpAvatars[0].address
   }
 }
 
 /**
- * Khi user click nút clear (×) của ô agent:
+ * When user clicks clear (×) button on agent field:
  * - Reset manual lookup state
- * - Reset avatarAddress để user chọn cách nhập liệu khác (leaderboard hoặc nhập tay)
+ * - Reset avatarAddress so user can choose another input method (leaderboard or manual)
  */
 function onAgentClear(): void {
   arenaLookup.resetManualLookup()
@@ -245,8 +246,8 @@ function onAgentClear(): void {
 }
 
 /**
- * Khi user click nút clear (×) của ô avatar:
- * - Reset avatarAddress thành rỗng
+ * When user clicks clear (×) button on avatar field:
+ * - Reset avatarAddress to empty
  * - Reset manual lookup
  */
 function onAvatarClear(): void {
@@ -255,24 +256,24 @@ function onAvatarClear(): void {
 }
 
 /**
- * Khi user rời khỏi ô avatar:
- * - Nếu value là 0x+40hex hợp lệ VÀ chưa có trong options hiện tại
- *   → gọi lookupAvatar để query ngược lấy agentAddress
+ * When user leaves avatar field:
+ * - If value is valid 0x+40hex AND not already in current options
+ *   → call lookupAvatar to reverse-query agentAddress
  *   → auto-fill formValue.agentAddress
- * - Nếu value rỗng hoặc đã có trong options → bỏ qua (không gọi API)
+ * - If value is empty or already in options → skip (don't call API)
  */
 async function onAvatarBlur(): Promise<void> {
   const addr = (formValue.value.avatarAddress || '').trim()
   if (!addr) return
   // Validate format 0x + 40 hex
-  if (!arenaLookup.isValidAddressFormat(addr)) return // validator sẽ show lỗi
-  // Nếu đã có trong options (đã chọn từ select) → bỏ qua
+  if (!arenaLookup.isValidAddressFormat(addr)) return // validator will show error
+  // If already in options (selected from select) → skip
   const isInOptions = selectOptions.value.some(
     (opt) => (opt as unknown as ArenaAvatarOption).avataraddress === addr
   )
   if (isInOptions) return
 
-  // Query ngược lấy agentAddress
+  // Reverse-query to get agentAddress
   const avatarInfo = await arenaLookup.lookupAvatar(addr)
   if (avatarInfo) {
     formValue.value.agentAddress = avatarInfo.agentAddress
@@ -280,14 +281,14 @@ async function onAvatarBlur(): Promise<void> {
 }
 
 /**
- * Khi user chọn avatar từ dropdown (leaderboard hoặc agent lookup):
- * - Nếu option có agentAddress (leaderboardOptions luôn có) → auto-fill agentAddress
- * - Reset searchQuery để clear ô tìm kiếm
+ * When user selects avatar from dropdown (leaderboard or agent lookup):
+ * - If option has agentAddress (leaderboardOptions always have) → auto-fill agentAddress
+ * - Reset searchQuery to clear search field
  */
 function onAvatarSelect(value: string): void {
   if (!value) return
   
-  // Tìm option được chọn
+  // Find the selected option
   const selectedOption = selectOptions.value.find(
     (opt) => (opt as unknown as ArenaAvatarOption).avataraddress === value
   ) as unknown as ArenaAvatarOption | undefined
@@ -296,7 +297,7 @@ function onAvatarSelect(value: string): void {
     formValue.value.agentAddress = selectedOption.agentAddress
   }
   
-  // Reset search query để clear ô tìm kiếm
+  // Reset search query to clear search field
   arenaLookup.searchQuery = ''
 }
 
@@ -308,19 +309,19 @@ async function onSubmit(): Promise<void> {
   try {
     await formRef.value.validate()
   } catch {
-    return // validation errors đã được Naive UI show
+    return // validation errors already shown by Naive UI
   }
 
   isSubmitting.value = true
   try {
-    // TODO: gọi action login thực tế (kết nối blockchain, ...)
+    // TODO: call actual login action (blockchain connection, ...)
   } finally {
     isSubmitting.value = false
   }
 }
 
 // ============================================================
-// Navigate tới trang Arena Lookup
+// Navigate to Arena Lookup page
 // ============================================================
 function goToLookup(): void {
   router.push({ name: 'arena-lookup' })
@@ -330,7 +331,7 @@ function goToLookup(): void {
 // Lifecycle
 // ============================================================
 
-// Khi planet đổi → reset form
+// When planet changes → reset form
 watch(
   () => arenaLookup.selectedPlanet,
   () => {
@@ -340,16 +341,16 @@ watch(
   }
 )
 
-// Đọc prefill từ localStorage (khi user click "Dùng để đăng nhập" ở ArenaLookupPage)
+// Read prefill from localStorage (when user clicks "Use for Login" in ArenaLookupPage)
 onMounted(() => {
   try {
-    const prefillAgent = localStorage.getItem('login-prefill-agent')
-    const prefillAvatar = localStorage.getItem('login-prefill-avatar')
+    const prefillAgent = localStorage.getItem(LOGIN_PREFILL_AGENT)
+    const prefillAvatar = localStorage.getItem(LOGIN_PREFILL_AVATAR)
     if (prefillAgent) formValue.value.agentAddress = prefillAgent
     if (prefillAvatar) formValue.value.avatarAddress = prefillAvatar
-    // Xóa sau khi dùng
-    localStorage.removeItem('login-prefill-agent')
-    localStorage.removeItem('login-prefill-avatar')
+    // Clear after use
+    localStorage.removeItem(LOGIN_PREFILL_AGENT)
+    localStorage.removeItem(LOGIN_PREFILL_AVATAR)
   } catch {
     // ignore
   }

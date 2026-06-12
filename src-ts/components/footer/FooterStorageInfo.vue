@@ -4,11 +4,11 @@
 
     <n-space vertical :size="4">
       <n-space justify="space-between">
-        <n-text depth="3" style="font-size: 12px">setting-nine-cmd</n-text>
+        <n-text depth="3" style="font-size: 12px">{{ STORAGE_KEY_APP_SETTINGS }}</n-text>
         <n-text depth="3" style="font-size: 12px">{{ settingSize }}</n-text>
       </n-space>
       <n-space justify="space-between">
-        <n-text depth="3" style="font-size: 12px">configURL-endpoints</n-text>
+        <n-text depth="3" style="font-size: 12px">{{ STORAGE_KEY_ENDPOINTS }}</n-text>
         <n-text depth="3" style="font-size: 12px">{{ endpointSize }}</n-text>
       </n-space>
       <n-space justify="space-between">
@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { STORAGE_KEY_APP_SETTINGS, STORAGE_KEY_ENDPOINTS } from '@/utilities/constants'
 import {
   NSpace,
   NText,
@@ -62,8 +63,8 @@ function formatBytes(bytes: number): string {
 
 function calculateSizes(): void {
   try {
-    const settingRaw = localStorage.getItem('setting-nine-cmd') || ''
-    const endpointRaw = localStorage.getItem('configURL-endpoints') || ''
+    const settingRaw = localStorage.getItem(STORAGE_KEY_APP_SETTINGS) || ''
+    const endpointRaw = localStorage.getItem(STORAGE_KEY_ENDPOINTS) || ''
 
     settingSize.value = formatBytes(new Blob([settingRaw]).size)
     endpointSize.value = formatBytes(new Blob([endpointRaw]).size)
@@ -84,8 +85,8 @@ function calculateSizes(): void {
 }
 
 function clearAllSettings(): void {
-  localStorage.removeItem('setting-nine-cmd')
-  localStorage.removeItem('configURL-endpoints')
+  localStorage.removeItem(STORAGE_KEY_APP_SETTINGS)
+  localStorage.removeItem(STORAGE_KEY_ENDPOINTS)
   calculateSizes()
   // Reload to reset all stores
   window.location.reload()

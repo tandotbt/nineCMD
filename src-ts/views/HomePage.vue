@@ -1,6 +1,6 @@
 <template>
   <div class="home-page-container">
-    <!-- ====== BANNER CAROUSEL (góc trên phải, cố định, giống bản JS) ====== -->
+    <!-- ====== BANNER CAROUSEL (top-right corner, fixed, same as JS version) ====== -->
     <n-grid
       v-if="bannerStore.hasBanners"
       class="liveAssets-carousel"
@@ -28,7 +28,7 @@
       </n-grid-item>
     </n-grid>
 
-    <!-- ====== HOME CARD (nội dung chính) ====== -->
+    <!-- ====== HOME CARD (main content) ====== -->
     <n-space vertical align="center" style="padding: 40px 20px">
       <n-card :title="t('page.home')" style="max-width: 500px; width: 100%">
         <n-text depth="3">
@@ -70,7 +70,7 @@ const bannerStore = useBannerStore()
   min-height: 100%;
 }
 
-/* Banner góc trên phải, cố định, giống bản JS gốc */
+/* Banner top-right corner, fixed, same as original JS version */
 .liveAssets-carousel {
   position: absolute;
   top: 0;
