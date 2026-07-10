@@ -326,7 +326,7 @@ function goHome(): void {
 }
 
 /**
- * Retry chỉ planet data
+ * Retry planet data only
  */
 async function handleRetryPlanet(): Promise<void> {
   clearCountdownTimer()

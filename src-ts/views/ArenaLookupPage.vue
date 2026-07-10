@@ -55,6 +55,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { NButton, type DataTableColumns } from 'naive-ui'
 import { useArenaLookupStore } from '../stores/arenaLookup'
+import { LOGIN_PREFILL_AGENT, LOGIN_PREFILL_AVATAR } from '@/utilities/constants'
 import type { ArenaAvatarOption } from '../types/arenaLookup'
 
 const { t } = useI18n()

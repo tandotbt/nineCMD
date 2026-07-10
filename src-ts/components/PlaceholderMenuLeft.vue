@@ -56,6 +56,8 @@ import {
 // aggregated barrel; importing the subpath directly guarantees resolution.
 import TableChartRound from '@vicons/material/es/TableChartRound.js'
 const CsvIcon = TableChartRound
+import PersonSearchRound from '@vicons/material/es/PersonSearchRound.js'
+const AvatarDataIcon = PersonSearchRound
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppSettingsStore } from '../stores/appSettings'
@@ -124,6 +126,16 @@ const menuOptions = [
       ),
     key: 'csv-data',
     icon: renderIcon(CsvIcon)
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        { to: { name: 'avatar-data' } },
+        { default: () => 'Avatar Data' }
+      ),
+    key: 'avatar-data',
+    icon: renderIcon(AvatarDataIcon)
   }
 ]
 
@@ -180,7 +192,8 @@ const renderLabel = (option: SelectOption) => {
 const routeToMenuKey: Record<string, string> = {
   'home': 'home',
   'login': 'login',
-  'csv-data': 'csv-data'
+  'csv-data': 'csv-data',
+  'avatar-data': 'avatar-data'
 }
 
 // Sync selectedKey with current route

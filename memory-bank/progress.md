@@ -11,9 +11,11 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 - **Giai đoạn 2d - Logger System + Settings Tab + Code Refactor**: ✅ Hoàn thành
 - **Giai đoạn 2e - CSV Data Processing + Per-Planet Caching**: ✅ Hoàn thành
 - **Giai đoạn 2f - Codebase Cleanup**: ✅ Hoàn thành
-  - All Vietnamese comments translated to English
-  - Hard-coded values moved to constants.ts
-  - Dead code removed (unused types, commented imports, empty hooks)
+- **Giai đoạn 2g - i18n CSV + Banner Global Refactor**: ✅ Hoàn thành
+- **Giai đoạn 2h - Pagination naive-ui + App.vue i18n Đồng Nhất**: ✅ Hoàn thành
+- **Giai đoạn 2i - Code Review + Cleanup Rác (sau refactor)**: ✅ Hoàn thành
+- **Giai đoạn 2j - Arena Lookup Feature + Cleanup Rác (v2)**: ✅ Hoàn thành
+- **Giai đoạn 2k - Avatar Data Display Feature**: ✅ Hoàn thành
 - **Giai đoạn 3**: Chuyển stores JS → TypeScript (10 stores)
 - **Giai đoạn 4**: Chuyển utilities JS → TypeScript (15+ files)
 - **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/
@@ -89,72 +91,6 @@ Chuyển đổi giao diện từ JavaScript sang TypeScript, chạy song song v�
 - [x] [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json) - + switchingPlanet, planetErrorTitle, csvErrorTitle, planetLoadedTitle, csvLoadedTitle
 - [x] Tests: csvParser (23) + csvFetcher (8) + csvData (23, including caching)
 
-### Tests: 187+ Tests ✅
-| Test File | Tests | Status |
-|-----------|-------|--------|
-| i18n.test.ts | 19 | ✅ |
-| darkMode.test.ts | 19 | ✅ |
-| router.test.ts | 13 | ✅ |
-| appSettings.test.ts | 30 | ✅ |
-| blockPolling.test.ts | 26 | ✅ |
-| configURL.test.ts | 36 | ✅ |
-| logger.test.ts | 21 | ✅ |
-| csvParser.test.ts | 23 | ✅ |
-| csvFetcher.test.ts | 8 | ✅ |
-| csvData.test.ts | 23 | ✅ |
-| **Total** | **218** | **✅** |
-
-### Known Issues
-- ✅ Tất cả lỗi vue-tsc đã được sửa (0 errors verified bằng `npx vue-tsc --noEmit`)
-- ✅ ĐÃ SỬA: PlaceholderMenuLeft renderTag type, TableChartRound subpath import, CsvDataView row-key getter, App.vue locale/dateLocale type, FooterNodeManager align/justify
-- 🔶 `@ts-expect-error` vẫn cần cho naive-ui NDataTable/NEmpty/NAlert imports dưới bundler moduleResolution
-
-### Phase 2f: Type Cleanup 5 lỗi vue-tsc còn lại ✅
-- [x] [`App.vue`](src-ts/App.vue) - Import `type NLocale, type NDateLocale` từ `naive-ui`, đổi `uiConfig: ref<NLocale | null>(null)` và `uiConfigDate: ref<NDateLocale | null>(null)`. Bỏ cast `as unknown as Record<string, unknown>` ở `applyLang()`, thay bằng `as NLocale` / `as NDateLocale` (không cần `unknown` vì type khớp).
-- [x] [`components/footer/FooterNodeManager.vue`](src-ts/components/footer/FooterNodeManager.vue) - Đổi `<n-space justify="baseline">` thành `<n-space align="baseline">` vì `baseline` không hợp lệ với `justify` (chỉ có trong `align` của n-space).
-- [x] `npx vue-tsc --noEmit` → 0 errors
-
-## File Structure
-```
-src-ts/
-├ main.ts + App.vue (entry + FirstLoadingOverlay + watch store theme/lang)
-├ router/index.ts (4 routes, / is home, /csv-data)
-├ layouts/MainLayout.vue
-├ stores/
-│  ├── appSettings.ts (dark mode, planet, language, poll interval, isPolling, logLevel + logger)
-│  ├── blockPolling.ts (GraphQL block polling + auto-start watch + logger)
-│  ├── configURL.ts (fetch planet data, dynamic RPC endpoints + logger)
-│  ├── csvData.ts (CSV data fetch/parse + per-planet cache + planet change watcher)
-│  ├── globalCsv.ts (NEW: 3 nguồn global i18n+RemoteCsv, Promise.allSettled)
-│  └── banner.ts (NEW: Global banner từ Event.json, clickable)
-├ components/
-│  ├── Placeholder{Header,MenuLeft,Footer,FloatButton}.vue
-│  ├── header/{HeaderAvatar,HeaderProgress,HeaderBanner}.vue
-│  └── footer/
-│     ├── FooterInfoBlock.vue
-│     ├── FooterNodeManager.vue (drawer + 4 tabs, 90 lines)
-│     ├── FooterBlockMonitor.vue (Tab 1)
-│     ├── FooterSettings.vue (Tab 2: 6 sections, langOptions dùng CONFIG_i18n_LANGUAGES)
-│     ├── FooterEndpoints.vue (Tab 3)
-│     ├── FooterActions.vue (Tab 4)
-│     ├── FooterStorageInfo.vue (storage info)
-│     └── FooterLogViewer.vue (log viewer)
-├ views/ (FirstLoadingPage +bước 3, CsvDataView refactor dùng chung table, HomePage +Banner góc trên phải, LoginPage i18n, NotFoundPage)
-├ types/ (csvData.ts, i18nCsv.ts, logger.ts, ui.d.ts, header.ts, footer.ts)
-├ i18n/ (+ csvData.*, login.* keys)
-├ utilities/ (constants.ts, csvParser.ts, csvFetcher.ts +fetchGitHubCsv, nameService.ts, bannerService.ts, placeholder.ts, logger.ts)
-└ __tests__/ (250+ tests, 11 files)
-```
-
-## npm Scripts
-| Command | Mô tả |
-|---------|-------|
-| `npm run dev` | JS version (port 1414) |
-| `npm run dev:ts` | TS version (port 1415) |
-| `npm run build:ts` | Build TS version |
-| `npm run test` | Vitest (250+ tests) |
-| `npm run check:ts` | Vue-TSC type check |
-
 ### Phase 2f: i18n CSV + Banner Global Refactor + Đồng Nhất UI ✅
 - [x] [`types/i18nCsv.ts`](src-ts/types/i18nCsv.ts) - LocalizedSheetName, LocalizedNameRow, LocalizedSheetData, BannerItem (Url, Priority), RemoteCsvRow, RemoteCsvData
 - [x] [`utilities/constants.ts`](src-ts/utilities/constants.ts) - + V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles, URL_GITHUB_LIVEASSETS, LINK_BANNER, LOCALIZED_CSV_PATHS, LOCALIZED_CSV_KEY_COLUMN, LOCALIZED_CSV_LOCALES, LOCALE_TO_CSV_COLUMN, REMOTE_CSV_URL, REMOTE_CSV_KEY_COLUMN
@@ -170,61 +106,204 @@ src-ts/
 - [x] [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - i18n Agent Address, Password, button, placeholder
 - [x] **Đồng nhất** FooterSettings + PlaceholderMenuLeft: bind trực tiếp appSettings (Pinia reactive), bỏ local ref + watch sync. langOptions dùng CONFIG_i18n_LANGUAGES
 - [x] **Xóa**: stores/i18nCsv.ts + __tests__/i18nCsv.test.ts (replaced by stores/globalCsv.ts + __tests__/globalCsv.test.ts)
-- [x] [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json) - + csvData.* (title, bannerCardTitle, globalCardTitle, source, locale, rows, loadFailed, loading, error, notLoaded, noDataFor, options), + login.* (agentAddress, password, submit, placeholderNote)
+- [x] [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json) - + csvData.*, + login.*
 - [x] Tests: globalCsv (50+ tests) + banner (23 tests, verified global)
 
 ### Phase 2g: Pagination naive-ui + App.vue i18n Đồng Nhất ✅
-- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Replace pagination tự triển khai (Prev/Next/PageSize + n-text) → `<n-pagination>` của naive-ui với `v-model:page` + `v-model:page-size` + `:item-count` + `:page-sizes` + `show-size-picker`. Tách pagination state riêng cho 2 table: `mainCurrentPage`/`mainCurrentPageSize` (CSV chính 21 sheets) và `globalCurrentPage`/`globalCurrentPageSize` (Global CSV i18n/RemoteCsv) - không xung đột khi user chuyển source. Cleanup `totalPages`.
-- [x] [`App.vue`](src-ts/App.vue) - n-config-provider i18n đồng nhất: thêm import `enUS, dateEnUS, viVN, dateViVN` (cho fallback), bỏ cast `as NLocale`/`as NDateLocale` (type của `langConfig.uiConfig` đã khớp), thêm fallback `enUS + dateEnUS` nếu `selectedLang` không có trong `CONFIG_i18n_LANGUAGES` (giống pattern JS). JSDoc giải thích flow đồng bộ: FooterSettings/MenuLeft → `appSettings.setLang()` → watcher → `applyLang()` → naive-ui + vue-i18n cập nhật cùng lúc.
-- [x] Tests: 250+ pass, 0 errors vue-tsc (không cần thêm test mới vì pagination component của naive-ui, App.vue chỉ là wrapper)
+- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Replace pagination tự triển khai → `<n-pagination>` của naive-ui
+- [x] [`App.vue`](src-ts/App.vue) - n-config-provider i18n đồng nhất
 
 ### Phase 2h: Code Review + Cleanup Rác (sau refactor i18nCsv + Banner) ✅
-Đã rà soát diff toàn bộ session refactor (12 files modified + 9 untracked) và phát hiện/sửa 5 vấn đề:
+- [x] [`App.vue`](src-ts/App.vue) - Bỏ import thừa `viVN, dateViVN`
+- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Bỏ import thừa `useAppSettingsStore`
+- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Fix bug pagination Global CSV: bỏ `.slice(0, 100)`
+- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - Fix bug watch sai table (globalCurrentPage thay mainCurrentPage)
+- [x] [`views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue) - Dùng `createLogger` thay `console.warn`
 
-- [x] [`App.vue`](src-ts/App.vue) - **Bỏ import thừa** `viVN, dateViVN` (chỉ dùng qua `CONFIG_i18n_LANGUAGES[].uiConfig`, fallback chỉ cần `enUS, dateEnUS`)
-- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - **Bỏ import thừa** `useAppSettingsStore` (sau khi load trực tiếp trong onMounted)
-- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - **Fix bug pagination Global CSV**: bỏ `.slice(0, 100)` hard-coded trong data source (chỉ lấy 100 rows đầu nhưng đếm full → UX mâu thuẫn). Đổi tên `globalSourceSampleRows` → `globalSourceAllRows` (không slice), `globalSourcePagedRows` slice từ all, `n-pagination` dùng `:item-count` = full count, bọc table + pagination trong `<template v-else-if>` để giữ v-else chain
-- [x] [`views/CsvDataView.vue`](src-ts/views/CsvDataView.vue) - **Fix bug watch sai table**: `watch(globalCsvStore.isLoaded, () => { mainCurrentPage.value = 1 })` → đổi thành `globalCurrentPage.value = 1` (watch global data mà reset main table = sai logic)
-- [x] [`views/FirstLoadingPage.vue`](src-ts/views/FirstLoadingPage.vue) - **Dùng `createLogger` thay `console.warn`**: import `createLogger`, tạo `const logger = createLogger({ module: 'firstLoading' })`, thay `console.warn` → `logger.warn`, bỏ `// eslint-disable-next-line no-console`
-- [x] vue-tsc: 0 errors
-- [x] vitest: 250+ pass
-
-### Phase 2i: Arena Lookup Feature (Tra Cứu Agent ↔ Avatar) + Cleanup Rác (v2) ✅
-- [x] [`types/arenaLookup.ts`](src-ts/types/arenaLookup.ts) - Arena types (ArenaSeason, ArenaLeaderboardRow, ...), Mimir types (AgentInfo, AvatarInfo, AgentAvatarAddress với key=index, value=address), Internal (ArenaAvatarOption, CachedLeaderboard)
-- [x] [`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts) - `fetchSeasons`, `findMostRecentCompletedSeason`, `fetchLeaderboard`, `mapLeaderboardToAvatarOption`, `stripHtmlTags` (BBCode/HTML)
-- [x] [`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts) - `graphqlQuery` helper, `getAgent`, `getAvatars` (build inline query, KHÔNG dùng variables cho array), `getAvatar` (single)
-- [x] [`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) - Full Pinia store: leaderboard cache per-planet, manual lookup (agent/avatar), search/filter, computed options, watchers
-- [x] [`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) - Search + NDataTable + "Dùng để đăng nhập" button → prefill LoginPage qua localStorage
-- [x] [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - Refactor: form với agent/avatar address, n-select với leaderboard options, auto-lookup onBlur, watch planet change
+### Phase 2i: Arena Lookup Feature + Cleanup Rác (v2) ✅
+- [x] [`types/arenaLookup.ts`](src-ts/types/arenaLookup.ts) - Arena types, Mimir types, Internal types
+- [x] [`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts) - fetchSeasons, findMostRecentCompletedSeason, fetchLeaderboard, mapLeaderboardToAvatarOption, stripHtmlTags
+- [x] [`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts) - graphqlQuery helper, getAgent, getAvatars (inline query), getAvatar
+- [x] [`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) - Full Pinia store: leaderboard cache per-planet, manual lookup, search/filter, computed options
+- [x] [`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) - Search + NDataTable + "Dùng để đăng nhập" → prefill LoginPage
+- [x] [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - Refactor: form agent/avatar, n-select, auto-lookup onBlur
 - [x] [`router/index.ts`](src-ts/router/index.ts) - + route `/arena-lookup`
-- [x] i18n: + `login.*` (title, avatarAddress, goToLookup, helper.leaderboardHint, rules.agent/avatar), + `arenaLookup.*` (title, placeholder, refresh, useForLogin, seasonInfo, emptySeason)
-- [x] Tests: mimirGraphql (16) + arenaGql (17) + arenaLookup (16) = **49 tests mới, total 299+**
-- [x] **Cleanup rác (MCP git rà soát)**:
-  - [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - Bỏ `console.info('Login submit:', ...)` debug log (TODO chưa implement action login thực)
-  - [`stores/arenaLookup.ts`](src-ts/stores/arenaLookup.ts) - Bỏ block comment `Ref:` tham khảo JS cũ (7 dòng)
-  - [`utilities/arenaGql.ts`](src-ts/utilities/arenaGql.ts) - Bỏ block comment `Ref:` tham khảo blockPolling
-  - [`utilities/mimirGraphql.ts`](src-ts/utilities/mimirGraphql.ts) - Bỏ block comment `Ref:` dài (4 dòng)
-  - [`views/ArenaLookupPage.vue`](src-ts/views/ArenaLookupPage.vue) - Bỏ comment `(Đơn giản hơn bản JS cũ - không cần store fetchDataUser9C)`
-- [x] Plan đầy đủ: [`plans/arena-leaderboard-search-plan.md`](plans/arena-leaderboard-search-plan.md) (2184 dòng, v4 final)
+- [x] Tests: mimirGraphql (16) + arenaGql (17) + arenaLookup (16) = 49 tests mới
+- [x] Cleanup rác: 5 sửa đổi (bỏ console.info debug, bỏ comment Ref:, bỏ comment "bản JS cũ")
 
-### Patterns Rút Ra Từ Code Review
-Xem chi tiết trong [`systemPatterns.md`](memory-bank/systemPatterns.md) mục "Code Review Cleanup":
-- **Bỏ import thừa sau refactor** - rà soát imports khi thay đổi flow control
-- **Pagination tách data source vs display** - không hard-code slice limit trong computed data
-- **v-else chain cần wrapper** - mỗi nhánh là 1 root element hoặc `<template v-if>`
-- **Watch effect phải match data source** - copy-paste watch dễ nhầm field
-- **Luôn dùng `createLogger` thay `console.*`** - module prefix + level filter + history
-- **Pinia store reference qua closure** - gọi `useAppSettingsStore()` bên trong defineStore callback
-- **i18n keys refactor pattern** - mỗi feature có section riêng + sub-section nested
-- **GitHub CSV raw URL + cache busting** - dùng `#${planet}` ở cuối URL
-- **Promise.allSettled cho best-effort parallel fetch** - không block UI khi 1 nguồn fail
-- **Banner carousel ở góc cố định** - position absolute + n-grid 12 cols + 2 items span 8/4
-- **Bỏ comment `Ref:` tham khảo file khác khi ổn định** - chỉ giữ phần giải thích tính năng chính
-- **Bỏ comment "bản JS cũ"** - implementer mới không cần biết về bản cũ
-- **Bỏ `console.*` debug khi TODO placeholder** - action thật sẽ có side-effect rõ ràng
-- **Helper `isValidAddressFormat` ở store level** - dùng chung cho component + store actions + tests
+### Phase 2k: Avatar Data Display Feature ✅
+
+#### Files Mới (9 files)
+- [x] [`types/avatarData.ts`](src-ts/types/avatarData.ts) - TypeScript interfaces: AgentBalance, StakeState, StageMap, RuneEntry, EquipmentStat, EquipmentSkill, StatsMap, EquipmentItem, EnrichedEquipment, CostumeItem, EnrichedCostume, MaterialItem, ConsumableItem, DedupedConsumable, InventoryData, CombinationSlot, ItemMap, AvatarGraphQL, CharacterInfo, CpRankingData, StatSkillResult, PatrolRewardInfo, GetDataGraphqlResponse
+- [x] [`utilities/avatarDataHelpers.ts`](src-ts/utilities/avatarDataHelpers.ts) - Pure helper functions: calculateAPCost, getLatestStageClearedId, combatPotion, statAndSkillOption, getActiveWorldBossId, getActiveEventDungeon, getPatrolRewardInfo, processMaterials, dedupConsumables
+- [x] [`utilities/avatarDataGraphQL.ts`](src-ts/utilities/avatarDataGraphQL.ts) - GraphQL queries: buildQueryA (single query for all node data), fetchQueryA (uses mimirGraphql.graphqlQuery<T>, returns already-unwrapped json.data), buildQueryB (dynamic material count query), fetchGetDataGraphql (REST API)
+- [x] [`stores/avatarDataDisplay.ts`](src-ts/stores/avatarDataDisplay.ts) - Pinia Composition API store: fetchStep1 (GraphQL), fetchStep2 (REST API), fillEquipments (enrich with CSV names/CP/skills), fillCostumes (enrich with CostumeStatSheet), uses globalCsv + csvData + blockPolling + appSettings + configURL
+- [x] [`components/avatarData/AvatarDataForm.vue`](src-ts/components/avatarData/AvatarDataForm.vue) - Form agent + avatar address, reads prefill from localStorage on mount + auto-fetches
+- [x] [`components/avatarData/AvatarDataInfoTable.vue`](src-ts/components/avatarData/AvatarDataInfoTable.vue) - n-descriptions bordered component for character info
+- [x] [`components/avatarData/AvatarDataInventoryTable.vue`](src-ts/components/avatarData/AvatarDataInventoryTable.vue) - 5 tabs: Equipments, Costumes, Runes, Combination Slots, Equipped Summary
+- [x] [`components/avatarData/AvatarDataMaterialTable.vue`](src-ts/components/avatarData/AvatarDataMaterialTable.vue) - 2 tabs: Materials, Consumables
+- [x] [`components/avatarData/AvatarDataGraphqlTable.vue`](src-ts/components/avatarData/AvatarDataGraphqlTable.vue) - Tabs for REST API data (TODO placeholders) + Raw JSON viewer
+
+#### Files Modified (6 files)
+- [x] [`views/AvatarDataView.vue`](src-ts/views/AvatarDataView.vue) - Layout: Form → Loading/Error/NoData/Results, imports all 5 avatar data components
+- [x] [`router/index.ts`](src-ts/router/index.ts) - + route `/avatar-data` before not-found
+- [x] [`components/PlaceholderMenuLeft.vue`](src-ts/components/PlaceholderMenuLeft.vue) - + PersonSearchRound icon import (subpath), + "Avatar Data" menu item
+- [x] [`i18n/locales/en.json`](src-ts/i18n/locales/en.json) + [`vi.json`](src-ts/i18n/locales/vi.json) - + `avatarData.*` section (form, info, inventory, material, graphql)
+- [x] [`views/LoginPage.vue`](src-ts/views/LoginPage.vue) - onSubmit saves agent+avatar to localStorage + navigates to avatar-data
+- [x] [`utilities/constants.ts`](src-ts/utilities/constants.ts) - + COST_AP_BY_STAKE array, COST_AP_BY_STAKE_MIN
+
+#### Bugs Fixed
+- [x] **TypeScript `skills` type mismatch** trong avatarDataDisplay.ts - Fix: dùng explicit EquipmentSkill properties thay vì `[key: string]: unknown`
+- [x] **Double-unwrap GraphQL response** - `graphqlQuery<T>()` đã trả về `json.data`, KHÔNG cần unwrap lần nữa. Fix ở avatarDataDisplay.ts (fetchStep1) + AvatarDataMaterialTable.vue
+- [x] **PersonSearchRound subpath import** - Dùng `@vicons/material/es/PersonSearchRound.js` thay barrel import (pattern giống TableChartRound)
+
+#### TODO Items (chưa implement)
+- [ ] REST API Step 3: getDataGraphql tabs với real data (hiện tại là TODO placeholders)
+- [x] Tests cho avatarDataHelpers, avatarDataGraphQL, avatarDataDisplay store (510 tests)
+
+### Phase 2k-Optimization v3: Case-Insensitive Stats + Extract Helper + Test Coverage v2 ✅
+
+- [x] **avatarDataHelpers.ts** — `statAndSkillOption()`: Case-insensitive statsMap comparison. Normalize `statKey = stat.statType.toUpperCase()`, use `key.toUpperCase()` for comparison. Fixes silent bug when statsMap uses different casing (hP vs HP).
+- [x] **avatarDataDisplay.ts** — Extract `mergeMaterialCounts()` helper: Deduplicated material update logic (AP potion special case appeared 2x in fetchStep1). Removed redundant `as unknown as` double cast in `fillEquipments`.
+- [x] **avatarDataHelpers.test.ts** — +6 tests: statAndSkillOption case-insensitive (uppercase keys, mixed-case, uppercase statType input), buildCodeGetList edge cases (blockNow=0, large values)
+- [x] **avatarDataDisplay.test.ts** — +4 tests: mergeMaterialCounts (AP potion tradable split, Query B failure fallback), fillCostumes with CostumeStatSheet data, fetchStep2 REST API processing
+- [x] **Kết quả**: 510 tests (từ 500), 18 test files
+
+### Code Optimization v4 + Test Coverage v3 ✅
+- [x] **avatarDataHelpers.ts** — Extract `resolveField()` + `parseSheetWithFields<T>()` shared helpers (DRY up CSV parsing)
+- [x] **avatarDataGraphQL.ts** — Split `buildQueryA` into `AGENT_FIELDS`, `EQUIPMENT_FIELDS`, `buildAvatarFragment()` composable parts
+- [x] **constants.test.ts** — NEW FILE, 40 tests covering all constants (i18n, planet, block polling, CSV, avatar data, GitHub URLs, theme/layout, type guards)
+- [x] **avatarDataGraphQL.test.ts** — +17 tests (query structure validation, large inputs, URL encoding, fetch URL/query verification)
+- [x] **Kết quả**: 582 tests (từ 525), 19 test files
+- [x] **Git commit**: `1bdaedc`
+
+### Phase 2k-Optimization v2: Code Optimization + Test Coverage ✅
+
+- [x] **avatarDataHelpers.ts** — `statAndSkillOption()`: `for...in` + `Object.prototype.hasOwnProperty.call()` → `Object.keys()` (cleaner, modern API)
+- [x] **avatarDataDisplay.ts** — `fillCostumes()`: Pre-build `Map<costumeId, Map<statType, statValue>>` từ CostumeStatSheet, per-costume lookup O(1) thay O(n) scan. Giảm complexity O(n*m) → O(n+m)
+- [x] **avatarDataHelpers.test.ts** — +18 tests: statAndSkillOption edge cases (all 6 stat types, empty statsMap, multiple skills), processInventoryFromGraphQL tradableId undefined, calculateAPCost edge cases (large numbers, float, NaN), combatPotion all stats, parseWorldBossSheet/parseEventScheduleSheet edge cases
+- [x] **avatarDataGraphQL.test.ts** — +1 test: fetchGetDataGraphql network error
+- [x] **avatarDataDisplay.test.ts** — +5 tests: extractPatrolReward error/message strings, no data wrapper format, null fields, reset after full data load
+- [x] **Kết quả**: 500 tests (từ 476), 18 test files
+
+### Phase 2k-Optimization v1: Code Optimization (Post-Phase 2k) ✅
+
+Đã rà soát toàn bộ diff bằng MCP git, phát hiện và sửa:
+
+- [x] **constants.ts** — Xóa `STAGE_MAX_NORMAL = 1000`, thêm `STAGE_SPECIAL_PREFIX`, `DEFAULT_LEVEL_REQ`, `MAX_PURCHASE_COUNT`, `MAX_CHALLENGE_COUNT`
+- [x] **avatarDataHelpers.ts** — Xóa dead code, extract `parseWorldBossSheet()` / `parseEventScheduleSheet()`, dùng `STAGE_SPECIAL_PREFIX`
+- [x] **avatarDataDisplay.ts** — Xóa dead code, dùng constants, dùng parse helpers thay inline
+- [x] **avatarDataGraphQL.ts** — Fix `fetchQueryB()` throw error khi null
+- [x] **AvatarDataGraphqlTable.vue** — Thêm `fmtNum()` locale-aware, dùng constants
+
+## File Structure (Latest)
+```
+src-ts/
+├ main.ts                              # Entry: Vue 3 + Pinia + i18n + Router
+├ App.vue                              # ConfigProvider + FirstLoadingOverlay + watch store
+├ router/index.ts                      # 6 routes trong MainLayout
+├ layouts/MainLayout.vue               # Header+Sidebar+Content+Footer
+├ stores/
+│  ├── appSettings.ts                  # Dark mode, planet, language, poll interval, isPolling, logLevel + logger
+│  ├── blockPolling.ts                 # Block polling via GraphQL + auto-start watch + logger
+│  ├── configURL.ts                    # Fetch planet data, dynamic RPC endpoints + logger
+│  ├── csvData.ts                      # CSV data fetch/parse + per-planet cache + planet change watcher
+│  ├── globalCsv.ts                    # 3 nguồn global (ItemName+SkillName+RemoteCsv), Promise.allSettled
+│  ├── banner.ts                       # Global banner từ Event.json, clickable
+│  ├── arenaLookup.ts                  # Arena leaderboard + manual lookup agent/avatar + search/filter
+│  └── avatarDataDisplay.ts            # NEW: Avatar data display (GraphQL + REST API + CSV enrichment)
+├ components/
+│  ├── PlaceholderFloatButton.vue
+│  ├── PlaceholderFooter.vue
+│  ├── PlaceholderHeader.vue
+│  ├── PlaceholderMenuLeft.vue         # Sidebar menu + lang + dark mode + CSV Data + Avatar Data items
+│  ├── header/
+│  │  ├── HeaderAvatar.vue
+│  │  ├── HeaderBanner.vue
+│  │  └── HeaderProgress.vue
+│  ├── footer/
+│  │  ├── FooterActions.vue
+│  │  ├── FooterBlockMonitor.vue
+│  │  ├── FooterEndpoints.vue
+│  │  ├── FooterInfoBlock.vue
+│  │  ├── FooterLogViewer.vue
+│  │  ├── FooterNodeManager.vue       # Drawer + 4 tabs (90 lines)
+│  │  ├── FooterSettings.vue          # Tab 2: 6 NCollapse sections
+│  │  └── FooterStorageInfo.vue
+│  └── avatarData/                     # NEW: Avatar Data Display components
+│     ├── AvatarDataForm.vue           # Form agent + avatar address
+│     ├── AvatarDataInfoTable.vue      # Character info (n-descriptions)
+│     ├── AvatarDataInventoryTable.vue # 5 tabs: Equipment, Costumes, Runes, Combos, Summary
+│     ├── AvatarDataMaterialTable.vue  # 2 tabs: Materials, Consumables
+│     └── AvatarDataGraphqlTable.vue   # REST API data + Raw JSON viewer
+├ views/
+│  ├── FirstLoadingPage.vue            # Overlay + planet switching overlay + separate error handling
+│  ├── CsvDataView.vue                 # CSV data viewer with pagination + planet indicator
+│  ├── ArenaLookupPage.vue             # Arena leaderboard search + "Dùng để đăng nhập"
+│  ├── AvatarDataView.vue              # NEW: Avatar data display (Form → Loading/Results)
+│  ├── HomePage.vue                    # Home page + Banner carousel
+│  ├── LoginPage.vue                   # Login form + agent/avatar lookup
+│  └── NotFoundPage.vue
+├ types/
+│  ├── arenaLookup.ts                  # Arena + Mimir + Internal types
+│  ├── avatarData.ts                   # NEW: All avatar data interfaces (30+ types)
+│  ├── csvData.ts                      # CsvSheetName, CsvRow, CsvSheetData, AllSheetsData
+│  ├── footer.ts
+│  ├── header.ts
+│  ├── i18nCsv.ts                      # LocalizedSheetName, BannerItem, RemoteCsv
+│  ├── logger.ts                       # LogLevel, LogEntry, LoggerConfig, Logger
+│  └── ui.d.ts                         # @vicons/material + vue-i18n + @vueuse/core
+├ i18n/
+│  ├── index.ts
+│  ├── locales/en.json                 # English translations (avatarData.* section)
+│  ├── locales/vi.json                 # Vietnamese translations (avatarData.* section)
+│  ├── datetimeFormats/*.json
+│  └── numberFormats/*.json
+├ utilities/
+│  ├── arenaGql.ts                     # Arena GraphQL: fetchSeasons, fetchLeaderboard, mapLeaderboard
+│  ├── avatarDataGraphQL.ts            # NEW: buildQueryA/B, fetchQueryA, fetchGetDataGraphql
+│  ├── avatarDataHelpers.ts            # NEW: Pure helpers (calculateAPCost, combatPotion, etc.)
+│  ├── bannerService.ts                # Banner fetch + transform
+│  ├── constants.ts                    # +COST_AP_BY_STAKE, +LOGIN_PREFILL_*, +CSV_SHEET_CONFIG
+│  ├── csvFetcher.ts                   # buildCsvFetchUrl, fetchCsvFromApi, fetchGitHubCsv
+│  ├── csvParser.ts                    # decodeBase64Csv (UTF-8), parseCsvSheet (case-insensitive)
+│  ├── logger.ts                       # createLogger(), log history, history management
+│  ├── mimirGraphql.ts                 # graphqlQuery<T> helper, getAgent, getAvatars, getAvatar
+│  ├── nameService.ts                  # Localized name resolution (ItemName + SkillName + RemoteCsv)
+│  └── placeholder.ts                  # Stubs for DCC/Guild/Portrait/Equipment
+├ assets/
+│  ├── base.css
+│  └── main.css
+└ __tests__/                           # 582 tests (19 files)
+   ├── appSettings.test.ts             (30)
+   ├── arenaGql.test.ts                (17)
+   ├── arenaLookup.test.ts             (16)
+   ├── banner.test.ts                  (23)
+   ├── blockPolling.test.ts            (26)
+   ├── configURL.test.ts               (36)
+   ├── csvData.test.ts                 (23)
+   ├── csvFetcher.test.ts              (8)
+   ├── csvParser.test.ts               (23)
+   ├── darkMode.test.ts                (19)
+   ├── globalCsv.test.ts               (50+)
+   ├── i18n.test.ts                    (19)
+   ├── logger.test.ts                  (21)
+   ├── mimirGraphql.test.ts            (16)
+   └── router.test.ts                  (13)
+```
+
+## npm Scripts
+| Command | Mô tả |
+|---------|-------|
+| `npm run dev` | JS version (port 1414) |
+| `npm run dev:ts` | TS version (port 1415) |
+| `npm run build:ts` | Build TS version |
+| `npm run test` | Vitest (582 tests) |
+| `npm run check:ts` | Vue-TSC type check |
 
 ## Kế Hoạch Tương Lai
-1. **Giai đoạn 3**: Stores JS → TypeScript (10 stores)
-2. **Giai đoạn 4**: Utilities JS → TypeScript (15+ files)
-3. **Giai đoạn 5**: Testing & Review → Merge src-ts/ vào src/
+1. **Phase 2k TODO**: Implement REST API Step 3 (getDataGraphql tabs với real data)
+2. **Phase 2k TODO**: Viết tests cho avatarDataHelpers, avatarDataGraphQL, avatarDataDisplay store
+3. **Phase 3**: Stores JS → TypeScript (10 stores)
+4. **Phase 4**: Utilities JS → TypeScript (15+ files)
+5. **Phase 5**: Testing & Review → Merge src-ts/ vào src/

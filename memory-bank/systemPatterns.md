@@ -6,7 +6,7 @@ NineCMD sử dụng kiến trúc client-side với Vue.js 3 + TypeScript. Ứng 
 ### Component Relationships
 - **App.vue**: ConfigProvider + FirstLoadingOverlay + watch Pinia stores để apply theme/language
 - **MainLayout.vue**: Header+Sidebar+Content+Footer layout
-- **PlaceholderMenuLeft.vue**: Sidebar menu + language selector + dark mode toggle + CSV Data shortcut
+- **PlaceholderMenuLeft.vue**: Sidebar menu + language selector + dark mode toggle + CSV Data + Avatar Data shortcuts
 - **PlaceholderHeader.vue**: Grid 24 responsive header
 - **PlaceholderFooter.vue**: FooterInfoBlock (block info) + FooterNodeManager (drawer với 4 tabs)
 
@@ -19,23 +19,29 @@ NineCMD sử dụng kiến trúc client-side với Vue.js 3 + TypeScript. Ứng 
 - **Endpoint Settings**: User có thể chọn random hoặc manual endpoint trong FooterNodeManager tab "Endpoints"
 - **Planet Validation**: Disable planets không có trong URL_ALL_PLANET, auto-fallback planet không khả dụng
 - **Per-Planet CSV Cache**: Cache CSV data theo từng planet trong memory, tái sử dụng khi chuyển planet
+- **Avatar Data Display**: GraphQL query → fetch raw data → enrich with CSV data (names, CP, skills, stats) → display in tabs
+- **Login → Avatar Data Flow**: onSubmit saves agent+avatar to localStorage → navigates to /avatar-data → onMounted reads prefill + auto-fetches
 
 ## Design Patterns
 - **MVVM**: Vue.js 3 Composition API
-- **Singleton Pattern**: Pinia stores (appSettings, blockPolling, configURL, csvData) là singletons
+- **Singleton Pattern**: Pinia stores (appSettings, blockPolling, configURL, csvData, globalCsv, banner, arenaLookup, avatarDataDisplay) là singletons
 - **Observer Pattern**: Vue reactivity system + Pinia computed/watch
 - **Dependency Injection**: Vue provide/inject (theme, lang) + Pinia store injection
 - **Polling Pattern**: setInterval + GraphQL query thay WebSocket
 - **Fallback Pattern**: API data → fallback static data khi fetch thất bại
 - **localStorage Persistence**: Store actions trực tiếp persist via `localStorage.setItem`
 - **Logger Pattern**: createLogger({ module }) → structured logging với module prefix, level filtering, history
-- **Component Decomposition**: FooterNodeManager tách thành 6 components riêng
+- **Component Decomposition**: FooterNodeManager tách thành 6 components, AvatarData tách thành 5 components
 - **Auto-start Pattern**: watch + { immediate: true } để auto-start polling từ persisted state
 - **CSV Cache Pattern**: `cacheByPlanet: Record<PlanetName, AllSheetsData>` → check cache trước khi fetch
-- **Planet Change Watcher**: csvData watch `appSettings.selectedPlanet` → auto switchPlanet() (pattern giống blockPolling)
+- **Planet Change Watcher**: csvData watch `appSettings.selectedPlanet` → auto switchPlanet()
 - **Case-Insensitive Header Matching**: CSV parser matching key columns với toLowerCase()
-- **Centralized Constants Pattern**: All hard-coded values (theme breakpoints, colors, localStorage keys, layout sizes) extracted to `constants.ts` and imported where needed
-- **English-Only Comments**: All code comments in src-ts/ are in English for consistency and international collaboration
+- **Centralized Constants Pattern**: All hard-coded values extracted to `constants.ts`
+- **English-Only Comments**: All code comments in src-ts/ are in English
+- **Cross-Page Prefill via localStorage**: One-shot data passing between pages (ArenaLookup→Login, Login→AvatarData)
+- **GraphQL Response Unwrapping**: `mimirGraphql.graphqlQuery<T>()` returns `json.data` — callers must NOT double-unwrap
+- **CSV Enrichment Pattern**: Raw GraphQL data → helper functions enrich with CSV names/skills/stats via globalCsv + csvData stores
+- **Pure Helper Functions**: Stateless transformations in `*Helpers.ts` files (avatarDataHelpers, nameService), testable independently
 
 ## Key Technical Decisions
 - **Overlay thay Router Loading**: Dùng overlay component trong App.vue thay route riêng, giữ `/` là home
@@ -44,16 +50,18 @@ NineCMD sử dụng kiến trúc client-side với Vue.js 3 + TypeScript. Ứng 
 - **Dynamic URLs from API**: Fetch từ URL_ALL_PLANET, fallback về FALLBACK_PLANETS
 - **Endpoint Mode**: Random (mặc định) hoặc Manual (chọn URL cụ thể), persist vào localStorage
 - **Relative imports trong src-ts/**: `@/` alias map tới `src/` (JS), dùng `../` cho imports trong src-ts/
-- **Per-Planet Cache in Memory**: CSV data cache trong Pinia store memory, KHÔNG localStorage (dữ liệu quá lớn)
+- **Per-Planet Cache in Memory**: CSV data cache trong Pinia store memory, KHÔNG localStorage
 - **No Fallback CSV Data**: CSV phải load thành công, retry mechanism với URL selector
 - **UTF-8 Base64 Decode**: TextDecoder('utf-8') thay atob() để hỗ trợ ký tự tiếng Việt
 - **TS Type Workarounds**: `// @ts-expect-error` cho naive-ui imports bị lỗi under bundler moduleResolution
-- **Subpath imports cho @vicons/material**: Với `moduleResolution: "bundler"`, một số icon (`TableChartRound`, v.v.) bị vue-tsc báo "no exported member" dù file thực sự tồn tại. Workaround: import subpath `@vicons/material/es/<IconName>.js` thay vì barrel `@vicons/material`.
-- **Dùng library types thay vì custom narrow types**: Với `RenderTag` của naive-ui, dùng `SelectOption` (exported type) thay vì custom `{ label: string; value: string }`. Tránh được nhiều lỗi type inference.
-- **Tách row-key getter thành named function**: Với `CreateRowKey<T>` của NDataTable, tách thành hàm riêng `(row): string | number => ...` thay vì inline arrow. Inline arrow có thể trigger IDE warning "Filters are deprecated" do Volar cache cũ.
-- **`RowKey` không re-export từ naive-ui main entry**: Type này chỉ có ở internal `data-table/src/interface.d.ts`. Khi cần dùng, dùng structural type `string | number` thay vì `import type { RowKey } from 'naive-ui'`.
-- **Dùng đúng library types thay vì `Record<string, unknown>` + `as unknown as` cast**: Khi `vue-tsc` báo `Type 'Record<string, unknown> | null' is not assignable to type '<LibraryType> | null'` (vd `<n-config-provider :locale>`, `:date-locale>`), root cause là khai báo `ref` quá rộng. Cách fix đúng: import `type { NLocale, NDateLocale }` (hoặc type phù hợp) từ `naive-ui`, khai báo `ref<NLocale | null>(null)`, và thay `as unknown as Record<string, unknown>` bằng `as NLocale` (không cần `unknown` vì type đã khớp). KHÔNG dùng `as unknown as` để lách type-check.
-- **n-space `align` vs `justify`**: `n-space` của naive-ui có 2 props tách biệt: `justify` (phân phối theo **main axis**, giá trị: `'start' | 'end' | 'center' | 'space-around' | 'space-between' | 'space-evenly'`) và `align` (align theo **cross axis**, giá trị: `'start' | 'end' | 'center' | 'baseline' | 'stretch'`). `'baseline'` chỉ hợp lệ với `align`. Khi thấy `Type '"baseline"' is not assignable to type 'Justify | undefined'` trong n-space, đổi sang `align` thay vì `justify` — baseline alignment thuộc về cross-axis.
+- **Subpath imports cho @vicons/material**: Dùng `@vicons/material/es/<IconName>.js` thay barrel import
+- **Dùng library types thay vì custom narrow types**: `SelectOption` thay `{ label: string; value: string }`
+- **Tách row-key getter thành named function**: Tránh IDE warning "Filters are deprecated"
+- **`RowKey` không re-export từ naive-ui main entry**: Dùng structural type `string | number`
+- **Dùng đúng library types**: `NLocale`, `NDateLocale` cho `<n-config-provider>`, KHÔNG `Record<string, unknown>` + `as unknown as`
+- **n-space `align` vs `justify`**: `baseline` thuộc cross-axis → dùng `align`, KHÔNG `justify`
+- **GraphQL query inline (không variables cho array)**: Mimir có thể không hỗ trợ truyền `Address![]` qua variables → inline address vào query string
+- **Cross-page prefill qua localStorage (không cần store)**: One-shot data passing, read once + remove immediately
 
 ## Stores Architecture (src-ts/)
 ```
@@ -75,23 +83,71 @@ configURL Store                      appSettings Store                    blockP
 ├ setEndpointSelection()               ↑ persist to localStorage
     ↑ persist to localStorage
 
-csvData Store (NEW)
-├ sheets (ref<AllSheetsData>)       # Current active planet data
-├ cacheByPlanet (ref<Record>)       # Per-planet cache (odin, heimdall, thor)
-├ isLoading (ref)
-├ error (ref)
-├ isLoaded (ref)
-├ isPlanetSwitching (ref)           # Flag cho overlay loading
-├ fetchPlanet (ref<PlanetName>)
-├ fetchAllSheets(planet)            # Check cache → hit=instant, miss=fetch
-├ switchPlanet(planet)              # Cache hit=instant, miss=fetch+overlay
-├ retry()                           # Rotate API URL
-├ isPlanetCached(planet)
-├ getCachedPlanets()
-├ getCacheStats(planet)
-├ clearCacheForPlanet(planet)
-├ clearCache()
-└ watch appSettings.selectedPlanet  # Auto reload khi đổi planet
+csvData Store                       globalCsv Store                      banner Store
+├ sheets (ref<AllSheetsData>)       ├ itemName (ref)                     ├ banners (ref<BannerItem[]>)
+├ cacheByPlanet (ref<Record>)       ├ skillName (ref)                    ├ isLoading (ref)
+├ isLoading (ref)                   ├ remoteCsv (ref)                    ├ error (ref)
+├ error (ref)                       ├ isLoading (ref)                    ├ isLoaded (ref)
+├ isLoaded (ref)                    ├ error (ref)                        ├ loadBanners()
+├ isPlanetSwitching (ref)           ├ localeColumn (computed)            ├ retry()
+├ fetchAllSheets(planet)            ├ loadAll() → Promise.allSettled     └ clearData()
+├ switchPlanet(planet)              ├ getItemName(id, locale)
+├ isPlanetCached(planet)            ├ getSkillName(id, locale)
+└ watch appSettings.selectedPlanet  └ GLOBAL: KHÔNG watch planet
+
+arenaLookup Store                   avatarDataDisplay Store (NEW)
+├ leaderboardList (ref)             ├ rawGraphQL (ref)                   # Step 1: GraphQL data
+├ isFetchingLeaderboard             ├ rawRestApi (ref)                   # Step 2: REST API data
+├ leaderboardCache (per-planet)     ├ characterInfo (computed)           # Enriched character info
+├ lookedUpAgent/Avatars             ├ equipment (ref<EnrichedEquipment[]>)
+├ searchQuery                       ├ costumes (ref<EnrichedCostume[]>)
+├ leaderboardFiltered (computed)    ├ runes, materials, consumables
+├ fetchLeaderboard()                ├ combinationSlots
+├ lookupAgent(addr)                 ├ isLoading, error
+├ lookupAvatar(addr)                ├ fetchAvatarData(agent, avatar)
+└ isValidAddressFormat()            ├ fetchStep1(agent, avatar)          # GraphQL → process
+                                    ├ fetchStep2(agent, avatar)          # REST API
+                                    ├ fillEquipments(data)               # Enrich with CSV
+                                    ├ fillCostumes(data)                 # Enrich with CostumeStatSheet
+                                    └ reset()
+```
+
+## Avatar Data Display Architecture
+```
+User Input (agent + avatar address)
+│
+├→ fetchStep1(agent, avatar)
+│  ├── buildQueryA(agent, avatar)        # Single GraphQL query for all node data
+│  ├── fetchQueryA(agent, avatar)         # Uses mimirGraphql.graphqlQuery<T>()
+│  │                                      # IMPORTANT: graphqlQuery<T>() returns json.data
+│  │                                      # DO NOT unwrap response['data'] again!
+│  ├── Process stateQuery:
+│  │   ├── inventory.equipment → fillEquipments() → EnrichedEquipment[]
+│  │   │   ├── CSV: globalCsv.getItemName(id) → display name
+│  │   │   ├── CSV: csvData.CpsSheet → CP value
+│  │   │   ├── CSV: csvData.EquipmentStatSheet → statArray
+│  │   │   ├── CSV: csvData.RequirementSheet → levelReq
+│  │   │   └── Helper: statAndSkillOption() → skills with localized names
+│  │   ├── inventory.costumes → fillCostumes() → EnrichedCostume[]
+│  │   │   └── CSV: csvData.CostumeStatSheet → statsMap
+│  │   ├── inventory.runes → RuneEntry[]
+│  │   ├── inventory.combinationSlots → CombinationSlot[]
+│  │   ├── staking → StakeState (calculateAPCost)
+│  │   ├── stages → StageMap (getLatestStageClearedId)
+│  │   ├── worldBosses, eventDungeons → active IDs
+│  │   └── avatar, gold, crystal, material → balances
+│  └── Compute characterInfo (CharacterInfo)
+│
+├→ fetchStep2(agent, avatar)
+│  ├── fetchGetDataGraphql(agent, avatar)  # REST API
+│  └── Process: cpRanking, statSkill, patrolReward
+│
+└→ Display in 5 components:
+   ├── AvatarDataForm           # Input form
+   ├── AvatarDataInfoTable      # Character info (n-descriptions)
+   ├── AvatarDataInventoryTable # 5 tabs (n-data-table per tab)
+   ├── AvatarDataMaterialTable  # 2 tabs (materials + consumables)
+   └── AvatarDataGraphqlTable   # REST API data + raw JSON
 ```
 
 ## CSV Data Architecture
@@ -155,6 +211,32 @@ query {
 # Response: response["data"]["blocks"]["items"][0]["object"]["index"]
 ```
 
+## Avatar Data GraphQL Query Pattern
+```graphql
+# buildQueryA() — single query for ALL node data
+# Endpoint: https://{planet}-headless.9c.gg/graphql
+query {
+  stateQuery {
+    agent(address: "0x...") {
+      avatarAddresses           # { key: index, value: address }
+      gold, crystal, ...
+    }
+    inventory(agentAddress: "0x...", avatarAddress: "0x...") {
+      equipment { id, skills { id, skillRow, stat }, costumeId, ... }
+      costumes { id, costumeId, stats { id, stat } }
+      runes { ... }
+      combinationSlots { ... }
+    }
+    staking(agentAddress: "0x...") { deposit, receivedBlockIndex, stakeRewardAmount, ... }
+    worldBossList2 { id, ... }
+    eventDungeonList { id, ... }
+    # + gold, crystal, material balances
+  }
+}
+# IMPORTANT: mimirGraphql.graphqlQuery<T>() returns json.data directly
+# So response = { stateQuery: { ... } }, NOT { data: { stateQuery: { ... } } }
+```
+
 ## URL_ALL_PLANET Pattern
 ```
 GET https://planets.nine-chronicles.com/planets/
@@ -191,57 +273,58 @@ Response: PlanetData[] → [
 - **Store auto-start**: blockPolling auto-starts, call `store.stopPolling()` trước khi test state
 - **CSV cache tests**: Manually inject cacheByPlanet data, test cache hit/miss/switchPlanet
 
-## Code Review Cleanup Patterns (Rút ra từ session rà soát)
+## Code Review Cleanup Patterns
 
-- **Bỏ import thừa sau refactor**: Sau khi refactor sang dùng config object tổng hợp (vd `CONFIG_i18n_LANGUAGES[].uiConfig`) hoặc thay đổi flow control (bỏ qua store, đổi sang onMounted trực tiếp), rà soát lại imports trong component. Chỉ giữ những gì thực sự dùng. Import thừa → potential `no-unused-vars` ESM error + cognitive overhead.
-- **Pagination tách rõ data source vs display**: Khi dùng `n-pagination`, tách rõ (1) `data` = all rows, (2) `pagedData` = computed slice(start, end), (3) `:item-count` = full count. KHÔNG hard-code slice limit trong data source computed (vd `.slice(0, 100)`) — sẽ mâu thuẫn với row count + pagination thực tế. `n-pagination` tự handle khi `item-count <= page-size` (không cần `v-if` wrapper ở pagination).
-- **v-else chain cần wrapper**: Khi cấu trúc `v-if` / `v-else-if` / `v-else` cho nhiều element kết quả, mỗi nhánh nên là MỘT root element (hoặc `<template v-if>` wrapper) để chain không bị ngắt. Nếu chen 1 element không có v-if vào giữa chain, v-else sau đó sẽ lỗi "no adjacent v-if".
-- **Watch effect phải match data source**: Khi có 2+ pagination state tách biệt (vd `mainCurrentPage` cho main table, `globalCurrentPage` cho global table), watch effect reset page PHẢI match đúng data source trigger. Copy-paste watch body dễ nhầm field name → reset sai table.
-- **Luôn dùng `createLogger` thay `console.*`**: KHÔNG dùng `console.log/warn/error` trong `src-ts/`. Luôn `import { createLogger } from '../utilities/logger'` + `const logger = createLogger({ module: '<moduleName>' })` rồi `logger.info/warn/error(...)`. Lợi ích: module prefix, level filter, history tracking (xem FooterLogViewer), đồng nhất. `console.*` chỉ dùng trong test files hoặc bên trong `utilities/logger.ts` (để log ra console cho dev).
-- **Pinia store reference qua closure**: Khi Pinia store function (vd `globalCsvStore.loadAll()`) cần reference store khác (vd `useAppSettingsStore()`), PHẢI gọi bên trong `defineStore` callback (composition API), KHÔNG gọi ở module top-level. Ví dụ đúng: `export const useGlobalCsvStore = defineStore('globalCsv', () => { const appSettings = useAppSettingsStore(); ... })`. Ví dụ sai: `const appSettings = useAppSettingsStore(); export const useGlobalCsvStore = ...` → appSettings undefined khi store created.
-- **i18n keys refactor pattern**: Khi i18n keys tăng theo từng feature (vd `banner.*`, `csvData.*`, `login.*`), pattern tổng quát:
-  - Mỗi feature có section riêng (`banner: { loading, error, ... }`, `csvData: { title, options, ... }`)
-  - Sub-section dùng nested object (vd `csvData.options.itemName`)
-  - Hardcoded text trong template → `{{ t('section.key') }}` qua vue-i18n
-  - Đồng bộ cả `en.json` + `vi.json` (fail nếu 1 file thiếu key)
-  - Xem [`utilities/placeholder.ts`](src-ts/utilities/placeholder.ts) cho stub pattern khi chưa refactor store cũ.
-- **GitHub CSV raw URL + cache busting**: Khi fetch CSV từ `raw.githubusercontent.com`, có thể append `#${planet}` ở cuối URL để browser cache-bust khi switch planet (vd `?...item_name.csv#odin`). Hash không ảnh hưởng network request nhưng browser coi là khác URL → cache riêng. Hữu ích khi cùng file CSV cho nhiều planet context.
-- **Promise.allSettled cho best-effort parallel fetch**: Khi load N nguồn data mà KHÔNG muốn 1 nguồn fail block các nguồn khác (vd `globalCsv` load 3 nguồn CSV), dùng `Promise.allSettled([...])` thay `Promise.all([...])`. Xử lý từng `result.status` riêng: `fulfilled` → lấy `value`, `rejected` → lấy `reason` lưu `sourceErrors`. Pattern đặc biệt hữu ích cho preloading: vẫn redirect về home nếu chỉ fail best-effort, không block UI chính.
-- **Banner carousel ở góc cố định**: Khi muốn banner ở góc trên phải cố định (không scroll), dùng `position: absolute, top: 0, right: 0, z-index: 1` cho container. Bên trong dùng `n-grid` với `cols=12` + 2 grid-item (span 8/4) → responsive. CSS `.liveAssets-carousel { width: 33.33% }` cho width cố định (1/3 viewport). Bắt buộc có container relative (`.home-page-container { position: relative }`) để absolute positioning hoạt động đúng.
-- **n-space `align` vs `justify`**: `n-space` của naive-ui có 2 props tách biệt: `justify` (phân phối theo **main axis**, giá trị: `'start' | 'end' | 'center' | 'space-around' | 'space-between' | 'space-evenly'`) và `align` (align theo **cross axis**, giá trị: `'start' | 'end' | 'center' | 'baseline' | 'stretch'`). `'baseline'` chỉ hợp lệ với `align`. Khi thấy `Type '"baseline"' is not assignable to type 'Justify | undefined'` trong n-space, đổi sang `align` thay vì `justify` — baseline alignment thuộc về cross-axis.
-- **Library type exports (NLocale/NDateLocale)**: Config types cho `<n-config-provider>` được export từ naive-ui main entry: `NLocale` (cho prop `locale`), `NDateLocale` (cho prop `dateLocale`). Khi khai báo `ref` cho các prop này, import `import type { NLocale, NDateLocale } from 'naive-ui'` và dùng `ref<NLocale | null>(null)`. KHÔNG dùng `ref<Record<string, unknown> | null>(null)` rồi cast `as unknown as` — vừa mất type-safety, vừa trigger lỗi vue-tsc.
-- **Component-converted `.value` in `<script setup>`** (cho template): Sau khi dùng `const csvData = useCsvDataStore()` (Pinia setup store), component template truy cập store state qua store instance (vd `csvData.isLoading`) KHÔNG cần `.value`. Trong script thì `csvData.isLoading` (reactive proxy). Trong template thì `csvData.isLoading` cũng OK vì template auto-unwrap.
-- **Naive UI `<n-grid>` với `cols=12` + `span` props**: Pattern grid 12 columns cho responsive layout. Item có `:span="8"` chiếm 8/12 = 2/3 viewport, `:span="4"` chiếm 4/12 = 1/3. Kết hợp `item-responsive` + `responsive="screen"` cho adaptive theo breakpoint. Item rỗng (placeholder) dùng `:suffix="false"` để tránh ghost spacing.
-- **Naive UI `<n-pagination>` props tổng hợp**:
-  - `v-model:page` + `v-model:page-size` (2-way binding)
-  - `:item-count` = tổng số rows (full, không slice)
-  - `:page-sizes` = array of number (vd `[20, 50, 100, 200]`) — KHÔNG phải object `{label, value}`
-  - `show-size-picker` = hiện dropdown chọn page size
-  - KHÔNG cần `v-if` wrapper khi `item-count <= page-size` (component tự handle)
-- **Bỏ hard-coded slice 100 trong Global table**: Pattern cũ dùng `globalSourceSampleRows = ...slice(0, 100)` chỉ lấy 100 rows đầu → pagination không thật (max 5 trang @ 20/page). Sửa: bỏ slice trong data source, slice trong `pagedRows` computed, dùng `:item-count` = full count. Đổi tên `sampleRows` → `allRows` cho rõ intent.
-- **`<template v-else-if>` wrapper cho multi-element branch**: Khi 1 branch của v-if chain có NHIỀU element (vd table + pagination), bọc trong `<template v-else-if="...">`. V-else-if chỉ chấp nhận 1 root element; template wrapper giữ đúng cấu trúc chain.
-- **Type guard cho PlanetName (csvData store)**: `csvData.fetchPlanet: ref<PlanetName | null>` (default null khi chưa fetch). Check `v-if="csvData.fetchPlanet"` trước khi dùng. Compute `isCurrentPlanetCached` cũng phải check `if (!csvData.fetchPlanet) return false`.
-- **Per-source error tracking pattern**: Khi load N nguồn parallel (vd `globalCsv` với `localized` + `remote`), track lỗi riêng từng nguồn qua `sourceErrors: ref<{ source1: string|null, source2: string|null }>`. UI có thể hiển thị error tag cho source user đang xem (vd trong CsvDataView, ItemName+SkillName share `localized` error, RemoteCsv có `remote` error riêng). Pattern giúp user biết chính xác nguồn nào fail, không chỉ "All sources failed".
-- **Computed `*Count` cho Pinia store**: Tách `itemNameCount`/`skillNameCount`/`remoteCsvCount` thành computed riêng thay vì gọi `Object.keys(sheet).length` inline nhiều lần. Reactive + cache tự động qua Vue computed. Đặc biệt hữu ích khi nhiều template cùng bind count.
-- **ItemName + SkillName share 1 fetch (gộp localized)**: Trong `nameService.ts`, `fetchAllLocalizedSheets(planet)` gộp 2 sheet (ItemName + SkillName) vào 1 Promise.all → 1 lần cache-bust URL = 2 sheet. RemoteCsv tách riêng. → 2 Promise.allSettled promises total: `localized` (covers 2 sheets) + `remote` (covers 1 sheet). UI hiển thị 1 error cho cả ItemName + SkillName.
-- **Banner carousel không dùng `:loop` của n-carousel** (mặc định true), dùng `:autoplay` + `:interval` (ms) + `draggable` (cho user swipe). Mỗi banner là `<a>` wrap `<img>` với `:href="banner.Url || '#'"` + `target="_blank"`. Key dùng `banner.Priority ?? banner.BannerImageName` (Priority optional).
-- **`@ts-expect-error` scope ngắn cho naive-ui**: Với `moduleResolution: "bundler"`, một số naive-ui imports bị vue-tsc báo "no exported member" dù file thực sự tồn tại (vd `RowKey`, `CreateRowKey` ở internal `data-table/src/interface.d.ts`). Dùng `// @ts-expect-error` ngay trước dòng import. Comment giải thích lý do (vd `// RowKey not re-exported from main entry`).
-- **Avoid cross-store `watch` ở globalCsv**: `globalCsv` KHÔNG watch `appSettings.selectedPlanet` (vì là GLOBAL). Chỉ react với `appSettings.lang` qua `localeColumn` computed. Verified bằng test "does not watch planet changes" - mock `setPlanet` 3 lần, đảm bảo `fetchSpy` không được gọi.
+### v1 (sau refactor i18nCsv + Banner)
+- **Bỏ import thừa sau refactor** — rà soát imports khi thay đổi flow control
+- **Pagination tách data source vs display** — không hard-code slice limit trong computed data
+- **v-else chain cần wrapper** — mỗi nhánh là 1 root element hoặc `<template v-if>`
+- **Watch effect phải match data source** — copy-paste watch dễ nhầm field
+- **Luôn dùng `createLogger` thay `console.*`** — module prefix + level filter + history
+- **Pinia store reference qua closure** — gọi `useAppSettingsStore()` bên trong defineStore callback
+- **i18n keys refactor pattern** — mỗi feature có section riêng + sub-section nested
+- **GitHub CSV raw URL + cache busting** — dùng `#${planet}` ở cuối URL
+- **Promise.allSettled cho best-effort parallel fetch** — không block UI khi 1 nguồn fail
+- **Banner carousel ở góc cố định** — position absolute + n-grid 12 cols + 2 items span 8/4
+- **Bỏ comment `Ref:` tham khảo file khác khi ổn định**
+- **Bỏ comment "bản JS cũ"** — implementer mới không cần biết
+- **Bỏ `console.*` debug khi TODO placeholder**
+- **Helper `isValidAddressFormat` ở store level** — single source of truth
+- **n-space `align` vs `justify`** — baseline thuộc cross-axis
+- **Library type exports** — NLocale/NDateLocale cho n-config-provider
+- **Naive UI `<n-pagination>` props** — v-model:page, v-model:page-size, :item-count, :page-sizes, show-size-picker
+- **`<template v-else-if>` wrapper** — multi-element branch trong v-if chain
+- **Type guard cho PlanetName** — csvData.fetchPlanet có thể null
+- **Per-source error tracking** — track lỗi riêng từng nguồn
+- **Computed `*Count` cho Pinia store** — reactive + cache tự động
+- **ItemName + SkillName share 1 fetch** — gộp localized vào 1 Promise.all
 
-## Code Review Cleanup Patterns (v2 - Sau Arena Lookup Feature)
-- **Bỏ comment `Ref:` tham khảo file khác khi ổn định**: Khi tạo utility mới, block comment `Ref:` liệt kê file khác (vd `blockPolling.ts:55 sendRequestQuery()`) chỉ có giá trị lúc đang implement. Sau khi ổn định, các tham khảo này trở thành rác (cognitive overhead, dễ stale khi file được rename/move/di chuyển). Pattern: giữ ngắn gọn phần giải thích tính năng chính ở đầu file, bỏ phần "Ref:" ở cuối.
-- **Bỏ comment tham khảo "bản JS cũ"**: Sau khi codebase mới đã ổn định, các comment nhắc đến "JS cũ" hoặc "không cần store fetchDataUser9C" chỉ tạo cognitive overhead. Implementer mới đọc code không cần biết về bản JS cũ. Pattern: comment giải thích logic hiện tại, KHÔNG nhắc đến bản cũ.
-- **Bỏ `console.*` debug log khi TODO placeholder**: Khi handler chỉ có placeholder (TODO chưa implement action thực), KHÔNG thêm `console.info/log` "để biết là đã gọi". Khi implement thật, action sẽ tự có side-effect rõ ràng (network call, state change, navigation). Log placeholder chỉ là rác. Pattern: giữ TODO comment làm intent, bỏ `console.*` debug.
-- **Helper validation ở store level (expose public)**: Với helper validate (vd `isValidAddressFormat`) dùng ở nhiều nơi (component validator, store action guard, tests), đặt ở store expose qua public API. Component gọi `store.isValidAddressFormat(value)` thay vì duplicate regex. Lý do: single source of truth, dễ thay đổi rule, dễ test.
+### v2 (sau Arena Lookup Feature)
+- **Bỏ comment `Ref:` tham khảo file khác khi ổn định**
+- **Bỏ comment tham khảo "bản JS cũ"**
+- **Bỏ `console.*` debug log khi TODO placeholder**
+- **Helper validation ở store level (expose public)**
 
-## Arena Lookup Feature Patterns
-- **Cross-page prefill qua localStorage (không cần store)**: Khi cần prefill form ở Page B từ action ở Page A (vd click "Dùng để đăng nhập" ở ArenaLookupPage → fill LoginPage), dùng `localStorage.setItem('login-prefill-X', value)` ở Page A + `onMounted` ở Page B đọc + `localStorage.removeItem` ngay sau khi dùng. Đơn giản hơn dùng Pinia store + router query params. Đặc biệt phù hợp với prefill 1 lần (one-shot).
-- **Mimir `GetAgent.avatarAddresses` map key/value ngược**: Mimir thực tế trả về `{ key: <index number>, value: <address string> }` (KHÔNG phải `key: address, value: name` như plan cũ). Để lấy danh sách address: `agent.avatarAddresses.map((a) => a.value)`. Bug thường gặp: tin plan cũ, dùng `a.key` → nhận được number index, không phải address. → Verify bằng response thực tế từ Mimir.
-- **`GetAvatars` build query inline, KHÔNG dùng GraphQL variables cho array**: Mimir có thể không hỗ trợ truyền `Address![]` qua variables cho query này, hoặc response alias bị lệch khi dùng variable array. Inline trực tiếp address vào query string đảm bảo alias `avatar_<index>` luôn map đúng tới address tại index đó. Body gửi đi: `{ query, variables: {} }` (variables rỗng). Cú pháp: mỗi avatar thêm 1 field alias `avatar_<i>: avatar(address: "<addr>") { ... }`.
-- **Auto-fetch leaderboard khi block ready (1 lần)**: Pattern dùng `watch(isBlockReady, (ready) => { if (ready && !autoFetched) { autoFetched = true; fetchLeaderboard() } }, { immediate: true })`. Khi block ready + chưa auto-fetch → fetch 1 lần, set flag. Watchers riêng planet change reset flag để re-fetch khi đổi planet. Tránh polling liên tục.
-- **Per-planet cache cho lookup data**: Khi fetch data từ API theo planet (vd leaderboard arena), cache trong `Record<PlanetName, T>` ref. Watcher trên `selectedPlanet` → check cache hit → dùng cache, miss → fetch. Pattern: `cache.value[planet] = { list, seasonId, fetchedAt: Date.now() }`. KHÔNG dùng localStorage (dữ liệu có thể lớn, và cần fresh data).
-- **Search/filter computed từ list + query**: Với search input bind thẳng `store.searchQuery` (KHÔNG cần local ref + sync), computed `filtered = computed(() => list.filter(item => match(query, item)))` tự react khi query đổi. Pattern tổng quát cho filter UI.
-- **Computed options cho `<n-select>` với priority**: Với nhiều nguồn options (vd leaderboard + agent lookup), dùng computed `options = computed(() => source1.length > 0 ? source1 : source2)`. UI dùng thẳng `:options="options"`. Pattern: priority order trong computed, KHÔNG dùng v-if để swap data source.
-- **Naive UI `<n-select>` client-side filter qua prop `filter`**: Khi cần filter options theo pattern (search), dùng `:filter="(pattern, option) => boolean"` thay vì pre-filter options. Component tự apply filter, không cần computed. Pattern: filter function match name/agent/avatar đều OK.
-- **Naive UI `<n-select>` custom render label qua prop `render-label`**: Khi cần hiển thị option với format đặc biệt (vd `avatarname + (0xABCD suffix)`), dùng `:render-label="(option) => [text, h('span', ...)]"` trả về array of VNode. Pattern cho rich label mà KHÔNG cần custom component.
-- **Form validation cross-field với store helper**: Khi validator cần dùng logic từ store (vd `isValidAddressFormat`), dùng `computed<FormRules>(() => ({ field: [{ validator: (_, value) => store.helper(value) ? true : new Error(...) }] }))`. Validator là computed vì có thể depend vào store state. `FormRules` type từ naive-ui: `import type { FormRules } from 'naive-ui'`.
+### v3 (sau Avatar Data Display Feature)
+- **GraphQL response unwrapping chain**: Khi có nhiều lớp wrapper (mimirGraphql.graphqlQuery → fetchQueryA → store.fetchStep1), PHẢI verify ở mỗi lớp data có bị unwrap không. `graphqlQuery<T>()` trả về `json.data` → fetchQueryA trả về kết quả → store PHẢO access `response['stateQuery']` trực tiếp, KHÔNG `response['data']['stateQuery']`.
+- **Subpath imports cho new icons**: Khi thêm icon mới từ `@vicons/material`, nếu barrel import fail với vue-tc, dùng subpath `@vicons/material/es/<IconName>.js` ngay từ đầu (không cần thử barrel trước). Pattern đã xác nhận với TableChartRound, PersonSearchRound.
+- **Cross-page prefill pattern**: Login → AvatarData dùng `LOGIN_PREFILL_AGENT`/`LOGIN_PREFILL_AVATAR` constants. onMounted: `localStorage.getItem()` → fill form → `localStorage.removeItem()` immediately. Auto-fetch nếu cả 2 address đều có. Pattern giống ArenaLookup → Login.
+- **Pure helper functions cho game logic**: Các hàm tính toán game (calculateAPCost, combatPotion, processMaterials, dedupConsumables) đặt trong `*Helpers.ts` files, KHÔNG trong store. Store chỉ gọi helper. Pattern: helper là pure function (input → output, không side-effect), dễ test independently.
+- **Enrichment pattern (raw → enriched)**: Store nhận raw data từ GraphQL → helper functions enrich với CSV data (names, CP, skills, stats) → tạo enriched objects (EnrichedEquipment, EnrichedCostume). Tách rõ raw vs enriched trong type system.
+
+### v4 (sau Code Optimization Session)
+- **Locale-aware number formatting**: Dùng `toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')` thay vì `toLocaleString()` không locale. Tạo helper `fmtNum()` trong component để format số theo ngôn ngữ user.
+- **Extract CSV parsing helpers**: Khi inline CSV row mapping phức tạp (nhiều fallback keys snake_case/camelCase), extract thành helper functions (`parseWorldBossSheet()`, `parseEventScheduleSheet()`) trong `*Helpers.ts`. Helper có interface riêng với `[key: string]: unknown` index signature.
+- **Null safety cho graphqlQuery**: `graphqlQuery<T>()` có thể trả null. Khi function declare `Promise<Record<string, unknown>>` (không nullable), caller PHẢO check null và throw error thay vì return null. Tránh type mismatch.
+- **Hardcode constant extraction**: Với giá trị magic number xuất hiện nhiều lần (888888, 40, 3, '100000'), extract thành named constant. Đảm bảo constant ĐƯỢC DÙNG (tránh tạo constant nhưng code dùng giá trị khác).
+- **Debug logging verbosity**: Giữ debug logging ngắn gọn — log count thay vì JSON.stringify toàn bộ data. Ví dụ: `logger.debug(\`Sheet=${sheet ? Object.keys(sheet).length + ' rows' : 'null'}\`)`.
+
+### v5 (sau Code Optimization v2 Session)
+- **`Object.keys()` thay `for...in` + `hasOwnProperty.call()`**: Khi iterate object keys, dùng `for (const key of Object.keys(obj))` thay `for (const key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { ... } }`. Modern, cleaner, ít verbose. `Object.keys()` chỉ trả own enumerable keys nên không cần check thêm.
+- **Pre-build Map cho repeated CSV lookups**: Khi cần lookup CSV sheet data cho N items (vd costumeStatSheet cho N costumes), pre-build `Map<id, Map<field, value>>` ONCE trước loop, rồi per-item lookup O(1). Thay vì scan toàn sheet mỗi item → giảm O(n*m) → O(n+m).
+- **Test coverage cho edge cases**: Luôn test: (1) all enum/stat types, (2) empty/null input, (3) boundary values, (4) type coercion (string→number, undefined→default), (5) error paths (network error, null response). Đặc biệt quan trọng cho helper functions thuần túy.
+
+### v6 (sau Code Optimization v3 Session)
+- **Case-insensitive stat comparison**: Normalize both sides to uppercase trước khi compare. `statKey = statType.toUpperCase()`, `upperKey = key.toUpperCase()`. Tránh silent bug khi CSV data dùng key casing khác nhau (hP vs HP, aTK vs ATK).
+- **Extract duplicated logic into named helper**: Khi cùng 1 block code (vd material update + AP potion split) xuất hiện 2 lần → extract thành named helper function. Giảm cognitive overhead, single source of truth, dễ test.
+- **Mock timing trong Pinia store tests**: `vi.mock` factory có thể trả về object mới mỗi call. Store capture reference khi `defineStore` chạy (lazily). Override mock SAU store creation → KHÔNG ảnh hưởng store's captured reference. Fix: (1) dùng `mockReturnValue()` TRƯỚC khi tạo store, hoặc (2) test gián间接 qua flow thay vì override mock trực tiếp.

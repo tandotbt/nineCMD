@@ -85,11 +85,11 @@ export interface ArenaLeaderboardResponse {
  * 1 entry in agent.avatarAddresses
  *
  * Note (after verifying actual response from Mimir):
- * - `key` = **index** dạng number (0, 1, 2, ...)
- * - `value` = **address** dạng string (0x...)
+ * - `key` = **index** as number (0, 1, 2, ...)
+ * - `value` = **address** as string (0x...)
  *
- * KHÔNG phải `key` = address, `value` = name như plan cũ.
- * Để lấy danh sách address cần `entry.value`.
+ * NOT `key` = address, `value` = name as in the old plan.
+ * To get the list of addresses, use `entry.value`.
  */
 export interface AgentAvatarAddress {
   key: number

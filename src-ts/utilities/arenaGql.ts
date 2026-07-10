@@ -117,9 +117,9 @@ export function mapLeaderboardToAvatarOption(
  * Input:  "Yuga <size=80%><color=#A68F7E>#321C</color></size>"
  * Output: "Yuga #321C"
  *
- * Cũng handle:
+ * Also handles:
  *   "<size=80%>Yuga</size> <color=#fff>B</color>" → "Yuga B"
- *   "Yuga #321C" → "Yuga #321C" (giữ nguyên)
+ *   "Yuga #321C" → "Yuga #321C" (unchanged)
  */
 export function stripHtmlTags(input: string | null | undefined): string {
   if (!input) return ''

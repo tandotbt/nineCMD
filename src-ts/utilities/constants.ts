@@ -381,3 +381,69 @@ export const LOGIN_PREFILL_AGENT = 'login-prefill-agent'
 
 /** localStorage key for login prefill avatar address */
 export const LOGIN_PREFILL_AVATAR = 'login-prefill-avatar'
+
+// ============================================================
+// Avatar Data Constants
+// ============================================================
+
+/** AP cost by stake tiers — ordered low to high */
+export const COST_AP_BY_STAKE = [
+  { ncgStake: 5000, costAP: 5 },
+  { ncgStake: 500000, costAP: 4 }
+]
+
+/** Minimum AP cost (when stake >= all tiers) */
+export const COST_AP_BY_STAKE_MIN = 3
+
+/** Stage ID prefix — stages starting with this prefix are special (e.g. 1000xx), filter them out when finding latest normal stage */
+export const STAGE_SPECIAL_PREFIX = '100000'
+
+/** AP Potion item ID (special handling for tradable vs non-tradable) */
+export const AP_POTION_ID = 500000
+
+/** Offset ID for tradable AP potion (14000000 + AP_POTION_ID) */
+export const AP_POTION_TRADABLE_OFFSET = 14000000
+
+/** Default level requirement when CSV data is missing (display placeholder) */
+export const DEFAULT_LEVEL_REQ = 888888
+
+/** Max purchase count for world boss (display: "X / 40") */
+export const MAX_PURCHASE_COUNT = 40
+
+/** Max challenge count for world boss (display: "X / 3") */
+export const MAX_CHALLENGE_COUNT = 3
+
+// ============================================================
+// Avatar Data REST API — codeGet values
+// ============================================================
+
+/** Static codeGet values for API request (sent as &codeGet= params) */
+export const AVATAR_DATA_CODE_GET_STATIC = [
+  'lookupItemSetMuti_type_Adventure',
+  'lookupItemSetMuti_type_Arena',
+  'lookupItemSetMuti_type_Raid',
+  'lookupItemSetMuti_type_InfiniteTower',
+  'lookupRuneSetMuti_type_Adventure',
+  'lookupRuneSetMuti_type_Arena',
+  'lookupRuneSetMuti_type_Raid',
+  'lookupRuneSetMuti_type_InfiniteTower',
+  'other_lookupPatrolReward',
+  'other_lookupAdventureCp',
+  'other_lookupClaimedGiftIds'
+] as const
+
+/** Response keys for codeGet results (server strips _type_ prefix) */
+export const CODE_GET_RESPONSE_KEYS = {
+  itemSet: {
+    adventure: 'lookupItemSetMuti_Adventure',
+    arena: 'lookupItemSetMuti_Arena',
+    raid: 'lookupItemSetMuti_Raid',
+    infiniteTower: 'lookupItemSetMuti_InfiniteTower'
+  },
+  runeSet: {
+    adventure: 'lookupRuneSetMuti_Adventure',
+    arena: 'lookupRuneSetMuti_Arena',
+    raid: 'lookupRuneSetMuti_Raid',
+    infiniteTower: 'lookupRuneSetMuti_InfiniteTower'
+  }
+} as const

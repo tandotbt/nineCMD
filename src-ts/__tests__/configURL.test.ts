@@ -184,7 +184,7 @@ describe('configURL Store', () => {
 
       const result = await store.fetchPlanets()
       expect(result).toBe(false)
-      expect(store.error).toContain('không hợp lệ')
+      expect(store.error).toContain('Invalid planet data returned from API')
     })
 
     it('should set loadingStatus to fallback on error', async () => {

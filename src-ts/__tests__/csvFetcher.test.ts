@@ -1,5 +1,5 @@
 /**
- * CSV Fetcher Tests – Kiểm tra csvFetcher utility
+ * CSV Fetcher Tests – Tests for csvFetcher utility
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'

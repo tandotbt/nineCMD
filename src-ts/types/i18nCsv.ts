@@ -15,20 +15,20 @@
  * - src/utilities/constants.js: V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles
  * - src/stores/configURL.js: urlItemNameSheet, urlSkillNameSheet, getSheet
  * - src-ts/utilities/csvParser.ts: parseCsvSheet (case-insensitive key column 'Key')
- * - src-ts/stores/globalCsv.ts: store mới dùng các type này
+ * - src-ts/stores/globalCsv.ts: new store using these types
  */
 
 /**
  * Names of 2 localized sheets from GitHub NineChronicles repo
  * - ItemNameSheet: item names (item_name.csv)
- * - SkillNameSheet: chứa tên skill (skill_name.csv)
+ * - SkillNameSheet: contains skill names (skill_name.csv)
  */
 export type LocalizedSheetName = 'ItemNameSheet' | 'SkillNameSheet'
 
 /**
  * A single row in item_name.csv / skill_name.csv
  *
- * Cấu trúc file gốc (theo repo NineChronicles):
+ * Original file structure (from NineChronicles repo):
  * Key,English,Vietnamese,Korean,Japanese,...
  *
  * Key is the item/skill ID (string or number depending on the ID).
@@ -37,13 +37,13 @@ export type LocalizedSheetName = 'ItemNameSheet' | 'SkillNameSheet'
 export interface LocalizedNameRow {
   /** Key ID (string or number) */
   Key: string | number
-  /** Tên Tiếng Anh (mặc định fallback) */
+  /** English name (default fallback) */
   English: string
-  /** Tên Tiếng Việt */
+  /** Vietnamese name */
   Vietnamese: string
-  /** Tên Tiếng Hàn */
+  /** Korean name */
   Korean: string
-  /** Tên Tiếng Nhật */
+  /** Japanese name */
   Japanese: string
   /** Allows additional locales if CSV is extended */
   [locale: string]: string | number
@@ -70,7 +70,7 @@ export type { PlanetName }
 /**
  * Banner data from Event.json (NineChronicles.LiveAssets)
  *
- * Cấu trúc file gốc:
+ * Original file structure:
  * {
  *   "Banners": [
  *     { "BannerImageName": "...", "BeginDateTime": "...", "EndDateTime": "...", ... }
@@ -86,19 +86,19 @@ export interface BannerItem {
   EndDateTime: string | null
   /** Original URL from GitHub (resolved from BannerImageName) */
   BannerImageUrl: string
-  /** Mô tả banner (optional, tuỳ theo Event.json) */
+  /** Banner description (optional, depends on Event.json) */
   Description?: string
   /** URL click target - opens new tab when banner is clicked (optional) */
   Url?: string
   /** Priority order in carousel (optional) */
   Priority?: number
-  /** Cho phép thêm field khác tuỳ theo Event.json */
+  /** Allows additional fields depending on Event.json */
   [key: string]: unknown
 }
 
 /**
  * RemoteCsv row - standard CSV schema, not i18n
- * Dùng cho NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv
+ * Used for NineChronicles.LiveAssets/Assets/Csv/RemoteCsv.csv
  */
 export type RemoteCsvRow = Record<string, string | number>
 

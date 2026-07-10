@@ -83,19 +83,19 @@ export async function getAgent(
 // ============================================================
 
 /**
- * Query GetAvatar — lấy thông tin NHIỀU avatar
+ * Query GetAvatar — get info for MULTIPLE avatars
  *
  * Note: Does NOT use GraphQL variables, instead inlines addresses directly into query.
  * Reason: Mimir may not support passing Address![] via variables for this query,
  * or response aliases may be misaligned with variable arrays. Inline addresses ensure
  * alias `avatar_<index>` always maps correctly to the address at that index.
  *
- * Cú pháp: mỗi avatar thêm 1 field alias
+ * Syntax: each avatar adds 1 field alias
  *   avatar_0: avatar(address: "0xAAA") { ... }
  *   avatar_1: avatar(address: "0xBBB") { ... }
  *
- * @param avatarAddresses mảng address
- * @returns mảng AvatarInfo (bỏ qua item null/undefined)
+ * @param avatarAddresses array of addresses
+ * @returns array of AvatarInfo (skips null/undefined items)
  */
 export async function getAvatars(
   mimirUrl: string,
@@ -114,7 +114,7 @@ export async function getAvatars(
     .join('\n')
   const query = `query GetAvatar {\n${aliases}\n}`
 
-  // Không truyền variables
+  // Do not pass variables
   const data = await graphqlQuery<Record<string, AvatarInfo | null>>(
     mimirUrl,
     query

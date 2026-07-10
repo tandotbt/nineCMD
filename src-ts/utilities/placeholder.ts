@@ -64,7 +64,7 @@ export function getListGuildFromCacheOrFetch(_avatarAddress: string): string {
  * Legacy code: lookup in dataPortraitId (merge arena) + fallback dataFromRest9cscan.
  * Currently: returns default 10200000.
  *
- * @returns Portrait ID mặc định (10200000)
+ * @returns Default portrait ID (10200000)
  */
 export function getPortraitId(): number {
   logger.warn('[placeholder] getPortraitId – not implemented, returning 10200000')

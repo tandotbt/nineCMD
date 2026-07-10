@@ -17,22 +17,22 @@ describe('arenaGql', () => {
   // findMostRecentCompletedSeason
   // ============================================================
   describe('findMostRecentCompletedSeason', () => {
-    it('returns null khi blockNow = 0', () => {
+    it('returns null when blockNow = 0', () => {
       const seasons = [{ id: 1, endBlockIndex: 100 } as ArenaSeason]
       expect(findMostRecentCompletedSeason(seasons, 0)).toBeNull()
     })
 
-    it('returns null khi seasons undefined/null', () => {
+    it('returns null when seasons undefined/null', () => {
       expect(findMostRecentCompletedSeason(undefined, 1000)).toBeNull()
       expect(findMostRecentCompletedSeason(null, 1000)).toBeNull()
     })
 
-    it('returns null khi không có season nào kết thúc', () => {
+    it('returns null when no season has ended', () => {
       const seasons = [{ id: 1, endBlockIndex: 100 } as ArenaSeason]
       expect(findMostRecentCompletedSeason(seasons, 50)).toBeNull()
     })
 
-    it('trả về season gần nhất đã kết thúc', () => {
+    it('returns the most recently completed season', () => {
       const seasons = [
         { id: 1, endBlockIndex: 100 } as ArenaSeason,
         { id: 2, endBlockIndex: 200 } as ArenaSeason,
@@ -41,7 +41,7 @@ describe('arenaGql', () => {
       expect(findMostRecentCompletedSeason(seasons, 250)?.id).toBe(2)
     })
 
-    it('không bao gồm season đang chạy (endBlockIndex >= blockNow)', () => {
+    it('excludes running season (endBlockIndex >= blockNow)', () => {
       const seasons = [
         { id: 1, endBlockIndex: 100 } as ArenaSeason,
         { id: 2, endBlockIndex: 200 } as ArenaSeason
@@ -49,7 +49,7 @@ describe('arenaGql', () => {
       expect(findMostRecentCompletedSeason(seasons, 200)?.id).toBe(1)
     })
 
-    it('handle array rỗng', () => {
+    it('handles empty array', () => {
       expect(findMostRecentCompletedSeason([], 1000)).toBeNull()
     })
   })
@@ -58,7 +58,7 @@ describe('arenaGql', () => {
   // mapLeaderboardToAvatarOption
   // ============================================================
   describe('mapLeaderboardToAvatarOption', () => {
-    it('map đầy đủ các field + stripHtml', () => {
+    it('maps all fields + stripHtml', () => {
       const row: ArenaLeaderboardRow = {
         rank: 1,
         agentAddress: '0xaaa',
@@ -80,7 +80,7 @@ describe('arenaGql', () => {
       expect(item.source).toBe('leaderboard')
     })
 
-    it('handle nameWithHash rỗng', () => {
+    it('handles empty nameWithHash', () => {
       const row: ArenaLeaderboardRow = {
         rank: 1,
         agentAddress: '0xaaa',
@@ -99,22 +99,22 @@ describe('arenaGql', () => {
   // stripHtmlTags
   // ============================================================
   describe('stripHtmlTags', () => {
-    it('loại bỏ tất cả thẻ HTML/BBCode', () => {
+    it('removes all HTML/BBCode tags', () => {
       expect(stripHtmlTags('Yuga <size=80%><color=#A68F7E>#321C</color></size>'))
         .toBe('Yuga #321C')
     })
 
-    it('handle input rỗng', () => {
+    it('handles empty input', () => {
       expect(stripHtmlTags('')).toBe('')
       expect(stripHtmlTags(null)).toBe('')
       expect(stripHtmlTags(undefined)).toBe('')
     })
 
-    it('handle không có tag', () => {
+    it('handles no tags', () => {
       expect(stripHtmlTags('SimpleName')).toBe('SimpleName')
     })
 
-    it('gộp nhiều space thành 1', () => {
+    it('collapses multiple spaces into one', () => {
       expect(stripHtmlTags('<size=80%>A</size>   <color=#fff>B</color>'))
         .toBe('A B')
     })
@@ -124,12 +124,12 @@ describe('arenaGql', () => {
   // fetchSeasons
   // ============================================================
   describe('fetchSeasons', () => {
-    it('throws khi HTTP error', async () => {
+    it('throws on HTTP error', async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 })
       await expect(fetchSeasons('https://test')).rejects.toThrow('HTTP 500')
     })
 
-    it('returns json khi OK', async () => {
+    it('returns json when OK', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ seasons: [], hasNextPage: false })
@@ -138,7 +138,7 @@ describe('arenaGql', () => {
       expect(res.seasons).toEqual([])
     })
 
-    it('build URL đúng với pageNumber/pageSize mặc định', async () => {
+    it('builds URL correctly with default pageNumber/pageSize', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ seasons: [] })
@@ -150,7 +150,7 @@ describe('arenaGql', () => {
       )
     })
 
-    it('build URL đúng với pageNumber/pageSize custom', async () => {
+    it('builds URL correctly with custom pageNumber/pageSize', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ seasons: [] })
@@ -167,7 +167,7 @@ describe('arenaGql', () => {
   // fetchLeaderboard
   // ============================================================
   describe('fetchLeaderboard', () => {
-    it('build đúng URL với seasonId', async () => {
+    it('builds correct URL with seasonId', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ leaderboard: [] })
@@ -191,12 +191,12 @@ describe('arenaGql', () => {
       )
     })
 
-    it('throws khi HTTP error', async () => {
+    it('throws on HTTP error', async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 })
       await expect(fetchLeaderboard('https://arena', 41)).rejects.toThrow('HTTP 404')
     })
 
-    it('returns json khi OK', async () => {
+    it('returns json when OK', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({

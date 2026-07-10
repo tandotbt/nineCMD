@@ -60,7 +60,7 @@
           :scroll-x="1200"
           :row-key="rowKeyGetter"
         />
-        <!-- Pagination controls (n-pagination của naive-ui) -->
+        <!-- Pagination controls (n-pagination from naive-ui) -->
         <n-pagination
           v-model:page="mainCurrentPage"
           v-model:page-size="mainCurrentPageSize"
@@ -338,7 +338,7 @@ const tableData = computed(() => {
  *  (`RowKey` is not re-exported from the package's main entry, so we use its
  *  structural equivalent: `string | number`.)
  *  Extracted as named function (not inline arrow) to avoid IDE warning
- *  "Filters are deprecated" do Volar cache cũ cho CreateRowKey inline. */
+ *  "Filters are deprecated" due to old Volar cache for inline CreateRowKey. */
 const rowKeyGetter = (row: Record<string, unknown>): string | number => {
   const idx = row._idx
   return typeof idx === 'number' ? idx : String(idx ?? '')

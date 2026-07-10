@@ -71,20 +71,20 @@ export function isBannerActive(banner: BannerItem, now: Date = new Date()): bool
   const begin = banner.BeginDateTime
   const end = banner.EndDateTime
 
-  // Cả 2 rỗng → luôn active
+  // Both empty → always active
   if (!begin && !end) return true
 
-  // Chỉ có EndDateTime
+  // Only EndDateTime present
   if (!begin && end) {
     return new Date(end) > now
   }
 
-  // Chỉ có BeginDateTime
+  // Only BeginDateTime present
   if (begin && !end) {
     return new Date(begin) <= now
   }
 
-  // Cả 2 có giá trị
+  // Both have values
   return new Date(begin!) <= now && new Date(end!) >= now
 }
 
@@ -158,7 +158,7 @@ export async function fetchBanners(): Promise<BannerItem[]> {
   const json: EventJsonResponse = await response.json()
   const rawBanners = json.Banners ?? []
 
-  // Transform: thêm BannerImageUrl + chuẩn hoá
+  // Transform: add BannerImageUrl + normalize
   const items: BannerItem[] = rawBanners.map(transformBannerItem)
 
   // Filter: keep only active banners

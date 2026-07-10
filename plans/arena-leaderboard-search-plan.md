@@ -2045,7 +2045,7 @@ describe('arenaLookupStore', () => {
 
       const result = await store.lookupAgent('0x' + 'a'.repeat(40))
       expect(result).toBeNull()
-      expect(store.errorLookedUpAgent?.message).toContain('không tồn tại')
+      expect(store.errorLookedUpAgent?.message).toContain('Agent does not exist')
     })
 
     it('lấy danh sách avatar đầy đủ', async () => {

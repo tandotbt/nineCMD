@@ -34,7 +34,7 @@ interface CsvApiResponse {
  *   return f"{base_url}/getGraphqlCSV?network={network}&{csv_params}&encodeAsBase64={base64_param}"
  *
  * @param apiBase API base URL (e.g. "https://api-nf.9cmd.top")
- * @param sheetNames Danh sách sheet names cần fetch
+ * @param sheetNames List of sheet names to fetch
  * @param network Planet name: "odin" | "heimdall" | "thor"
  * @returns Complete URL string
  */

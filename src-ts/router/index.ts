@@ -31,6 +31,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/CsvDataView.vue')
       },
       {
+        path: 'avatar-data',
+        name: 'avatar-data',
+        meta: { transition: 'fade' },
+        component: () => import('@/views/AvatarDataView.vue')
+      },
+      {
         path: ':pathMatch(.*)*',
         name: 'not-found',
         meta: { transition: 'fade' },

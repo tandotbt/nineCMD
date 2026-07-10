@@ -1,5 +1,5 @@
 /**
- * csvData Store Tests – Kiểm tra Pinia store csvData
+ * csvData Store Tests – Tests for Pinia store csvData
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'

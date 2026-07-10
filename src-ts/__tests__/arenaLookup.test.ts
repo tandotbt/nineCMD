@@ -54,7 +54,7 @@ describe('arenaLookupStore', () => {
     vi.stubGlobal('fetch', vi.fn())
     setActivePinia(createPinia())
 
-    // Setup configURL với mock data
+    // Setup configURL with mock data
     const configURL = useConfigURLStore()
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
@@ -79,27 +79,27 @@ describe('arenaLookupStore', () => {
 
     it('valid 0x + 40 hex (mixed case)', () => {
       const store = useArenaLookupStore()
-      // 'aAbBcC' × 7 = 42 chars (không phải 40) → dùng 'aAbBcC' × 6 + 'aAb' = 38+3=41, vẫn sai
-      // Dùng 'aA' × 20 = 40 chars
+      // 'aAbBcC' × 7 = 42 chars (not 40) → use 'aAbBcC' × 6 + 'aAb' = 38+3=41, still wrong
+      // Use 'aA' × 20 = 40 chars
       expect(store.isValidAddressFormat('0x' + 'aA'.repeat(20))).toBe(true)
     })
 
-    it('invalid thiếu 0x prefix', () => {
+    it('invalid missing 0x prefix', () => {
       const store = useArenaLookupStore()
       expect(store.isValidAddressFormat('a'.repeat(40))).toBe(false)
     })
 
-    it('invalid sai độ dài (quá ngắn)', () => {
+    it('invalid wrong length (too short)', () => {
       const store = useArenaLookupStore()
       expect(store.isValidAddressFormat('0xabc')).toBe(false)
     })
 
-    it('invalid sai độ dài (quá dài)', () => {
+    it('invalid wrong length (too long)', () => {
       const store = useArenaLookupStore()
       expect(store.isValidAddressFormat('0x' + 'a'.repeat(41))).toBe(false)
     })
 
-    it('invalid chứa ký tự không phải hex', () => {
+    it('invalid contains non-hex characters', () => {
       const store = useArenaLookupStore()
       expect(store.isValidAddressFormat('0x' + 'g'.repeat(40))).toBe(false)
     })
@@ -124,17 +124,17 @@ describe('arenaLookupStore', () => {
   // URL computed
   // ============================================================
   describe('URL computed', () => {
-    it('urlArenaGql lấy từ configURL', () => {
+    it('urlArenaGql from configURL', () => {
       const store = useArenaLookupStore()
       expect(store.urlArenaGql).toBe('https://odin-arena.9c.gg/graphql')
     })
 
-    it('urlMimirGql lấy từ configURL', () => {
+    it('urlMimirGql from configURL', () => {
       const store = useArenaLookupStore()
       expect(store.urlMimirGql).toBe('https://odin-mimir.9c.gg/graphql')
     })
 
-    it('selectedPlanet lấy từ appSettings', () => {
+    it('selectedPlanet from appSettings', () => {
       const store = useArenaLookupStore()
       expect(store.selectedPlanet).toBe('odin')
     })
@@ -144,7 +144,7 @@ describe('arenaLookupStore', () => {
   // fetchLeaderboard
   // ============================================================
   describe('fetchLeaderboard', () => {
-    it('không fetch khi blockNow = 0', async () => {
+    it('does not fetch when blockNow = 0', async () => {
       const store = useArenaLookupStore()
       const mockFetch = vi.mocked(global.fetch)
       mockFetch.mockClear()
@@ -153,10 +153,10 @@ describe('arenaLookupStore', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
-    it('fetch thành công khi blockNow > 0', async () => {
+    it('fetches successfully when blockNow > 0', async () => {
       const blockStore = useBlockPollingStore()
       blockStore.stopPolling()
-      // blockNow phải > endBlockIndex của season (11086780) thì mới "completed"
+      // blockNow must be > endBlockIndex of season (11086780) to be "completed"
       blockStore.currentBlockIndex = 12000000
 
       const store = useArenaLookupStore()
@@ -187,7 +187,7 @@ describe('arenaLookupStore', () => {
       expect(store.lastSeasonId).toBe(41)
     })
 
-    it('lỗi thì set list rỗng + error (không throw)', async () => {
+    it('error sets empty list + error (no throw)', async () => {
       const blockStore = useBlockPollingStore()
       blockStore.stopPolling()
       blockStore.currentBlockIndex = 11000000
@@ -201,13 +201,13 @@ describe('arenaLookupStore', () => {
       expect(store.errorLeaderboard?.message).toBe('Network')
     })
 
-    it('cache hit → dùng cache (không gọi fetch)', async () => {
-      // Lưu ý: watch(isBlockReady, immediate) trong store đã chạy khi store khởi tạo.
-      // Khi đó blockNow=0 → không fetch. Test này verify cache hit logic bằng cách
-      // 1) tạo store MỚI khi blockNow=0 (watch return ngay)
-      // 2) pre-fill cache trực tiếp vào reactive ref
-      // 3) set blockNow=100000, gọi fetchLeaderboard
-      // 4) verify fetch KHÔNG được gọi (vì cache hit)
+    it('cache hit → uses cache (no fetch called)', async () => {
+      // Note: watch(isBlockReady, immediate) in store runs when store is initialized.
+      // At that time blockNow=0 → no fetch. This test verifies cache hit logic by:
+      // 1) creating NEW store when blockNow=0 (watch returns immediately)
+      // 2) pre-filling cache directly into reactive ref
+      // 3) setting blockNow=100000, calling fetchLeaderboard
+      // 4) verifying fetch was NOT called (cache hit)
 
       const blockStore = useBlockPollingStore()
       blockStore.stopPolling()
@@ -217,8 +217,8 @@ describe('arenaLookupStore', () => {
       const mockFetch = vi.mocked(global.fetch)
       mockFetch.mockClear()
 
-      // Pre-fill cache bằng cách mutate reactive ref trực tiếp
-      // (setCachedLeaderboard là internal helper, không expose public API)
+      // Pre-fill cache by directly mutating reactive ref
+      // (setCachedLeaderboard is an internal helper, not exposed as public API)
       Object.assign(store.leaderboardCache, {
         odin: {
           list: [{
@@ -230,15 +230,15 @@ describe('arenaLookupStore', () => {
         }
       })
 
-      // Verify cache đã được set
+      // Verify cache has been set
       expect(store.isLeaderboardCached('odin')).toBe(true)
 
-      // Set blockNow > 0 để watch trigger fetchLeaderboardAction
-      // → nó sẽ phát hiện cache hit cho 'odin' và return ngay
+      // Set blockNow > 0 to trigger fetchLeaderboardAction via watch
+      // → it will detect cache hit for 'odin' and return immediately
       blockStore.currentBlockIndex = 100000
       await store.fetchLeaderboard()
 
-      // Cache vẫn còn, seasonId không bị đổi, fetch KHÔNG được gọi
+      // Cache still exists, seasonId unchanged, fetch was NOT called
       expect(store.isLeaderboardCached('odin')).toBe(true)
       expect(store.getCachedLeaderboard('odin')?.seasonId).toBe(99)
       expect(mockFetch).not.toHaveBeenCalled()
@@ -249,7 +249,7 @@ describe('arenaLookupStore', () => {
   // refreshLeaderboard
   // ============================================================
   describe('refreshLeaderboard', () => {
-    it('clear cache + fetch lại', async () => {
+    it('clears cache + re-fetches', async () => {
       const blockStore = useBlockPollingStore()
       blockStore.stopPolling()
       blockStore.currentBlockIndex = 11000000
@@ -269,7 +269,7 @@ describe('arenaLookupStore', () => {
 
       await store.refreshLeaderboard()
       expect(mockFetch).toHaveBeenCalled()
-      expect(store.leaderboardCache['odin']?.seasonId).toBeNull() // cache mới (empty)
+      expect(store.leaderboardCache['odin']?.seasonId).toBeNull() // new cache (empty)
     })
   })
 
@@ -277,14 +277,14 @@ describe('arenaLookupStore', () => {
   // lookupAgent
   // ============================================================
   describe('lookupAgent', () => {
-    it('return null + error khi format sai', async () => {
+    it('returns null + error when format is wrong', async () => {
       const store = useArenaLookupStore()
       const result = await store.lookupAgent('invalid')
       expect(result).toBeNull()
       expect(store.errorLookedUpAgent?.message).toContain('format')
     })
 
-    it('return null + error khi agent không tồn tại', async () => {
+    it('returns null + error when agent does not exist', async () => {
       const store = useArenaLookupStore()
       vi.mocked(global.fetch).mockResolvedValue({
         ok: true,
@@ -293,18 +293,18 @@ describe('arenaLookupStore', () => {
 
       const result = await store.lookupAgent('0x' + 'a'.repeat(40))
       expect(result).toBeNull()
-      expect(store.errorLookedUpAgent?.message).toContain('không tồn tại')
+      expect(store.errorLookedUpAgent?.message).toContain('Agent does not exist')
     })
 
-    it('lấy danh sách avatar đầy đủ', async () => {
+    it('retrieves full avatar list', async () => {
       const store = useArenaLookupStore()
       const mockFetch = vi.mocked(global.fetch)
-      // Address phải đủ 0x + 40 hex để pass isValidAddressFormat
+      // Address must be 0x + 40 hex to pass isValidAddressFormat
       const validAgent = '0x' + 'a'.repeat(40)
       const validAv1 = '0x' + 'b'.repeat(40)
       const validAv2 = '0x' + 'c'.repeat(40)
 
-      // Mock getAgent - lưu ý: key = index (number), value = address (0x...)
+      // Mock getAgent - note: key = index (number), value = address (0x...)
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({
@@ -340,9 +340,9 @@ describe('arenaLookupStore', () => {
       expect(store.lookedUpAgent?.address).toBe(validAgent)
     })
 
-    it('agent có 0 avatar → return []', async () => {
+    it('agent with 0 avatars → returns []', async () => {
       const store = useArenaLookupStore()
-      // Address phải đủ 0x + 40 hex để pass isValidAddressFormat
+      // Address must be 0x + 40 hex to pass isValidAddressFormat
       const validAddr = '0x' + 'a'.repeat(40)
       vi.mocked(global.fetch).mockResolvedValue({
         ok: true,
@@ -368,14 +368,14 @@ describe('arenaLookupStore', () => {
   // lookupAvatar
   // ============================================================
   describe('lookupAvatar', () => {
-    it('return null + error khi format sai', async () => {
+    it('returns null + error when format is wrong', async () => {
       const store = useArenaLookupStore()
       const result = await store.lookupAvatar('invalid')
       expect(result).toBeNull()
       expect(store.errorLookedUpAvatar?.message).toContain('format')
     })
 
-    it('return null + error khi avatar không tồn tại', async () => {
+    it('returns null + error when avatar does not exist', async () => {
       const store = useArenaLookupStore()
       vi.mocked(global.fetch).mockResolvedValue({
         ok: true,
@@ -384,12 +384,12 @@ describe('arenaLookupStore', () => {
 
       const result = await store.lookupAvatar('0x' + 'a'.repeat(40))
       expect(result).toBeNull()
-      expect(store.errorLookedUpAvatar?.message).toContain('không tồn tại')
+      expect(store.errorLookedUpAvatar?.message).toContain('Avatar does not exist')
     })
 
-    it('trả về AvatarInfo khi OK', async () => {
+    it('returns AvatarInfo when OK', async () => {
       const store = useArenaLookupStore()
-      // Address phải đủ 0x + 40 hex để pass isValidAddressFormat
+      // Address must be 0x + 40 hex to pass isValidAddressFormat
       const validAddr = '0x' + 'a'.repeat(40)
       const validAgentAddr = '0x' + 'b'.repeat(40)
       vi.mocked(global.fetch).mockResolvedValue({
@@ -409,7 +409,7 @@ describe('arenaLookupStore', () => {
   // resetManualLookup
   // ============================================================
   describe('resetManualLookup', () => {
-    it('reset tất cả manual state', () => {
+    it('resets all manual state', () => {
       const store = useArenaLookupStore()
       store.lookedUpAgent = { address: '0xaaa', monsterCollectionRound: 0, version: null, avatarAddresses: [] }
       store.lookedUpAvatars = [{ address: '0xav1', agentAddress: '0xaaa', name: 'A', level: 0, exp: 0, characterId: null }]
@@ -431,7 +431,7 @@ describe('arenaLookupStore', () => {
   // computed options
   // ============================================================
   describe('computed options', () => {
-    it('agentLookupOptions map từ lookedUpAvatars', () => {
+    it('agentLookupOptions maps from lookedUpAvatars', () => {
       const store = useArenaLookupStore()
       store.lookedUpAvatars = [
         { address: '0xav1', agentAddress: '0xaaa', name: 'A', level: 100, exp: 0, characterId: null }
@@ -441,7 +441,7 @@ describe('arenaLookupStore', () => {
       expect(store.agentLookupOptions[0].avatarname).toBe('A')
     })
 
-    it('leaderboardOptions map từ leaderboardList với source "leaderboard"', () => {
+    it('leaderboardOptions maps from leaderboardList with source "leaderboard"', () => {
       const store = useArenaLookupStore()
       store.leaderboardList = [
         {
@@ -458,7 +458,7 @@ describe('arenaLookupStore', () => {
   // searchQuery / leaderboardFiltered
   // ============================================================
   describe('searchQuery + leaderboardFiltered', () => {
-    it('search filter theo name (case-insensitive)', () => {
+    it('search filters by name (case-insensitive)', () => {
       const store = useArenaLookupStore()
       store.leaderboardList = [
         { avataraddress: '0x1', avatarname: 'Yuga', agentAddress: '0xaaa', source: 'leaderboard' },
@@ -469,7 +469,7 @@ describe('arenaLookupStore', () => {
       expect(store.leaderboardFiltered[0].avatarname).toBe('Yuga')
     })
 
-    it('search filter theo agent address', () => {
+    it('search filters by agent address', () => {
       const store = useArenaLookupStore()
       store.leaderboardList = [
         { avataraddress: '0x1', avatarname: 'Yuga', agentAddress: '0xaaa', source: 'leaderboard' },
@@ -480,7 +480,7 @@ describe('arenaLookupStore', () => {
       expect(store.leaderboardFiltered[0].avatarname).toBe('Luna')
     })
 
-    it('search rỗng → trả về tất cả', () => {
+    it('empty search → returns all', () => {
       const store = useArenaLookupStore()
       store.leaderboardList = [
         { avataraddress: '0x1', avatarname: 'Yuga', agentAddress: '0xaaa', source: 'leaderboard' },

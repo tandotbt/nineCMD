@@ -15,7 +15,7 @@ describe('mimirGraphql', () => {
   // graphqlQuery (helper)
   // ============================================================
   describe('graphqlQuery', () => {
-    it('returns data khi OK', async () => {
+    it('returns data when OK', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ data: { foo: 1 } })
@@ -24,7 +24,7 @@ describe('mimirGraphql', () => {
       expect(result).toEqual({ foo: 1 })
     })
 
-    it('returns null khi response không có data', async () => {
+    it('returns null when response has no data', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({})
@@ -33,7 +33,7 @@ describe('mimirGraphql', () => {
       expect(result).toBeNull()
     })
 
-    it('throws khi có errors trong response', async () => {
+    it('throws when response has errors', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ errors: [{ message: 'Server error' }] })
@@ -41,7 +41,7 @@ describe('mimirGraphql', () => {
       await expect(graphqlQuery('https://m', 'q')).rejects.toThrow('Server error')
     })
 
-    it('nối nhiều errors thành 1 string', async () => {
+    it('joins multiple errors into 1 string', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -51,12 +51,12 @@ describe('mimirGraphql', () => {
       await expect(graphqlQuery('https://m', 'q')).rejects.toThrow('Err1; Err2')
     })
 
-    it('throws khi HTTP error', async () => {
+    it('throws on HTTP error', async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500 })
       await expect(graphqlQuery('https://m', 'q')).rejects.toThrow('HTTP 500')
     })
 
-    it('gửi POST với Content-Type json', async () => {
+    it('sends POST with Content-Type json', async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ data: {} })
@@ -72,10 +72,10 @@ describe('mimirGraphql', () => {
   })
 
   // ============================================================
-  // getAvatars (build query động)
+  // getAvatars (dynamic query build)
   // ============================================================
   describe('getAvatars', () => {
-    it('build query với 0 avatar → return [] (không gọi fetch)', async () => {
+    it('builds query with 0 avatar → returns [] (no fetch called)', async () => {
       const mockFetch = vi.fn()
       global.fetch = mockFetch
       const result = await getAvatars('https://mimir', [])
@@ -83,7 +83,7 @@ describe('mimirGraphql', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
-    it('build query với 1 avatar → chỉ có avatar_0, inline address', async () => {
+    it('builds query with 1 avatar → only avatar_0, inline address', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -95,12 +95,12 @@ describe('mimirGraphql', () => {
       expect(result[0]?.address).toBe('0xaaa')
       const mockFetch = vi.mocked(global.fetch)
       const calledBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string)
-      // Inline address trực tiếp vào query (KHÔNG dùng variables)
+      // Inline address directly into query (no variables used)
       expect(calledBody.query).toContain('avatar_0: avatar(address: "0xaaa")')
       expect(calledBody.variables).toEqual({})
     })
 
-    it('build query với 3 avatar → có avatar_0, avatar_1, avatar_2, inline address', async () => {
+    it('builds query with 3 avatars → has avatar_0, avatar_1, avatar_2, inline address', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -120,7 +120,7 @@ describe('mimirGraphql', () => {
       expect(calledBody.variables).toEqual({})
     })
 
-    it('filter bỏ item null/undefined', async () => {
+    it('filters out null/undefined items', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -135,7 +135,7 @@ describe('mimirGraphql', () => {
       expect(result[0]?.address).toBe('0x1')
     })
 
-    it('returns [] khi data null', async () => {
+    it('returns [] when data is null', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ data: null })
@@ -149,7 +149,7 @@ describe('mimirGraphql', () => {
   // getAgent
   // ============================================================
   describe('getAgent', () => {
-    it('trả về null khi agent không tồn tại', async () => {
+    it('returns null when agent does not exist', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ data: { agent: null } })
@@ -158,8 +158,8 @@ describe('mimirGraphql', () => {
       expect(result).toBeNull()
     })
 
-    it('trả về AgentInfo khi OK', async () => {
-      // Lưu ý: key = index (number), value = address (0x...)
+    it('returns AgentInfo when OK', async () => {
+      // Note: key = index (number), value = address (0x...)
       const agent = {
         address: '0xaaa',
         monsterCollectionRound: 0,
@@ -175,7 +175,7 @@ describe('mimirGraphql', () => {
       expect(result?.avatarAddresses).toHaveLength(1)
     })
 
-    it('throws khi có errors', async () => {
+    it('throws when there are errors', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ errors: [{ message: 'Bad query' }] })
@@ -188,7 +188,7 @@ describe('mimirGraphql', () => {
   // getAvatar (single)
   // ============================================================
   describe('getAvatar (single)', () => {
-    it('trả về avatar_0', async () => {
+    it('returns avatar_0', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -199,7 +199,7 @@ describe('mimirGraphql', () => {
       expect(result?.agentAddress).toBe('0x2')
     })
 
-    it('trả về null khi không tồn tại', async () => {
+    it('returns null when not found', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ data: { avatar_0: null } })
@@ -207,7 +207,7 @@ describe('mimirGraphql', () => {
       expect(await getAvatar('https://mimir', '0xinvalid')).toBeNull()
     })
 
-    it('throws khi HTTP error', async () => {
+    it('throws on HTTP error', async () => {
       global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 503 })
       await expect(getAvatar('https://mimir', '0x1')).rejects.toThrow('HTTP 503')
     })

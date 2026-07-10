@@ -1,5 +1,5 @@
 /**
- * globalCsv Tests – Kiểm tra globalCsv store (pattern GLOBAL)
+ * globalCsv Tests – Tests for globalCsv store (GLOBAL pattern)
  *
  * Coverage:
  * 1. nameService: buildLocalizedCsvUrl, fetchLocalizedSheet, fetchAllLocalizedSheets,
@@ -7,11 +7,11 @@
  * 2. globalCsv store: state, loadAll (Promise.allSettled), localeColumn, getters,
  *    getItemName/getSkillName/getRemoteCsvRow, retry, clearData
  *
- * Pattern GLOBAL đã thay thế per-planet pattern cũ:
- * - KHÔNG có per-planet cache
- * - KHÔNG watch planet
- * - Promise.allSettled: 1 source fail không ảnh hưởng source khác
- * - KHÔNG retry bắt buộc (kiểu thứ 3 cần loading)
+ * GLOBAL pattern replaces the old per-planet pattern:
+ * - No per-planet cache
+ * - No planet watcher
+ * - Promise.allSettled: 1 source failure does not affect other sources
+ * - No mandatory retry (3rd type needs loading)
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -33,7 +33,7 @@ import {
 import type { LocalizedSheetData, RemoteCsvData } from '../types/i18nCsv'
 
 // ============================================================
-// Mock localStorage (cần thiết vì appSettings dùng localStorage)
+// Mock localStorage (needed because appSettings uses localStorage)
 // ============================================================
 const localStorageStore: Record<string, string> = {}
 const localStorageMock = {
@@ -350,7 +350,7 @@ describe('globalCsv Store (GLOBAL pattern)', () => {
       const store = useGlobalCsvStore()
       const result = await store.loadAll()
 
-      expect(result).toBe(true) // Có data từ remote
+      expect(result).toBe(true) // Has data from remote
       expect(store.isLoaded).toBe(true)
       expect(store.itemNameCount).toBe(0)
       expect(store.skillNameCount).toBe(0)
@@ -403,10 +403,10 @@ describe('globalCsv Store (GLOBAL pattern)', () => {
       await store.loadAll()
       const callCount = fetchSpy.mock.calls.length
 
-      // Gọi lần 2
+      // Call 2nd time
       const result = await store.loadAll()
       expect(result).toBe(true)
-      expect(fetchSpy.mock.calls.length).toBe(callCount) // Không fetch thêm
+      expect(fetchSpy.mock.calls.length).toBe(callCount) // No additional fetch
     })
 
     it('updates lastFetchTime on success', async () => {
@@ -556,7 +556,7 @@ describe('globalCsv Store (GLOBAL pattern)', () => {
   describe('GLOBAL behavior (no per-planet)', () => {
     it('does not have switchPlanet or per-planet cache', () => {
       const store = useGlobalCsvStore()
-      // Không có method switchPlanet trong globalCsv
+      // No switchPlanet method in globalCsv
       expect((store as unknown as { switchPlanet?: unknown }).switchPlanet).toBeUndefined()
     })
 

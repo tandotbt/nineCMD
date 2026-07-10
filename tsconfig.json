@@ -14,8 +14,7 @@
     "jsx": "preserve",
     "lib": ["DOM", "ESNext", "ESNext.AsyncIterable"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@ts/*": ["./src-ts/*"]
+      "@/*": ["./src-ts/*"]
     },
     "types": ["vite/client"],
     "allowJs": true,
@@ -25,6 +24,6 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*", "src-ts/**/*", "src/**/*.vue", "src-ts/**/*.vue"],
+  "include": ["src-ts/**/*", "src-ts/**/*.vue"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "**/*.test.js", "**/*.spec.js"]
 }

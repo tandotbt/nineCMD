@@ -314,7 +314,15 @@ async function onSubmit(): Promise<void> {
 
   isSubmitting.value = true
   try {
-    // TODO: call actual login action (blockchain connection, ...)
+    // Save addresses to localStorage for avatar-data page
+    try {
+      localStorage.setItem(LOGIN_PREFILL_AGENT, formValue.value.agentAddress)
+      localStorage.setItem(LOGIN_PREFILL_AVATAR, formValue.value.avatarAddress)
+    } catch {
+      // ignore (private mode / quota)
+    }
+    // Navigate to avatar-data page
+    router.push({ name: 'avatar-data' })
   } finally {
     isSubmitting.value = false
   }

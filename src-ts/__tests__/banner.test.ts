@@ -1,5 +1,5 @@
 /**
- * Banner Tests – Kiểm tra bannerService + banner store
+ * Banner Tests – Tests for bannerService + banner store
  *
  * Coverage:
  * 1. bannerService: buildBannerImageUrl, isBannerActive, filterActiveBanners, fetchBanners
@@ -16,7 +16,7 @@ import {
   transformBannerItem
 } from '../utilities/bannerService'
 import { useBannerStore } from '../stores/banner'
-import { LINK_BANNER, URL_GITHUB_LIVEASSETS } from '@/utilities/constants'
+import { LINK_BANNER, URL_GITHUB_LIVEASSETS } from '../utilities/constants'
 import type { BannerItem } from '../types/i18nCsv'
 
 // ============================================================

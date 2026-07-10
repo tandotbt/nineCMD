@@ -8,7 +8,7 @@
  */
 
 // ============================================================
-// Sheet Name Union Type (21 sheets, bỏ ArenaSheet)
+// Sheet Name Union Type (21 sheets, excluding ArenaSheet)
 // ============================================================
 
 export type CsvSheetName =
@@ -41,7 +41,7 @@ export type CsvSheetName =
 /** A single CSV row – values can be string or number (after parsing) */
 export type CsvRow = Record<string, string | number>
 
-/** Dữ liệu 1 sheet – keyed by keyColumn value */
+/** Single sheet data – keyed by keyColumn value */
 export type CsvSheetData = Record<string | number, CsvRow>
 
 /** Metadata for a sheet: key column, unique flag, description */
@@ -50,7 +50,7 @@ export interface CsvSheetMeta {
   keyColumn: string
   /** If true, key is not unique → use `${key}_${rowIndex}` */
   unique?: boolean
-  /** Mô tả ngắn */
+  /** Short description */
   description?: string
 }
 
@@ -65,7 +65,7 @@ export type AllSheetsData = Partial<Record<CsvSheetName, CsvSheetData>>
 export interface CsvPersistedData {
   /** Planet name when data was fetched */
   planet?: string
-  /** Timestamp fetch cuối */
+  /** Last fetch timestamp */
   lastFetchTime?: number
   /** JSON serialized sheets */
   sheetsJson?: string

@@ -1,5 +1,5 @@
 /**
- * Logger Tests – Kiểm tra hệ thống logging
+ * Logger Tests – Tests for the logging system
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'

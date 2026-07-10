@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { createI18n } from 'vue-i18n'
-import en from '@/i18n/locales/en'
-import vi from '@/i18n/locales/vi'
-import { DEFAULT_LOCALE, FALLBACK_LOCALE, CONFIG_i18n_LANGUAGES } from '@/utilities/constants'
+import en from '../i18n/locales/en.json'
+import vi from '../i18n/locales/vi.json'
+import { DEFAULT_LOCALE, FALLBACK_LOCALE, CONFIG_i18n_LANGUAGES } from '../utilities/constants'
 
 describe('i18n Language Switching', () => {
   let i18n: ReturnType<typeof createI18n>

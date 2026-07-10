@@ -232,7 +232,7 @@ describe('blockPolling Store', () => {
       })
       await store.refresh()
 
-      expect(store.error).toContain('Không nhận được block data')
+      expect(store.error).toContain('No block data received from Mimir')
     })
 
     it('should use heimdall mimir URL when planet is heimdall', async () => {

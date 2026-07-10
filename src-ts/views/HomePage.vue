@@ -8,8 +8,8 @@
       item-responsive
       responsive="screen"
     >
-      <n-grid-item :span="8" :suffix="false"> </n-grid-item>
-      <n-grid-item :span="4">
+      <n-grid-item :span="9" :suffix="false"> </n-grid-item>
+      <n-grid-item :span="3">
         <n-carousel :autoplay="true" :interval="2000" :space-between="0" draggable>
           <a
             v-for="banner in bannerStore.banners"

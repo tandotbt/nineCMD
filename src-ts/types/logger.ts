@@ -1,14 +1,14 @@
 /**
- * Logger Types – Types cho hệ thống logging của NineCMD
+ * Logger Types – Type definitions for NineCMD logging system
  *
- * Logger giúp debug dễ dàng hơn với:
- * - Module prefix thống nhất
+ * Logger helps debugging with:
+ * - Unified module prefix
  * - Log level filtering (debug/info/warn/error)
- * - Log history lưu trong memory (hiển thị trong Settings tab)
+ * - Log history stored in memory (displayed in Settings tab)
  * - Format: [HH:MM:SS] [module] LEVEL: message
  */
 
-/** Log levels – từ thấp đến cao */
+/** Log levels – from lowest to highest */
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 /** Numeric log levels for comparison */
@@ -33,7 +33,7 @@ export interface LogEntry {
 
 /** Logger configuration */
 export interface LoggerConfig {
-  /** Tên module: 'appSettings', 'configURL', 'blockPolling', etc. */
+  /** Module name: 'appSettings', 'configURL', 'blockPolling', etc. */
   module: string
   /** Minimum level to output (default: 'debug') */
   level?: LogLevel

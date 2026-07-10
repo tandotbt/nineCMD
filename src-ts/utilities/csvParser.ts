@@ -45,7 +45,7 @@ export function decodeBase64Csv(base64String: string): string {
 }
 
 /**
- * Parse CSV string thành CsvSheetData (keyed by keyColumn)
+ * Parse CSV string into CsvSheetData (keyed by keyColumn)
  *
  * Ref: .REF/vue3-tool/src/stores/initializeData.js: parseCsvSheet()
  * - Skip empty lines and lines starting with '_'

@@ -8,7 +8,7 @@
  *
  * Ref:
  * - src/utilities/constants.js: V_GITHUB_NINECHRONICLES, URL_GITHUB_NineChronicles
- * - src/stores/configURL.js: urlItemNameSheet, urlSkillNameSheet (logic cũ)
+ * - src/stores/configURL.js: urlItemNameSheet, urlSkillNameSheet (legacy logic)
  * - src-ts/utilities/csvParser.ts: parseCsvSheet (case-insensitive key column)
  */
 
